@@ -158,7 +158,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <script>
-const SHEET_ID = ''1mNtn9OB2dWK39WqVUZXcN94Y4Rwo3NBxhq7x_vN6E38'';
+const SHEET_ID = '1mNtn9OB2dWK39WqVUZXcN94Y4Rwo3NBxhq7x_vN6E38';
 const TILTIFY_CAMPAIGN_ID = '653378fc-db12-45ed-8192-dafadf84a642';
 const TILTIFY_TOKEN = '5f7aefb9af59b1a940247c674e602b67c87aa72642423d7c7b467eb57b785c15';
 const TILTIFY_BASE = 'https://v5api.tiltify.com';
@@ -184,7 +184,8 @@ function genAvatar(name,size){
 }
 
 function av(url,name,size){
-  return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(name,size*2))+'" onerror="this.src=genAvatar(''+name.replace(/'/g,'')+'','+size*2+')">';
+  var n=name.replace(/'/g,'');
+  return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(name,size*2))+'" onerror="this.src=genAvatar(\'' +n+ '\','+size*2+')">';
 }
 
 async function sheetFetch(tabName){
