@@ -14,7 +14,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .hero-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--white);box-shadow:0 0 0 3px var(--cream2)}
 .donate-btn{display:inline-block;background:var(--red);color:#fff;text-decoration:none;border-radius:999px;padding:0.85rem 2.5rem;font-family:"Syne",sans-serif;font-size:1.1rem;font-weight:800;border:none;cursor:pointer;letter-spacing:0.01em}
 .donate-btn:hover{background:var(--dark-red)}
-.raised-num{font-family:"Syne",sans-serif;font-size:clamp(2.5rem,7vw,4rem);font-weight:800;color:#111;line-height:1}
+.raised-num{font-family:"Syne",sans-serif;font-size:clamp(2.5rem,7vw,4rem);font-weight:800;color:#111;line-height:1;font-variant-numeric:tabular-nums}
 .raised-word{font-family:"Syne",sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:800;color:#111;line-height:1}
 .prog-bg{background:var(--cream2);border-radius:999px;height:10px;overflow:hidden;margin-bottom:0.5rem}
 .prog-fill{background:var(--red);height:10px;border-radius:999px;transition:width 1.4s cubic-bezier(.4,0,.2,1);width:0%}
@@ -55,6 +55,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .live-amt{font-family:"Syne",sans-serif;font-size:15px;font-weight:800;color:var(--red)}
 .live-time{font-size:11px;color:#ccc;margin-top:1px;text-align:right}
 .new-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastUp{0%{opacity:0;transform:translateY(0) scale(0.8)}15%{opacity:1;transform:translateY(-8px) scale(1)}85%{opacity:1;transform:translateY(-24px) scale(1)}100%{opacity:0;transform:translateY(-36px) scale(0.9)}}
+.donation-toast{font-family:Syne,sans-serif;font-size:1rem;font-weight:800;color:#2a7a3a;background:#edfaf1;border:1.5px solid #b6e8c4;border-radius:999px;padding:4px 12px;white-space:nowrap;animation:toastUp 2.4s ease forwards}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+.live-item-new{animation:fadeInDown 0.4s ease forwards}
+.live-item-out{animation:fadeOut 0.3s ease forwards}
 .ig-wrap{border-radius:14px;overflow:hidden;background:var(--cream2);border:1px solid var(--border)}
 #ig-scroll::-webkit-scrollbar{display:none}
 #live-feed::-webkit-scrollbar{display:none}
@@ -85,9 +91,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div></div>
 
 <div style="max-width:700px;margin:0 auto;padding:0 1.5rem;text-align:center">
-  <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;flex-wrap:wrap">
+  <div style="position:relative;display:inline-block">
+  <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;white-space:nowrap">
     <span class="raised-num" id="raised">$0</span>
     <span class="raised-word">Raised</span>
+  </div>
+  <div id="donation-toast-wrap" style="position:absolute;top:0;right:-10px;pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px"></div>
   </div>
   <div class="prog-bg"><div class="prog-fill" id="pfill"></div></div>
   <div style="display:flex;justify-content:space-between;font-size:12px;color:#bbb;margin-bottom:2rem">
@@ -158,7 +167,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
     <div class="section-label" style="margin-bottom:0">Live donations</div>
     <a href="/donations" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">View all →</a>
   </div>
-  <div style="display:flex;flex-direction:column;gap:9px;max-height:600px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none" id="live-feed">
+  <div style="display:flex;flex-direction:column;gap:9px" id="live-feed">
     <div style="text-align:center;color:#ccc;font-size:13px;padding:2rem 0">Donations appear here live</div>
   </div>
 </div>
@@ -383,15 +392,35 @@ async function loadDonations(){
     const newOnes=!firstLoad?list.filter(x=>!knownIds.has(x.id)):[];
     list.forEach(x=>{knownIds.add(x.id);if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
     const feed=document.getElementById('live-feed');
-    feed.innerHTML=list.slice(0,50).map(x=>{
+    function makeFeedItem(x,isNew){
       const name=filterText(x.donor_name)||'Anonymous';
       const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
       const msg=filterText(x.donor_comment)||'';
-      const isNew=newOnes.some(n=>n.id===x.id);
       const ts=x.completed_at||x.created_at||'';
-      let t='';if(ts){try{const dt=new Date(ts);t=dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}catch(e){}}
-      return '<div class="live-item">'+av(x.donor?.avatar?.src,name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+name+(isNew?'<span class="new-badge">New</span>':'')+' </div>'+(msg?'<div class="live-msg">"'+msg+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+' </div></div>';
-    }).join('');
+      let t='';if(ts){try{const dt=new Date(ts);t=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}catch(e){}}
+      const el=document.createElement('div');
+      el.className='live-item'+(isNew?' live-item-new':'');
+      el.innerHTML=av(x.donor?.avatar?.src,name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+name+(isNew?'<span class="new-badge">New</span>':'')+' </div>'+(msg?'<div class="live-msg">"'+msg+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+' </div>';
+      return el;
+    }
+    if(firstLoad){
+      // Initial render: show 8 most recent, no animation
+      feed.innerHTML='';
+      list.slice(0,8).forEach(x=>feed.appendChild(makeFeedItem(x,false)));
+    } else if(newOnes.length){
+      // Animate new ones in at top, fade out bottom if over 8
+      for(const x of newOnes.slice(0,8)){
+        const el=makeFeedItem(x,true);
+        feed.insertBefore(el,feed.firstChild);
+        if(x.amount?.value) showDonationToast(x.amount.value);
+      }
+      // Trim to 8, fade out extras
+      while(feed.children.length>8){
+        const last=feed.lastChild;
+        last.classList.add('live-item-out');
+        setTimeout(()=>last.remove(),300);
+      }
+    }
     firstLoad=false;
   }catch(e){console.error('Donations error',e);}
 }
@@ -453,19 +482,32 @@ async function loadLeaderboard(){
   }catch(e){console.error('Leaderboard error',e);}
 }
 
-function animateCount(target){
+function showDonationToast(amt){
+  const wrap=document.getElementById('donation-toast-wrap');
+  if(!wrap)return;
+  const el=document.createElement('div');
+  el.className='donation-toast';
+  el.textContent='+'+fmt(Math.round(parseFloat(amt)*100));
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),2500);
+}
+let _raisedCurrent=0,_raisedRaf=null;
+function animateCount(target){animateTo(target,0);}
+function animateTo(target,fromOverride){
   const el=document.getElementById('raised');
-  const duration=1800;
+  if(_raisedRaf)cancelAnimationFrame(_raisedRaf);
+  const startVal=fromOverride!==undefined?fromOverride:_raisedCurrent;
+  if(startVal===target){el.textContent=fmt(target);return;}
+  const duration=target===0?0:Math.min(1800,Math.max(600,Math.abs(target-startVal)/100));
   const start=performance.now();
-  const startVal=0;
   function step(now){
     const elapsed=now-start;
     const progress=Math.min(elapsed/duration,1);
-    // ease out expo
     const eased=progress===1?1:1-Math.pow(2,-10*progress);
-    const current=Math.round(startVal+(target-startVal)*eased);
-    el.textContent=fmt(current);
-    if(progress<1)requestAnimationFrame(step);
+    _raisedCurrent=Math.round(startVal+(target-startVal)*eased);
+    el.textContent=fmt(_raisedCurrent);
+    if(progress<1){_raisedRaf=requestAnimationFrame(step);}
+    else{_raisedCurrent=target;_raisedRaf=null;}
   }
   requestAnimationFrame(step);
 }
@@ -497,15 +539,30 @@ const DEMO_NAMES = [
   {name:'Devon H.',comment:'',avatar:'https://i.pravatar.cc/150?img=17'},
   {name:'Zoe A.',comment:'This brought me to tears. Thank you.',avatar:'https://i.pravatar.cc/150?img=29'},
   {name:'Noah F.',comment:'',avatar:'https://i.pravatar.cc/150?img=60'},
+  {name:'Mia C.',comment:'Screaming crying throwing up (in a good way)',avatar:'https://i.pravatar.cc/150?img=5'},
+  {name:'Jordan L.',comment:'',avatar:'https://i.pravatar.cc/150?img=53'},
+  {name:'Riley B.',comment:'Pedal faster!!',avatar:'https://i.pravatar.cc/150?img=9'},
+  {name:'Avery S.',comment:'',avatar:'https://i.pravatar.cc/150?img=21'},
+  {name:'Casey M.',comment:'Donating in honor of my sister.',avatar:'https://i.pravatar.cc/150?img=36'},
+  {name:'Quinn T.',comment:'',avatar:'https://i.pravatar.cc/150?img=57'},
+  {name:'Blake R.',comment:'This is insane lol proud of u',avatar:'https://i.pravatar.cc/150?img=13'},
+  {name:'Harper J.',comment:'',avatar:'https://i.pravatar.cc/150?img=41'},
+  {name:'Sage D.',comment:'From one cyclist to another — godspeed',avatar:'https://i.pravatar.cc/150?img=23'},
+  {name:'Drew K.',comment:'',avatar:'https://i.pravatar.cc/150?img=65'},
 ];
-const DEMO_AMOUNTS = [25000,8500,3200,2100,1750,1200,900,500,250,100];
+const DEMO_AMOUNTS = [25000,8500,3200,2100,1750,1200,900,500,250,100,75,60,50,40,35,25,20,15,10,5];
 
 function loadDemoMode(){
   // Progress bar
   const raised=6284200; // $62,842 in cents
-  const goal=1000000;
+  const goal=100000000; // $1,000,000 in cents
   animateCount(raised);
   document.getElementById('pfill').style.width=Math.min(100,(raised/goal)*100)+'%';
+  // Show a demo toast burst after the number finishes animating
+  setTimeout(()=>{
+    const demoAmts=[4500,1200,250];
+    demoAmts.forEach((a,i)=>setTimeout(()=>showDonationToast(a/100),i*700));
+  },1900);
   document.getElementById('goal-txt').textContent=fmt(goal*100);
 
   // Ticker
@@ -519,7 +576,12 @@ function loadDemoMode(){
   // Live feed
   const feed=document.getElementById('live-feed');
   const comments=['So proud of you!!','Mental health matters 💙','Ride safe Tyler!','This is incredible','Crying rn lol ❤️','GO TYLER!!!','You are changing lives','Best idea ever','Sending love from Chicago!','Cannot wait to watch!'];
-  const dates=['May 12','May 11','May 11','May 10','May 10','May 9','May 9','May 8','May 8','May 7'];
+  // Spread demo donations across the last hour
+  const now=new Date();
+  const dates=DEMO_NAMES.map((_,i)=>{
+    const d=new Date(now.getTime()-i*Math.floor(3600000/DEMO_NAMES.length));
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  });
   feed.innerHTML=DEMO_NAMES.map((d,i)=>{
     const amt=fmt(DEMO_AMOUNTS[i]);
     const msg=comments[i]||'';
@@ -590,7 +652,7 @@ if(localStorage.getItem('tandem_demo')==='1'){
   loadSettings().then(()=>{refresh();loadVideos();});
 }
 loadBanner();
-setInterval(refresh,600000);
+setInterval(refresh,10000);
 </script>
 </body>
 </html>
