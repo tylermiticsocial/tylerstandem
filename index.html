@@ -305,7 +305,7 @@ async function sheetFetch(tabName){
     cols.push(cur);
     return cols;
   }
-  const lines=txt.trim().split('\n');
+  const lines=txt.trim().split('\n').map(l=>l.replace(/\r/g,''));
   const rows=lines.slice(1).map(line=>{
     const cols=parseCSVLine(line);
     return {c:cols.map(v=>({v:v===''?null:v}))};
