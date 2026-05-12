@@ -307,6 +307,7 @@ async function loadSettings(){
       const k=r.c[0]?.v;const v=r.c[1]?.v;
       if(k&&k!=='Key'&&v)data[k]=v;
     });
+    console.log('[Settings loaded]', data);
     if(data.hero_photo){document.getElementById('hero-photo-wrap').innerHTML='<img class="hero-photo" src="'+data.hero_photo+'" alt="Tyler">';}
     // ride-photo-wrap replaced by map
     if(data.logline){document.getElementById('logline').textContent=data.logline;}
