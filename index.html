@@ -31,7 +31,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .inc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:stretch}
 .inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
 .inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
-.lb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.lb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.lb-grid .lb-card:last-child:nth-child(4n+1){grid-column:1 / 3;max-width:calc(50% - 5px);margin:0 auto;width:100%}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
 .podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
 .podium-avatar{border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
@@ -56,8 +56,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .live-time{font-size:11px;color:#ccc;margin-top:1px;text-align:right}
 .new-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
 @keyframes fadeInDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes toastUp{0%{opacity:0;transform:translateY(0) scale(0.8)}15%{opacity:1;transform:translateY(-8px) scale(1)}85%{opacity:1;transform:translateY(-24px) scale(1)}100%{opacity:0;transform:translateY(-36px) scale(0.9)}}
-.donation-toast{font-family:Syne,sans-serif;font-size:1rem;font-weight:800;color:#2a7a3a;background:#edfaf1;border:1.5px solid #b6e8c4;border-radius:999px;padding:4px 12px;white-space:nowrap;animation:toastUp 2.4s ease forwards}
 @keyframes fadeOut{from{opacity:1}to{opacity:0}}
 .live-item-new{animation:fadeInDown 0.4s ease forwards}
 .live-item-out{animation:fadeOut 0.3s ease forwards}
@@ -91,12 +89,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div></div>
 
 <div style="max-width:700px;margin:0 auto;padding:0 1.5rem;text-align:center">
-  <div style="position:relative;display:inline-block">
   <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;white-space:nowrap">
     <span class="raised-num" id="raised">$0</span>
     <span class="raised-word">Raised</span>
-  </div>
-  <div id="donation-toast-wrap" style="position:absolute;top:0;right:-10px;pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px"></div>
   </div>
   <div class="prog-bg"><div class="prog-fill" id="pfill"></div></div>
   <div style="display:flex;justify-content:space-between;font-size:12px;color:#bbb;margin-bottom:2rem">
@@ -379,6 +374,9 @@ async function loadDonations(){
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
     if(!list.length)return;
     document.getElementById('ticker-section').style.display='block';
+  // Donor count from config
+  const donorCountEl=document.getElementById('donor-count');
+  if(donorCountEl){donorCountEl.textContent=(_cfg.donors||247).toLocaleString()+' donors';}
     const track=document.getElementById('ticker-track');
     const html=list.map(x=>{
       const name=filterText(x.donor_name)||'Anonymous';
@@ -482,15 +480,7 @@ async function loadLeaderboard(){
   }catch(e){console.error('Leaderboard error',e);}
 }
 
-function showDonationToast(amt){
-  const wrap=document.getElementById('donation-toast-wrap');
-  if(!wrap)return;
-  const el=document.createElement('div');
-  el.className='donation-toast';
-  el.textContent='+'+fmt(Math.round(parseFloat(amt)*100));
-  wrap.appendChild(el);
-  setTimeout(()=>el.remove(),2500);
-}
+function showDonationToast(amt){}
 let _raisedCurrent=0,_raisedRaf=null;
 function animateCount(target){animateTo(target,0);}
 function animateTo(target,fromOverride){
@@ -553,16 +543,19 @@ const DEMO_NAMES = [
 const DEMO_AMOUNTS = [25000,8500,3200,2100,1750,1200,900,500,250,100,75,60,50,40,35,25,20,15,10,5];
 
 function loadDemoMode(){
-  // Progress bar
-  const raised=6284200; // $62,842 in cents
+  // Read config from admin panel
+  let _cfg={};try{_cfg=JSON.parse(localStorage.getItem('tandem_demo_cfg')||'{}');}catch(e){}
+  const raisedDollars=_cfg.raised||62842;
+  const raised=Math.round(raisedDollars*100);
   const goal=100000000; // $1,000,000 in cents
+  // Apply comments to top 3
+  if(_cfg.c1)DEMO_NAMES[0].comment=_cfg.c1;
+  if(_cfg.c2)DEMO_NAMES[1].comment=_cfg.c2;
+  if(_cfg.c3)DEMO_NAMES[2].comment=_cfg.c3;
+  _demoRaisedCents=raised;
   animateCount(raised);
   document.getElementById('pfill').style.width=Math.min(100,(raised/goal)*100)+'%';
-  // Show a demo toast burst after the number finishes animating
-  setTimeout(()=>{
-    const demoAmts=[4500,1200,250];
-    demoAmts.forEach((a,i)=>setTimeout(()=>showDonationToast(a/100),i*700));
-  },1900);
+
   document.getElementById('goal-txt').textContent=fmt(goal*100);
 
   // Ticker
@@ -647,12 +640,47 @@ if(localStorage.getItem('tandem_demo')==='1'){
   badge.textContent='🎭 Demo Mode';
   badge.style.cssText='position:fixed;bottom:12px;right:12px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;z-index:9999;letter-spacing:0.05em';
   document.body.appendChild(badge);
+  let _demoRaisedCents=0; // set by loadDemoMode
   loadSettings().then(()=>{loadVideos();loadDemoMode();});
+  // Fake refresh: simulate new donations every 8s
+  const FAKE_DONORS=[
+    {name:'Taylor R.',amt:5000,comment:'Let\'s gooo!!',avatar:'https://i.pravatar.cc/150?img=3'},
+    {name:'Sam P.',amt:2500,comment:'',avatar:'https://i.pravatar.cc/150?img=8'},
+    {name:'Chris V.',amt:10000,comment:'Incredible cause 💙',avatar:'https://i.pravatar.cc/150?img=15'},
+    {name:'Jamie L.',amt:500,comment:'',avatar:'https://i.pravatar.cc/150?img=22'},
+    {name:'Morgan A.',amt:7500,comment:'Ride for all of us!',avatar:'https://i.pravatar.cc/150?img=33'},
+    {name:'River S.',amt:1000,comment:'',avatar:'https://i.pravatar.cc/150?img=48'},
+  ];
+  let _fakeDemoIdx=0,_fakeDemoRaised=_demoRaisedCents;
+  setInterval(()=>{
+    const donor=FAKE_DONORS[_fakeDemoIdx%FAKE_DONORS.length];
+    _fakeDemoIdx++;
+    // Toast
+    showDonationToast(donor.amt/100);
+    // Tick up the number
+    _fakeDemoRaised+=donor.amt;
+    animateTo(_fakeDemoRaised);
+    // Tick progress bar
+    document.getElementById('pfill').style.width=Math.min(100,(_fakeDemoRaised/100000000)*100)+'%';
+    if(donorCountEl){donorCountEl.textContent=((parseInt(donorCountEl.textContent)||247)+1).toLocaleString()+' donors';}
+    // Add to feed
+    const feed=document.getElementById('live-feed');
+    const el=document.createElement('div');
+    el.className='live-item live-item-new';
+    const now=new Date();
+    const t=now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    el.innerHTML=av(donor.avatar,donor.name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+donor.name+' <span class="new-badge">New</span></div>'+(donor.comment?'<div class="live-msg">"'+donor.comment+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+fmt(donor.amt)+'</div><div class="live-time">'+t+'</div></div>';
+    feed.insertBefore(el,feed.firstChild);
+    while(feed.children.length>8){const last=feed.lastChild;last.classList.add('live-item-out');setTimeout(()=>last.remove(),300);}
+    // Also add to ticker
+    const track=document.getElementById('ticker-track');
+    if(track){const span=document.createElement('span');span.className='t-item';span.innerHTML='<span style="font-size:14px;font-weight:500;color:#333">'+donor.name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+fmt(donor.amt)+'</span><div class="t-sep"></div>';track.prepend(span);}
+  },8000);
 } else {
   loadSettings().then(()=>{refresh();loadVideos();});
+  setInterval(refresh,10000);
 }
 loadBanner();
-setInterval(refresh,10000);
 </script>
 </body>
 </html>

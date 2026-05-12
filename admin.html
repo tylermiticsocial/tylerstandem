@@ -147,7 +147,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
       <h2>🎭 Demo Mode</h2>
       <span style="font-size:11px;color:#bbb">Fills the site with fake data — no API calls</span>
     </div>
-    <p style="font-size:13px;color:#888;margin-bottom:1rem;line-height:1.6">Populates the leaderboard, live donations, progress bar, and ticker with realistic fake data so you can show sponsors and partners what the site looks like when it's live.</p>
+    <p style="font-size:13px;color:#888;margin-bottom:1.2rem;line-height:1.6">Populates the leaderboard, live donations, progress bar, and ticker with realistic fake data so you can show sponsors and partners what the site looks like when it's live.</p>
+    <div class="two" style="margin-bottom:0.9rem">
+      <div class="field"><label>Total raised ($)</label><input id="d-raised" type="number" placeholder="62842" value="62842"><div class="hint">Shown as the main fundraising number</div></div>
+      <div class="field"><label>Total donors</label><input id="d-donors" type="number" placeholder="247" value="247"><div class="hint">Shown in the donations count</div></div>
+    </div>
+    <div class="field" style="margin-bottom:0.9rem"><label>#1 donor comment</label><input id="d-c1" placeholder="So proud of you Tyler! Ride safe!" value="So proud of you Tyler! Ride safe!"></div>
+    <div class="field" style="margin-bottom:0.9rem"><label>#2 donor comment</label><input id="d-c2" placeholder="Mental health matters. Let's go!!" value="Mental health matters. Let's go!!"></div>
+    <div class="field" style="margin-bottom:1.2rem"><label>#3 donor comment</label><input id="d-c3" placeholder="This is the most Tyler thing ever lol 🚲" value="This is the most Tyler thing ever lol 🚲"></div>
     <div class="btn-row">
       <button class="btn" id="demo-on-btn" onclick="setDemo(true)" style="background:var(--red)">Enable Demo Mode</button>
       <button class="btn" id="demo-off-btn" onclick="setDemo(false)" style="background:#888;display:none">Disable Demo Mode</button>
@@ -286,8 +293,29 @@ function showVStatus(msg,type){
   setTimeout(()=>{el.className="status";},4000);
 }
 
+function saveDemoConfig(){
+  const cfg={
+    raised:parseFloat(document.getElementById('d-raised').value)||62842,
+    donors:parseInt(document.getElementById('d-donors').value)||247,
+    c1:document.getElementById('d-c1').value,
+    c2:document.getElementById('d-c2').value,
+    c3:document.getElementById('d-c3').value,
+  };
+  localStorage.setItem('tandem_demo_cfg',JSON.stringify(cfg));
+}
+function loadDemoConfig(){
+  try{
+    const cfg=JSON.parse(localStorage.getItem('tandem_demo_cfg')||'{}');
+    if(cfg.raised)document.getElementById('d-raised').value=cfg.raised;
+    if(cfg.donors)document.getElementById('d-donors').value=cfg.donors;
+    if(cfg.c1!==undefined)document.getElementById('d-c1').value=cfg.c1;
+    if(cfg.c2!==undefined)document.getElementById('d-c2').value=cfg.c2;
+    if(cfg.c3!==undefined)document.getElementById('d-c3').value=cfg.c3;
+  }catch(e){}
+}
 function setDemo(on){
   if(on){
+    saveDemoConfig();
     localStorage.setItem('tandem_demo','1');
     document.getElementById('demo-on-btn').style.display='none';
     document.getElementById('demo-off-btn').style.display='inline-block';
@@ -301,6 +329,7 @@ function setDemo(on){
 }
 // Reflect current state on load
 (function(){
+  loadDemoConfig();
   if(localStorage.getItem('tandem_demo')==='1'){
     document.getElementById('demo-on-btn').style.display='none';
     document.getElementById('demo-off-btn').style.display='inline-block';
