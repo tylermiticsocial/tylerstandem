@@ -618,7 +618,7 @@ function getCityCoords(cityKey){
 function drawRoute(cityKey){
   const canvas=document.getElementById('route-canvas');
   const img=document.getElementById('ca-map-img');
-  if(!canvas||!img) return;
+  if(!canvas||!img||!img.naturalWidth) return;
   const dpr=window.devicePixelRatio||1;
   const W=img.offsetWidth, H=img.offsetHeight;
   canvas.width=W*dpr;
@@ -628,25 +628,25 @@ function drawRoute(cityKey){
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.scale(dpr,dpr);
-
   const endIdx=CITY_IDX[cityKey];
   if(endIdx===undefined) return;
-
+  // Image renders as block fill (no object-fit), so rendered size = natural proportional scale
+  // naturalW=2099, naturalH=1354. Rendered at W wide, H=W*(1354/2099) tall
+  // Coast pts are % of natural dims, canvas is % of rendered dims — same scale, just use W/H
   ctx.fillStyle='#b51e00';
-  const dotR=Math.max(4, W*0.008); // scale dot size to map width
+  const dotR=Math.max(3,W*0.012);
   const dotSpacing=2;
   for(let i=0;i<=endIdx;i+=dotSpacing){
     const [xp,yp]=COAST_PATH[i];
-    const x=(xp/100)*W;
-    const y=(yp/100)*H;
     ctx.beginPath();
-    ctx.arc(x,y,dotR,0,Math.PI*2);
+    ctx.arc((xp/100)*W,(yp/100)*H,dotR,0,Math.PI*2);
     ctx.fill();
   }
   const [exp,eyp]=COAST_PATH[endIdx];
   ctx.beginPath();
   ctx.arc((exp/100)*W,(eyp/100)*H,dotR,0,Math.PI*2);
   ctx.fill();
+  console.log('[drawRoute]',cityKey,'W='+W,'H='+H,'endIdx='+endIdx,'firstDot='+(COAST_PATH[0][0]/100*W).toFixed(0)+'px');
 }
 
 function placeMarker(cityRaw){
