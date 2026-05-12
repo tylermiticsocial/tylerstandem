@@ -172,7 +172,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
 
 <script>
 const SHEET_ID="1mNtn9OB2dWK39WqVUZXcN94Y4Rwo3NBxhq7x_vN6E38";
-const GAS_URL="https://script.google.com/macros/s/AKfycbxF7qj4I7CgjM4RoIxcuwzk0asmYqaHw0PTryrax_0PpzojEoWdhufRjkqy_L7nBYK7/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycbywuTzYTtvgPtK2fDljqs2n-0RMItdftVpksUjFCRFHxw0CuUCfmKvD1vGpsOChvuG7/exec";
 const CAMPAIGN_ID="653378fc-db12-45ed-8192-dafadf84a642";
 const TILTIFY_BASE="https://v5api.tiltify.com";
 const PWD="yourmother";
@@ -201,7 +201,10 @@ async function sheetFetch(tab){
 }
 
 async function gasPost(data){
-  await fetch(GAS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+  // GAS requires form-encoded POST when called cross-origin (no-cors strips Content-Type)
+  const form=new FormData();
+  form.append('payload', JSON.stringify(data));
+  await fetch(GAS_URL,{method:"POST",mode:"no-cors",body:form});
 }
 
 let _token="";
