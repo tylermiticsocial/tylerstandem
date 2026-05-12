@@ -111,7 +111,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
       <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/california.png" alt="California" style="width:100%;display:block;border-radius:16px">
       <canvas id="route-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
       <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
-        <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:120px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))">
+        <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:180px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.12))">
       </div>
     </div>
 
@@ -568,114 +568,78 @@ async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadL
 
 
 // ── RIDE MAP ──────────────────────────────────────────────────────────────────
-const CITY_COORDS = {
-  'san francisco':   [30.4, 31.0],
-  'pacifica':        [30.5, 33.2],
-  'half moon bay':   [31.3, 36.9],
-  'santa cruz':      [33.9, 42.1],
-  'monterey':        [36.2, 45.4],
-  'carmel':          [36.0, 46.9],
-  'big sur':         [36.6, 51.0],
-  'san simeon':      [38.6, 57.6],
-  'morro bay':       [39.9, 60.2],
-  'san luis obispo': [40.9, 62.4],
-  'pismo beach':     [41.9, 64.3],
-  'santa barbara':   [44.0, 70.2],
-  'ventura':         [44.0, 72.4],
-  'malibu':          [46.9, 73.9],
-  'santa monica':    [49.4, 75.0],
-  'los angeles':     [50.0, 76.1],
-  'long beach':      [45.0, 77.2],
-  'san clemente':    [53.7, 79.0],
-  'oceanside':       [55.6, 80.9],
-  'encinitas':       [56.5, 82.0],
-  'san diego':       [49.0, 84.2],
+const COAST_PATH=[[28.59,9.9],[28.59,10.34],[28.59,10.78],[28.54,11.23],[28.39,11.67],[28.68,12.11],[28.92,12.56],[28.97,13.0],[29.06,13.44],[29.2,13.88],[29.25,14.33],[29.25,14.77],[29.2,15.21],[29.11,15.66],[29.06,16.1],[29.01,16.54],[28.87,16.99],[28.87,17.43],[28.92,17.87],[28.97,18.32],[28.97,18.76],[28.87,19.2],[28.78,19.65],[28.59,20.09],[28.44,20.53],[28.3,20.97],[28.16,21.42],[28.06,21.86],[27.92,22.3],[27.87,22.75],[27.87,23.19],[27.92,23.63],[28.01,24.08],[28.01,24.52],[28.2,24.96],[28.54,25.41],[28.82,25.85],[29.11,26.29],[29.39,26.74],[29.63,27.18],[29.82,27.62],[30.01,28.06],[30.16,28.51],[30.25,28.95],[30.4,29.39],[30.44,29.84],[30.49,30.28],[30.49,30.72],[30.4,31.17],[30.35,31.61],[30.3,32.05],[30.35,32.5],[30.44,32.94],[30.54,33.38],[30.63,33.83],[30.73,34.27],[30.82,34.71],[30.82,35.16],[30.73,35.6],[30.78,36.04],[31.01,36.48],[31.3,36.93],[31.59,37.37],[31.87,37.81],[32.06,38.26],[32.3,38.7],[32.49,39.14],[32.92,39.59],[33.3,40.03],[33.44,40.47],[33.59,40.92],[33.64,41.36],[33.87,41.8],[33.92,42.25],[33.97,42.69],[33.92,43.13],[33.83,43.57],[34.73,44.02],[35.02,44.46],[35.59,44.9],[36.16,45.35],[36.11,45.79],[36.06,46.23],[35.97,46.68],[35.97,47.12],[35.92,47.56],[36.02,48.01],[36.26,48.45],[36.35,48.89],[36.4,49.34],[36.4,49.78],[36.4,50.22],[36.49,50.66],[36.68,51.11],[36.92,51.55],[37.21,51.99],[37.54,52.44],[38.73,52.88],[38.88,53.32],[39.02,53.77],[39.11,54.21],[38.97,54.65],[38.88,55.1],[38.4,55.54],[38.35,55.98],[38.45,56.43],[38.49,56.87],[38.54,57.31],[38.59,57.75],[38.69,58.2],[38.88,58.64],[39.3,59.08],[39.54,59.53],[39.73,59.97],[40.02,60.41],[40.3,60.86],[40.45,61.3],[40.54,61.74],[40.78,62.19],[41.02,62.63],[41.11,63.07],[41.26,63.52],[41.83,63.96],[41.97,64.4],[42.21,64.84],[42.5,65.29],[43.02,65.73],[43.02,66.17],[43.02,66.62],[42.97,67.06],[43.21,67.5],[43.93,67.95],[43.97,68.39],[44.02,68.83],[43.97,69.28],[43.88,69.72],[43.97,70.16],[44.07,70.61],[44.02,71.05],[44.07,71.49],[44.07,71.94],[43.97,72.38],[44.12,72.82],[44.55,73.26],[44.78,73.71],[47.26,74.15],[49.07,74.59],[49.45,75.04],[49.93,75.48],[44.93,77.25],[45.74,77.7],[45.93,78.14],[48.74,83.9]];
+
+const CITY_IDX={
+  'san francisco':49,'pacifica':55,'half moon bay':63,'santa cruz':74,
+  'monterey':82,'carmel':85,'big sur':95,'san simeon':110,
+  'morro bay':116,'san luis obispo':121,'pismo beach':125,
+  'santa barbara':138,'ventura':143,'malibu':146,'santa monica':148,
+  'los angeles':149,'long beach':150,'san clemente':151,
+  'oceanside':152,'encinitas':152,'san diego':152
 };
 
-// Ordered route for drawing the dotted trail
-const ROUTE_ORDER = [
-  'san francisco','pacifica','half moon bay','santa cruz','monterey',
-  'carmel','big sur','san simeon','morro bay','san luis obispo',
-  'pismo beach','santa barbara','ventura','malibu','santa monica',
-  'los angeles','long beach','san clemente','oceanside','encinitas','san diego'
-];
+// Also keep CITY_COORDS for placeMarker positioning (use coast path point)
+function getCityCoords(cityKey){
+  const idx=CITY_IDX[cityKey];
+  if(idx===undefined) return null;
+  return COAST_PATH[idx];
+}
 
-function drawRoute(currentCity){
-  const canvas = document.getElementById('route-canvas');
-  const img = document.getElementById('ca-map-img');
+function drawRoute(cityKey){
+  const canvas=document.getElementById('route-canvas');
+  const img=document.getElementById('ca-map-img');
   if(!canvas||!img) return;
-  canvas.width = img.offsetWidth;
-  canvas.height = img.offsetHeight;
-  const ctx = canvas.getContext('2d');
+  canvas.width=img.offsetWidth*2; // 2x for retina
+  canvas.height=img.offsetHeight*2;
+  canvas.style.width=img.offsetWidth+'px';
+  canvas.style.height=img.offsetHeight+'px';
+  const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.scale(2,2); // retina scale
 
-  const cityKey = (currentCity||'').toLowerCase().trim().replace(/,.*$/,'').trim();
-  const idx = ROUTE_ORDER.indexOf(cityKey);
-  if(idx < 0) return;
+  const W=img.offsetWidth, H=img.offsetHeight;
+  const endIdx=CITY_IDX[cityKey];
+  if(endIdx===undefined) return;
 
-  // Draw dotted red trail from SF to current city
-  ctx.strokeStyle = '#b51e00';
-  ctx.lineWidth = 3;
-  ctx.setLineDash([6, 6]);
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  for(let i=0; i<=idx; i++){
-    const [xp, yp] = CITY_COORDS[ROUTE_ORDER[i]];
-    const x = (xp/100) * canvas.width;
-    const y = (yp/100) * canvas.height;
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  // Draw large filled dots along coast up to current city
+  ctx.fillStyle='#b51e00';
+  const dotR=5;
+  const dotSpacing=3; // draw every Nth point
+  for(let i=0;i<=endIdx;i+=dotSpacing){
+    const [xp,yp]=COAST_PATH[i];
+    const x=(xp/100)*W;
+    const y=(yp/100)*H;
+    ctx.beginPath();
+    ctx.arc(x,y,dotR,0,Math.PI*2);
+    ctx.fill();
   }
-  ctx.stroke();
+  // Always draw the final dot at exact city position
+  const [exp,eyp]=COAST_PATH[endIdx];
+  ctx.beginPath();
+  ctx.arc((exp/100)*W,(eyp/100)*H,dotR,0,Math.PI*2);
+  ctx.fill();
 }
 
 function placeMarker(cityRaw){
-  const cityKey = (cityRaw||'').toLowerCase().trim().replace(/,.*$/,'').trim();
-  const coords = CITY_COORDS[cityKey];
-  const marker = document.getElementById('bike-marker');
-  const label = document.getElementById('city-label');
-  const cityName = document.getElementById('city-name');
+  const cityKey=(cityRaw||'').toLowerCase().trim().replace(/,.*$/,'').trim();
+  const coords=getCityCoords(cityKey);
+  const marker=document.getElementById('bike-marker');
+  const cityName=document.getElementById('city-name');
   if(!coords||!marker) return;
-  marker.style.display = 'block';
-  marker.style.left = coords[0]+'%';
-  marker.style.top = coords[1]+'%';
-  if(label){ label.style.display='block'; }
-  if(cityName){ cityName.textContent = cityRaw; }
-  drawRoute(cityRaw);
+  marker.style.display='block';
+  marker.style.left=coords[0]+'%';
+  marker.style.top=coords[1]+'%';
+  if(cityName) cityName.textContent=cityRaw;
+  drawRoute(cityKey);
 }
 
-async function loadRideLocation(){
-  try{
-    const t = await sheetFetch('Settings');
-    const rows = t.rows||[];
-    const d={};
-    rows.forEach(r=>{const k=r.c[0]?.v;const v=r.c[1]?.v||'';if(k&&k!=='Key')d[k]=v;});
-    if(d.current_city) placeMarker(d.current_city);
-    // Populate stats
-    const miles=parseFloat(d.miles_ridden)||0;
-    const days=parseInt(d.days_on_bike)||0;
-    const strangers=parseInt(d.strangers_met)||0;
-    const total=1000;
-    const remaining=Math.max(0,total-miles);
-    const avg=days>0?Math.round(miles/days):0;
-    const pct=Math.round((miles/total)*100);
-    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-    set('stat-city', d.current_city||'Not started yet');
-    set('stat-miles', miles?miles+' mi':'—');
-    set('stat-days', days||'—');
-    set('stat-remaining', remaining?remaining+' mi':'—');
-    set('stat-strangers', strangers||'—');
-    set('stat-avg', avg?avg+' mi':'—');
-    set('stat-pct', miles?(pct+'%'):'—');
-    set('stat-update', d.ride_update||'—');
-  }catch(e){ console.error('Map error',e); }
-}
-
-// Redraw route on resize
-window.addEventListener('resize', ()=>{
-  const cityName = document.getElementById('city-name');
-  if(cityName?.textContent) drawRoute(cityName.textContent);
+// Redraw on resize
+window.addEventListener('resize',()=>{
+  const cityName=document.getElementById('city-name');
+  if(cityName?.textContent) drawRoute((cityName.textContent||'').toLowerCase().trim().replace(/,.*$/,'').trim());
 });
-// ── END RIDE MAP ──────────────────────────────────────────────────────────────
+// ── END RIDE MAP ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // ── DEMO MODE ────────────────────────────────────────────────────────────────
 const DEMO_NAMES = [
   {name:'Sarah K.',comment:'So proud of you Tyler! Ride safe!',avatar:'https://i.pravatar.cc/150?img=47'},
