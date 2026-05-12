@@ -103,15 +103,57 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div class="ticker-outer"><div class="ticker-track" id="ticker-track"></div></div>
 </div>
 
-<div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div class="section-label">WHERE WE ARE</div>
-  <div id="ride-map" style="position:relative;width:100%;user-select:none">
-    <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/california.png" alt="California" style="width:100%;display:block;border-radius:16px">
-    <canvas id="route-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
-    <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
-      <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:140px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))">
+<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
+  <div class="section-label" style="margin-bottom:1rem">WHERE WE ARE</div>
+  <div style="display:flex;gap:2rem;align-items:flex-start">
+
+    <div id="ride-map" style="position:relative;flex:0 0 45%;user-select:none">
+      <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/california.png" alt="California" style="width:100%;display:block;border-radius:16px">
+      <canvas id="route-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
+      <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
+        <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:120px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))">
+      </div>
     </div>
-    <div id="city-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid var(--border);border-radius:999px;padding:6px 18px;font-size:13px;font-weight:700;color:#111;white-space:nowrap;display:none;box-shadow:0 2px 12px rgba(0,0,0,0.08)">📍 <span id="city-name"></span></div>
+
+    <div style="flex:1;display:flex;flex-direction:column;gap:1rem;padding-top:0.5rem">
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#bbb;margin-bottom:4px">Currently in</div>
+        <div id="stat-city" style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;color:#111;line-height:1.1">—</div>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Miles ridden</div>
+          <div id="stat-miles" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Days on bike</div>
+          <div id="stat-days" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Miles to go</div>
+          <div id="stat-remaining" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Strangers met</div>
+          <div id="stat-strangers" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Avg mi/day</div>
+          <div id="stat-avg" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">% complete</div>
+          <div id="stat-pct" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:var(--red)">—</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:6px">Latest update</div>
+        <div id="stat-update" style="font-size:13px;color:#888;font-style:italic;line-height:1.5">—</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -527,27 +569,27 @@ async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadL
 
 // ── RIDE MAP ──────────────────────────────────────────────────────────────────
 const CITY_COORDS = {
-  'san francisco':   [33.3, 36.2],
-  'pacifica':        [31.4, 38.4],
-  'half moon bay':   [30.0, 41.4],
-  'santa cruz':      [31.4, 46.5],
-  'monterey':        [31.0, 51.0],
-  'carmel':          [30.3, 52.4],
-  'big sur':         [29.1, 56.1],
-  'san simeon':      [28.1, 62.0],
-  'morro bay':       [28.1, 65.0],
-  'san luis obispo': [29.5, 67.2],
-  'pismo beach':     [30.0, 69.4],
-  'santa barbara':   [33.3, 74.6],
-  'ventura':         [36.2, 76.8],
-  'malibu':          [37.6, 78.3],
-  'santa monica':    [38.6, 79.4],
-  'los angeles':     [40.0, 79.8],
-  'long beach':      [41.4, 81.2],
-  'san clemente':    [42.9, 83.5],
-  'oceanside':       [44.3, 85.7],
-  'encinitas':       [45.3, 87.1],
-  'san diego':       [45.7, 89.4],
+  'san francisco':   [30.4, 31.0],
+  'pacifica':        [30.5, 33.2],
+  'half moon bay':   [31.3, 36.9],
+  'santa cruz':      [33.9, 42.1],
+  'monterey':        [36.2, 45.4],
+  'carmel':          [36.0, 46.9],
+  'big sur':         [36.6, 51.0],
+  'san simeon':      [38.6, 57.6],
+  'morro bay':       [39.9, 60.2],
+  'san luis obispo': [40.9, 62.4],
+  'pismo beach':     [41.9, 64.3],
+  'santa barbara':   [44.0, 70.2],
+  'ventura':         [44.0, 72.4],
+  'malibu':          [46.9, 73.9],
+  'santa monica':    [49.4, 75.0],
+  'los angeles':     [50.0, 76.1],
+  'long beach':      [45.0, 77.2],
+  'san clemente':    [53.7, 79.0],
+  'oceanside':       [55.6, 80.9],
+  'encinitas':       [56.5, 82.0],
+  'san diego':       [49.0, 84.2],
 };
 
 // Ordered route for drawing the dotted trail
@@ -605,9 +647,26 @@ async function loadRideLocation(){
   try{
     const t = await sheetFetch('Settings');
     const rows = t.rows||[];
-    let city = '';
-    rows.forEach(r=>{if(r.c[0]?.v==='current_city') city=r.c[1]?.v||'';});
-    if(city) placeMarker(city);
+    const d={};
+    rows.forEach(r=>{const k=r.c[0]?.v;const v=r.c[1]?.v||'';if(k&&k!=='Key')d[k]=v;});
+    if(d.current_city) placeMarker(d.current_city);
+    // Populate stats
+    const miles=parseFloat(d.miles_ridden)||0;
+    const days=parseInt(d.days_on_bike)||0;
+    const strangers=parseInt(d.strangers_met)||0;
+    const total=1000;
+    const remaining=Math.max(0,total-miles);
+    const avg=days>0?Math.round(miles/days):0;
+    const pct=Math.round((miles/total)*100);
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    set('stat-city', d.current_city||'Not started yet');
+    set('stat-miles', miles?miles+' mi':'—');
+    set('stat-days', days||'—');
+    set('stat-remaining', remaining?remaining+' mi':'—');
+    set('stat-strangers', strangers||'—');
+    set('stat-avg', avg?avg+' mi':'—');
+    set('stat-pct', miles?(pct+'%'):'—');
+    set('stat-update', d.ride_update||'—');
   }catch(e){ console.error('Map error',e); }
 }
 
@@ -690,6 +749,18 @@ function loadDemoMode(){
       '</div>'+
     '</div>';
   }).join('');
+
+  // Place bike on map in demo mode
+  placeMarker('San Francisco');
+  const dset=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  dset('stat-city','San Francisco');
+  dset('stat-miles','0 mi');
+  dset('stat-days','0');
+  dset('stat-remaining','1,000 mi');
+  dset('stat-strangers','0');
+  dset('stat-avg','—');
+  dset('stat-pct','0%');
+  dset('stat-update','Just getting started! Wheels hit the road today.');
 
   // Leaderboard podium
   const podiumEl=document.getElementById('lb-podium');
