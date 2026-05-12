@@ -332,15 +332,16 @@ async function loadSettings(){
     if(data.inc_photo_1){document.getElementById('inc-img-1').innerHTML='<img src="'+data.inc_photo_1+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
     if(data.inc_photo_2){document.getElementById('inc-img-2').innerHTML='<img src="'+data.inc_photo_2+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
     // Ride map + stats
-    const set=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.textContent=v;};
-    if(data.current_city) placeMarker(data.current_city);
+    const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!==undefined&&v!==null)el.textContent=v;};
+    const rawCity = (data.current_city||'').toString().trim();
+    if(rawCity) placeMarker(rawCity);
+    document.getElementById('stat-city') && (document.getElementById('stat-city').textContent = rawCity||'Not started yet');
     const miles=parseFloat(data.miles_ridden)||0;
     const days=parseInt(data.days_on_bike)||0;
     const strangers=parseInt(data.strangers_met)||0;
     const total=1000;
     const avg=days>0?Math.round(miles/days):0;
     const pct=Math.round((miles/total)*100);
-    set('stat-city', data.current_city||'Not started yet');
     set('stat-miles', miles?miles+' mi':'—');
     set('stat-days', days||'—');
     set('stat-remaining', miles?(total-miles)+' mi':'—');
@@ -568,17 +569,7 @@ function animateTo(target,fromOverride){
   requestAnimationFrame(step);
 }
 
-async function loadBanner(){
-  try{
-    const t=await sheetFetch('Settings');
-    const data={};
-    (t.rows||[]).forEach(r=>{const k=r.c[0]?.v;const v=r.c[1]?.v||'';if(k&&k!=='Key')data[k]=v;});
-    if(data.banner){
-      document.getElementById('banner-text').textContent=data.banner;
-      document.getElementById('announcement-banner').style.display='block';
-    }
-  }catch(e){}
-}
+// banner handled in loadSettings
 
 async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard()]);}
 
@@ -830,7 +821,6 @@ if(localStorage.getItem('tandem_demo')==='1'){
   loadSettings().then(()=>{refresh();loadVideos();});
   setInterval(refresh,10000);
 }
-loadBanner();
 </script>
 </body>
 </html>
