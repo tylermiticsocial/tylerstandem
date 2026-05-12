@@ -190,7 +190,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <p style="font-size:14px;color:#666;line-height:1.8;text-align:center;max-width:500px">
     All donations go directly to <a href="https://bringchange2mind.org" target="_blank" style="color:var(--red);font-weight:600;text-decoration:underline">Bring Change 2 Mind</a> — a nonprofit dedicated to mental health advocacy and ending the stigma around mental illness.
   </p>
-  <div style="font-size:11px;color:#ccc;margin-top:4px">Powered by Tiltify</div>
+
   <div style="font-size:14px;color:#666;text-align:center;margin-top:0.5rem">
     Questions? <a href="mailto:hi@tylerstandem.com" style="color:var(--red);font-weight:500;text-decoration:underline">hi@tylerstandem.com</a>
     &nbsp;&middot;&nbsp;
@@ -504,7 +504,7 @@ function loadDemoMode(){
   // Progress bar
   const raised=6284200; // $62,842 in cents
   const goal=1000000;
-  document.getElementById('raised').textContent=fmt(raised);
+  animateCount(raised);
   document.getElementById('pfill').style.width=Math.min(100,(raised/goal)*100)+'%';
   document.getElementById('goal-txt').textContent=fmt(goal*100);
 
@@ -580,12 +580,12 @@ function loadDemoMode(){
 }
 // ── END DEMO MODE ─────────────────────────────────────────────────────────────
 if(localStorage.getItem('tandem_demo')==='1'){
-  // Demo mode: skip all API calls, just show fake data
+  // Demo mode: still load settings (photo, banner) but skip live data
   const badge=document.createElement('div');
   badge.textContent='🎭 Demo Mode';
   badge.style.cssText='position:fixed;bottom:12px;right:12px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;z-index:9999;letter-spacing:0.05em';
   document.body.appendChild(badge);
-  loadDemoMode();
+  loadSettings().then(()=>{loadVideos();loadDemoMode();});
 } else {
   loadSettings().then(()=>{refresh();loadVideos();});
 }
