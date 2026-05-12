@@ -71,7 +71,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 
-<div id="hero-banner" style="background:var(--cream2);padding:5rem 1.5rem 2.5rem;margin-bottom:0"><div style="text-align:center;max-width:700px;margin:0 auto">
+<div id="hero-banner" style="padding:4rem 1.5rem 2.5rem;margin-bottom:0"><div style="text-align:center;max-width:700px;margin:0 auto">
   <div style="margin-bottom:1.25rem">
     <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center">
       <svg style="width:22px;height:22px;stroke:#bbb;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -409,9 +409,9 @@ async function loadLeaderboard(){
     {
       // Order: 2nd, 1st, 3rd
       const podiumOrder=[
-        top.length>1?{data:top[1],rank:2,medal:'🥈',color:'#777',height:'120px',size:110,fontSize:'1rem'}:null,
-        {data:top[0],rank:1,medal:'🥇',color:'#b51e00',height:'160px',size:140,fontSize:'1.2rem'},
-        top.length>2?{data:top[2],rank:3,medal:'🥉',color:'#8c5a2a',height:'90px',size:90,fontSize:'0.9rem'}:null
+        top.length>1?{data:top[1],rank:2,color:'#777',height:'120px',size:110,fontSize:'1rem'}:null,
+        {data:top[0],rank:1,color:'#b51e00',height:'160px',size:140,fontSize:'1.2rem'},
+        top.length>2?{data:top[2],rank:3,color:'#8c5a2a',height:'90px',size:90,fontSize:'0.9rem'}:null
       ];
 
       podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:16px;padding:0 1rem">'
@@ -420,16 +420,18 @@ async function loadLeaderboard(){
           const e=p.data;
           const name=e.name||'Anonymous';
           const amt=e.amount?.value?parseFloat(e.amount.value):0;
+          const comment=e.donor_comment||e.comment||'';
           const avatarUrl=e.avatar?.src||e.avatar||'';
           const sz=p.size;
           const av=avatarUrl
             ?'<img src="'+avatarUrl+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;border:4px solid '+p.color+';box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;margin:0 auto" onerror="this.style.display=\'none\'">'
             :'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--cream2);border:4px solid '+p.color+';display:flex;align-items:center;justify-content:center;margin:0 auto"><svg style="width:'+(sz*0.35)+'px;height:'+(sz*0.35)+'px;fill:#bbb" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>';
+          const commentHtml=comment?'<div style="font-size:11px;color:#999;font-style:italic;margin-top:5px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
           return'<div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">'
-            +'<div style="font-size:'+(p.rank===1?'2rem':'1.5rem')+';margin-bottom:8px">'+p.medal+'</div>'
             +av
             +'<div style="font-size:'+(p.rank===1?'15px':'13px')+';font-weight:700;color:#111;margin-top:10px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'
             +'<div style="font-family:Syne,sans-serif;font-size:'+p.fontSize+';font-weight:800;color:var(--red)">'+fmt(Math.round(amt*100))+'</div>'
+            +commentHtml
             +'<div style="width:100%;background:'+p.color+';border-radius:10px 10px 0 0;height:'+p.height+';display:flex;align-items:center;justify-content:center;margin-top:10px">'
             +'<span style="font-family:Syne,sans-serif;font-size:'+(p.rank===1?'2.8rem':'2rem')+';font-weight:900;color:rgba(255,255,255,0.85)">#'+p.rank+'</span>'
             +'</div>'
