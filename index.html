@@ -404,16 +404,16 @@ async function loadDonations(){
     if(firstLoad){
       // Initial render: show 8 most recent, no animation
       feed.innerHTML='';
-      list.slice(0,8).forEach(x=>feed.appendChild(makeFeedItem(x,false)));
+      list.slice(0,10).forEach(x=>feed.appendChild(makeFeedItem(x,false)));
     } else if(newOnes.length){
       // Animate new ones in at top, fade out bottom if over 8
-      for(const x of newOnes.slice(0,8)){
+      for(const x of newOnes.slice(0,10)){
         const el=makeFeedItem(x,true);
         feed.insertBefore(el,feed.firstChild);
         if(x.amount?.value) showDonationToast(x.amount.value);
       }
       // Trim to 8, fade out extras
-      while(feed.children.length>8){
+      while(feed.children.length>10){
         const last=feed.lastChild;
         last.classList.add('live-item-out');
         setTimeout(()=>last.remove(),300);
@@ -557,7 +557,7 @@ function loadDemoMode(){
   animateCount(raised);
   document.getElementById('pfill').style.width=Math.min(100,(raised/goal)*100)+'%';
 
-  document.getElementById('goal-txt').textContent=fmt(goal*100);
+  document.getElementById('goal-txt').textContent=fmt(goal);
 
   // Ticker
   const tickerSection=document.getElementById('ticker-section');
@@ -668,7 +668,7 @@ if(localStorage.getItem('tandem_demo')==='1'){
       const t=now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
       el.innerHTML=av(donor.avatar,donor.name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+donor.name+' <span class="new-badge">New</span></div>'+(donor.comment?'<div class="live-msg">"'+donor.comment+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+fmt(donor.amt)+'</div><div class="live-time">'+t+'</div></div>';
       feed.insertBefore(el,feed.firstChild);
-      while(feed.children.length>8){const last=feed.lastChild;last.classList.add('live-item-out');setTimeout(()=>last.remove(),300);}
+      while(feed.children.length>10){const last=feed.lastChild;last.classList.add('live-item-out');setTimeout(()=>last.remove(),300);}
       const track=document.getElementById('ticker-track');
       if(track){const span=document.createElement('span');span.className='t-item';span.innerHTML='<span style="font-size:14px;font-weight:500;color:#333">'+donor.name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+fmt(donor.amt)+'</span><div class="t-sep"></div>';track.prepend(span);}
     },8000);
