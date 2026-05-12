@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Donations — Tyler's Tandem</title>
+<link rel="icon" type="image/png" href="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGO.png?raw=true">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#b51e00;--cream:#f5f0e8;--cream2:#ece6da;--border:#ddd6c8}
+body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-height:100vh}
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav img{height:28px}
+.nav a{font-size:13px;color:var(--red);text-decoration:none;font-weight:500}
+.body{max-width:700px;margin:0 auto;padding:2rem 1.5rem}
+.page-title{font-family:"Syne",sans-serif;font-size:1.8rem;font-weight:800;color:#111;margin-bottom:0.25rem}
+.page-sub{font-size:13px;color:#999;margin-bottom:1.75rem}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.75rem}
+.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;text-align:center}
+.stat-n{font-family:"Syne",sans-serif;font-size:1.4rem;font-weight:800;color:var(--red)}
+.stat-l{font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.07em;margin-top:2px}
+.donation-list{display:flex;flex-direction:column;gap:10px}
+.d-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:12px}
+.d-info{flex:1;min-width:0}
+.d-name{font-size:15px;font-weight:500;color:#111}
+.d-msg{font-size:13px;color:#888;font-style:italic;margin-top:4px;line-height:1.5}
+.d-time{font-size:11px;color:#bbb;margin-top:4px}
+.d-right{text-align:right;flex-shrink:0}
+.d-amt{font-family:"Syne",sans-serif;font-size:1.1rem;font-weight:800;color:var(--red)}
+.loading{text-align:center;color:#bbb;padding:3rem 0;font-size:14px}
+.empty{text-align:center;color:#ccc;padding:3rem 0;font-size:14px}
+.footer{text-align:center;padding:2rem;font-size:11px;color:#ccc}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem">
+  <a href="/">← Back to campaign</a>
+</div>
+
+<div class="body">
+  <div class="page-title">All Donations</div>
+  <p class="page-sub" id="page-sub">Loading...</p>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Total raised</div></div>
+    <div class="stat"><div class="stat-n" id="s-count">—</div><div class="stat-l">Donations</div></div>
+    <div class="stat"><div class="stat-n" id="s-top">—</div><div class="stat-l">Top donation</div></div>
+  </div>
+
+  <div class="donation-list" id="donation-list">
+    <div class="loading">Loading donations...</div>
+  </div>
+</div>
+
+<div class="footer">Tyler's Tandem — raising money for <a href="https://bringchange2mind.org" target="_blank" style="color:var(--red)">Bring Change 2 Mind</a></div>
+
+<script>
+const CAMPAIGN_ID='653378fc-db12-45ed-8192-dafadf84a642';
+
+function fmt(c){return '$'+(c/100).toLocaleString('en-US',{maximumFractionDigits:0})}
+
+function filterText(str){
+  if(!str)return str;
+  const bad=['fuck','shit','ass','bitch','cunt','dick','cock','pussy','bastard','damn','crap',
+    'piss','fag','nigger','nigga','retard','whore','slut','twat','wanker','bollocks',
+    'bugger','arse','prick','tosser','asshole','arsehole','motherfucker','fucker','bullshit'];
+  let out=str;
+  bad.forEach(w=>{
+    const re=new RegExp('\\b'+w+'\\b','gi');
+    out=out.replace(re,'*'.repeat(w.length));
+  });
+  return out;
+}
+
+function timeAgo(ts){
+  if(!ts)return '';
+  try{
+    const diff=Math.round((Date.now()-new Date(ts).getTime())/60000);
+    if(diff<1)return 'just now';
+    if(diff<60)return diff+'m ago';
+    if(diff<1440)return Math.round(diff/60)+'h ago';
+    return Math.round(diff/1440)+'d ago';
+  }catch(e){return '';}
+}
+
+async function load(){
+  try{
+    // Load campaign stats
+    const cr=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+CAMPAIGN_ID));
+    const c=(await cr.json()).data;
+    const raised=c.amount_raised?.value?Math.round(parseFloat(c.amount_raised.value)*100):0;
+    document.getElementById('s-total').textContent=fmt(raised);
+    document.getElementById('page-sub').textContent='Every donation for '+( c.name||"Tyler's Tandem");
+
+    // Load donations
+    const dr=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+CAMPAIGN_ID+'/donations'));
+    const list=(await dr.json()).data||[];
+
+    document.getElementById('s-count').textContent=list.length;
+    let top=0;
+    list.forEach(x=>{const a=x.amount?.value?Math.round(parseFloat(x.amount.value)*100):0;if(a>top)top=a;});
+    document.getElementById('s-top').textContent=fmt(top);
+
+    const container=document.getElementById('donation-list');
+    if(!list.length){container.innerHTML='<div class="empty">No donations yet — share the campaign!</div>';return;}
+
+    container.innerHTML=list.map(x=>{
+      const name=filterText(x.donor_name||'Anonymous');
+      const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
+      const msg=filterText(x.donor_comment||'');
+      const ts=x.completed_at||x.created_at||'';
+      const dt2=ts?new Date(ts):null;
+      const t=dt2?(dt2.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' at '+dt2.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})):'';
+      return '<div class="d-card">'
+        +'<div class="d-info">'
+        +'<div class="d-name">'+name+'</div>'
+        +(msg?'<div class="d-msg">"'+msg+'"</div>':'')
+        +(t?'<div class="d-time">'+t+'</div>':'')
+        +'</div>'
+        +'<div class="d-right"><div class="d-amt">'+amt+'</div></div>'
+        +'</div>';
+    }).join('');
+  }catch(e){
+    document.getElementById('donation-list').innerHTML='<div class="empty">Could not load donations. Try refreshing.</div>';
+    console.error(e);
+  }
+}
+
+load();
+</script>
+</body>
+</html>
