@@ -488,7 +488,7 @@ async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadL
 // ── DEMO MODE ────────────────────────────────────────────────────────────────
 const DEMO_NAMES = [
   {name:'Sarah K.',comment:'So proud of you Tyler! Ride safe!',avatar:'https://i.pravatar.cc/150?img=47'},
-  {name:'Marcus T.',comment:'Mental health matters. Let's go!!',avatar:'https://i.pravatar.cc/150?img=12'},
+  {name:'Marcus T.',comment:'Mental health matters. Let\'s go!!',avatar:'https://i.pravatar.cc/150?img=12'},
   {name:'Jenna R.',comment:'This is the most Tyler thing ever lol 🚲',avatar:'https://i.pravatar.cc/150?img=32'},
   {name:'Alex W.',comment:'',avatar:'https://i.pravatar.cc/150?img=68'},
   {name:'Priya M.',comment:'Rooting for you from NYC!',avatar:'https://i.pravatar.cc/150?img=25'},
@@ -518,7 +518,7 @@ function loadDemoMode(){
 
   // Live feed
   const feed=document.getElementById('live-feed');
-  const comments=['So proud of you!!','Mental health matters 💙','Ride safe Tyler!','This is incredible','Crying rn lol ❤️','GO TYLER!!!','You're changing lives','Best idea ever','Sending love from Chicago!','Can't wait to watch!'];
+  const comments=['So proud of you!!','Mental health matters 💙','Ride safe Tyler!','This is incredible','Crying rn lol ❤️','GO TYLER!!!','You are changing lives','Best idea ever','Sending love from Chicago!','Cannot wait to watch!'];
   const dates=['May 12','May 11','May 11','May 10','May 10','May 9','May 9','May 8','May 8','May 7'];
   feed.innerHTML=DEMO_NAMES.map((d,i)=>{
     const amt=fmt(DEMO_AMOUNTS[i]);
