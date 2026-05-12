@@ -106,49 +106,26 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div style="display:flex;gap:2rem;align-items:flex-start">
 
     <div id="ride-map" style="position:relative;flex:0 0 45%;user-select:none">
-      <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/california.png" alt="California" style="width:100%;display:block;border-radius:16px">
-      <canvas id="route-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
-      <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
+      <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/start_end_ca.png" alt="California" style="width:100%;display:block;border-radius:16px">
+        <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
         <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:180px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.12))">
       </div>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;gap:1rem;padding-top:0.5rem">
+    <div style="flex:1;display:flex;flex-direction:column;gap:1.25rem;padding-top:0.5rem">
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);margin-bottom:4px">% Finished</div>
+        <div id="stat-pct" style="font-family:Syne,sans-serif;font-size:5rem;font-weight:800;color:var(--red);line-height:1">—</div>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
       <div>
         <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#bbb;margin-bottom:4px">Currently in</div>
         <div id="stat-city" style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;color:#111;line-height:1.1">—</div>
       </div>
       <div style="height:1px;background:var(--border)"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Miles ridden</div>
-          <div id="stat-miles" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Days on bike</div>
-          <div id="stat-days" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Miles to go</div>
-          <div id="stat-remaining" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Strangers met</div>
-          <div id="stat-strangers" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">Avg mi/day</div>
-          <div id="stat-avg" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:#111">—</div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:2px">% complete</div>
-          <div id="stat-pct" style="font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:var(--red)">—</div>
-        </div>
-      </div>
-      <div style="height:1px;background:var(--border)"></div>
       <div>
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:6px">Latest update</div>
-        <div id="stat-update" style="font-size:13px;color:#888;font-style:italic;line-height:1.5">—</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#bbb;margin-bottom:4px">Days on bike</div>
+        <div id="stat-days" style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;color:#111">—</div>
       </div>
     </div>
 
@@ -615,33 +592,6 @@ function getCityCoords(cityKey){
   return COAST_PATH[idx];
 }
 
-function drawRoute(cityKey){
-  const canvas=document.getElementById('route-canvas');
-  const img=document.getElementById('ca-map-img');
-  if(!canvas||!img||!img.naturalWidth) return;
-  const dpr=window.devicePixelRatio||1;
-  const W=img.offsetWidth, H=img.offsetHeight;
-  canvas.width=W*dpr;
-  canvas.height=H*dpr;
-  canvas.style.width=W+'px';
-  canvas.style.height=H+'px';
-  const ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.scale(dpr,dpr);
-  const endIdx=CITY_IDX[cityKey];
-  if(endIdx===undefined) return;
-  // Image renders as block fill (no object-fit), so rendered size = natural proportional scale
-  // naturalW=2099, naturalH=1354. Rendered at W wide, H=W*(1354/2099) tall
-  // Coast pts are % of natural dims, canvas is % of rendered dims — same scale, just use W/H
-  ctx.fillStyle='#b51e00';
-  const dotR=Math.max(2,W*0.004);
-  const dotSpacing=1;
-  for(let i=0;i<=endIdx;i+=dotSpacing){
-    const [xp,yp]=COAST_PATH[i];
-    ctx.beginPath();
-    ctx.arc((xp/100)*W,(yp/100)*H,dotR,0,Math.PI*2);
-    ctx.fill();
-  }
   const [exp,eyp]=COAST_PATH[endIdx];
   ctx.beginPath();
   ctx.arc((exp/100)*W,(eyp/100)*H,dotR,0,Math.PI*2);
@@ -661,18 +611,11 @@ function placeMarker(cityRaw){
   if(cityName) cityName.textContent=cityRaw;
   // Wait for map image to load before drawing
   const img=document.getElementById('ca-map-img');
-  if(img&&img.complete&&img.naturalWidth>0){
-    drawRoute(cityKey);
-  } else if(img){
-    img.onload=()=>drawRoute(cityKey);
-  }
+  // no route drawing — line is baked into the image
 }
 
 // Redraw on resize
-window.addEventListener('resize',()=>{
-  const cityName=document.getElementById('city-name');
-  if(cityName?.textContent) drawRoute((cityName.textContent||'').toLowerCase().trim().replace(/,.*$/,'').trim());
-});
+
 // ── END RIDE MAP ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // ── DEMO MODE ────────────────────────────────────────────────────────────────
 const DEMO_NAMES = [
