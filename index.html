@@ -104,8 +104,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div id="ride-photo-wrap" style="border-radius:16px;height:260px;background:var(--cream2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center">
-    <svg style="width:28px;height:28px;stroke:#ccc;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+  <div class="section-label">WHERE WE ARE</div>
+  <div id="ride-map" style="position:relative;width:100%;user-select:none">
+    <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/california.png" alt="California" style="width:100%;display:block;border-radius:16px">
+    <canvas id="route-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
+    <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
+      <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:140px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15))">
+    </div>
+    <div id="city-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid var(--border);border-radius:999px;padding:6px 18px;font-size:13px;font-weight:700;color:#111;white-space:nowrap;display:none;box-shadow:0 2px 12px rgba(0,0,0,0.08)">📍 <span id="city-name"></span></div>
   </div>
 </div>
 
@@ -125,19 +131,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 
 <div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
-
-<div style="max-width:700px;margin:0 auto 3rem;padding:0 1.5rem">
-  <div class="section-label">WHERE WE ARE</div>
-  <div id="ride-map" style="position:relative;width:100%;user-select:none">
-    <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/california.png" alt="California" style="width:100%;display:block;border-radius:16px">
-    <canvas id="route-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
-    <div id="bike-marker" style="position:absolute;transform:translate(-50%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
-      <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/tylers_face_plus_stranger.png" style="width:80px;height:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.25))">
-    </div>
-    <div id="city-label" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;border:1.5px solid var(--border);border-radius:999px;padding:6px 18px;font-size:13px;font-weight:700;color:#111;white-space:nowrap;display:none;box-shadow:0 2px 12px rgba(0,0,0,0.08)">📍 <span id="city-name"></span></div>
-  </div>
-</div>
-
   <div class="section-label">Donation incentives</div>
   <div style="display:flex;flex-direction:column;gap:12px">
     <div class="inc-card">
@@ -273,7 +266,7 @@ async function loadSettings(){
       if(k&&k!=='Key'&&v)data[k]=v;
     });
     if(data.hero_photo){document.getElementById('hero-photo-wrap').innerHTML='<img class="hero-photo" src="'+data.hero_photo+'" alt="Tyler">';}
-    if(data.ride_photo){document.getElementById('ride-photo-wrap').innerHTML='<img style="width:100%;height:260px;object-fit:cover;border-radius:16px;display:block" src="'+data.ride_photo+'" alt="Ride">';}
+    // ride-photo-wrap replaced by map
     if(data.logline){document.getElementById('logline').textContent=data.logline;}
     if(data.tiltify_campaign_id){window._campaignId=data.tiltify_campaign_id;}
     if(data.tiltify_token){window._token=data.tiltify_token;}
@@ -534,27 +527,27 @@ async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadL
 
 // ── RIDE MAP ──────────────────────────────────────────────────────────────────
 const CITY_COORDS = {
-  'san francisco':   [35, 38],
-  'pacifica':        [33, 40],
-  'half moon bay':   [31, 43],
-  'santa cruz':      [31, 47],
-  'monterey':        [30, 51],
-  'carmel':          [29, 52],
-  'big sur':         [28, 55],
-  'san simeon':      [27, 59],
-  'morro bay':       [27, 61],
-  'san luis obispo': [28, 63],
-  'pismo beach':     [28, 65],
-  'santa barbara':   [31, 70],
-  'ventura':         [34, 72],
-  'malibu':          [36, 74],
-  'santa monica':    [37, 75],
-  'los angeles':     [39, 75],
-  'long beach':      [40, 77],
-  'san clemente':    [41, 80],
-  'oceanside':       [42, 82],
-  'encinitas':       [43, 83],
-  'san diego':       [44, 86],
+  'san francisco':   [33.3, 36.2],
+  'pacifica':        [31.4, 38.4],
+  'half moon bay':   [30.0, 41.4],
+  'santa cruz':      [31.4, 46.5],
+  'monterey':        [31.0, 51.0],
+  'carmel':          [30.3, 52.4],
+  'big sur':         [29.1, 56.1],
+  'san simeon':      [28.1, 62.0],
+  'morro bay':       [28.1, 65.0],
+  'san luis obispo': [29.5, 67.2],
+  'pismo beach':     [30.0, 69.4],
+  'santa barbara':   [33.3, 74.6],
+  'ventura':         [36.2, 76.8],
+  'malibu':          [37.6, 78.3],
+  'santa monica':    [38.6, 79.4],
+  'los angeles':     [40.0, 79.8],
+  'long beach':      [41.4, 81.2],
+  'san clemente':    [42.9, 83.5],
+  'oceanside':       [44.3, 85.7],
+  'encinitas':       [45.3, 87.1],
+  'san diego':       [45.7, 89.4],
 };
 
 // Ordered route for drawing the dotted trail
