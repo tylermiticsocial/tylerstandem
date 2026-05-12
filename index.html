@@ -61,13 +61,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
       <svg style="width:22px;height:22px;stroke:#bbb;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
   </div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:0.5rem;padding:0 1rem">
-    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="height:55px;width:auto;max-width:55%">
-    <div style="width:1px;height:44px;background:var(--border);flex-shrink:0"></div>
-    <a href="https://bringchange2mind.org" target="_blank" rel="noopener" style="display:flex;align-items:center">
-      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="height:32px;width:auto;max-width:35%" onerror="this.style.display='none'">
-    </a>
-  </div>
+  <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="width:100%;max-width:100%;height:auto;margin:0 auto 0.5rem;display:block">
   <p id="logline" style="font-size:14px;color:#999;max-width:400px;margin:0 auto 1.5rem;line-height:1.6">One bike. Two seats. 1,000 miles of strangers. All for mental health.</p>
   <div style="margin-bottom:2rem">
     <a class="donate-btn" id="dlink" href="https://donate.tiltify.com/653378fc-db12-45ed-8192-dafadf84a642/details" target="_blank">Donate</a>
@@ -88,7 +82,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 <div id="ticker-section" style="display:none;margin:0 0 1.5rem">
   <div class="section-label">Recent donations</div>
   <div style="max-width:900px;margin:0 auto;padding:0 1.5rem">
-    <div class="ticker-outer" style="border-radius:12px;background:#fff;border:1px solid var(--border);padding:0.6rem 0"><div class="ticker-track" id="ticker-track"></div></div>
+    <div class="ticker-outer"><div class="ticker-track" id="ticker-track"></div></div>
   </div>
 </div>
 
@@ -166,11 +160,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div class="footer">
-  <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem">
-    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGOTEXT.png?raw=true" alt="Tyler's Tandem" style="height:70px;width:auto;max-width:45%">
-    <div style="width:1px;height:56px;background:var(--border);flex-shrink:0"></div>
-    <a href="https://bringchange2mind.org" target="_blank" rel="noopener" style="display:flex;align-items:center">
-      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="height:36px;width:auto;max-width:45%" onerror="this.style.display='none'">
+  <div style="display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1rem">
+    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGOTEXT.png?raw=true" alt="Tyler's Tandem" style="width:200px;height:auto">
+    <div style="width:1px;height:50px;background:var(--border);flex-shrink:0"></div>
+    <a href="https://bringchange2mind.org" target="_blank" rel="noopener">
+      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="width:200px;height:auto" onerror="this.style.display='none'">
     </a>
   </div>
   <p style="font-size:14px;color:#666;line-height:1.8;text-align:center;max-width:500px">
@@ -322,7 +316,9 @@ async function loadDonations(){
     const html=list.map(x=>{
       const name=x.donor_name||'Anonymous';
       const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
-      return '<div class="t-item">'+av(x.donor?.avatar?.src,name,36)+'<span style="font-size:14px;font-weight:500;color:#333">'+name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+amt+'</span><div class="t-sep"></div></div>';
+      const avatarUrl=x.donor?.avatar?.src||x.donor?.avatar||'';
+      const avHtml=avatarUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+avatarUrl+'">':'';
+      return '<div class="t-item">'+avHtml+'<span style="font-size:14px;font-weight:500;color:#333">'+name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+amt+'</span><div class="t-sep"></div></div>';
     }).join('');
     track.innerHTML=html+html;
     setTimeout(()=>{track.style.animationDuration=Math.max(25,track.scrollWidth/2/80)+'s';},100);
