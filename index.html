@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tyler's Tandem</title>
+<link rel="icon" type="image/png" href="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGO.png?raw=true">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
@@ -31,6 +32,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
 .inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
 .lb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
+.podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
+.podium-avatar{border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+.podium-name{font-size:13px;font-weight:600;color:#111;margin-top:8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.podium-amt{font-family:Syne,sans-serif;font-weight:800;color:var(--red);text-align:center}
+.podium-block{width:100%;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center}
+.podium-rank{font-family:Syne,sans-serif;font-weight:800;color:#fff;opacity:0.9}
 @media(max-width:700px){.lb-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:420px){.lb-grid{grid-template-columns:1fr}}
 .lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:center;gap:10px}
@@ -38,6 +46,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .lb-rank.gold{color:#c8a400}.lb-rank.silver{color:#888}.lb-rank.bronze{color:#a0622a}
 .lb-name{font-size:13px;font-weight:500;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lb-amt{font-family:"Syne",sans-serif;font-size:13px;font-weight:800;color:var(--red);white-space:nowrap}
+.banner{background:var(--red);color:#fff;text-align:center;padding:0.5rem 1rem;font-size:13px;font-weight:500;letter-spacing:0.01em}
+.banner a{color:rgba(255,255,255,0.85);text-decoration:underline}
 .live-item{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--white);border:1px solid var(--border);border-radius:12px}
 .live-name{font-size:14px;font-weight:500;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .live-msg{font-size:12px;color:#aaa;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -46,6 +56,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .new-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
 .ig-wrap{border-radius:14px;overflow:hidden;background:var(--cream2);border:1px solid var(--border)}
 #ig-scroll::-webkit-scrollbar{display:none}
+#live-feed::-webkit-scrollbar{display:none}
 .footer{text-align:center;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:12px}
 .footer-cause{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.75rem 1.25rem}
 .footer-cause img{height:28px;width:auto}
@@ -91,16 +102,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 
 
-<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div class="section-label">Live donations</div>
-  <div style="display:flex;flex-direction:column;gap:9px;max-height:340px;overflow-y:auto" id="live-feed">
-    <div style="text-align:center;color:#ccc;font-size:13px;padding:2rem 0">Donations appear here live</div>
-  </div>
-</div>
+
 
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;color:#111;text-align:center;margin-bottom:1.25rem">Leaderboard</div>
+  <div style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;color:#111;text-align:center;margin-bottom:0.25rem">Leaderboard</div>
+  <div style="font-size:13px;color:#bbb;text-align:center;margin-bottom:1.5rem">Top donors powering the ride</div>
+  <div id="lb-podium" style="display:none;margin-bottom:1.5rem"></div>
   <div class="lb-grid" id="lb">
     <div style="grid-column:span 4;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">Leaderboard loads here</div>
   </div>
@@ -140,6 +148,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   </div>
 </div>
 
+<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+    <div class="section-label" style="margin-bottom:0">Live donations</div>
+    <a href="/donations" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">View all →</a>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:9px;max-height:600px;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none" id="live-feed">
+    <div style="text-align:center;color:#ccc;font-size:13px;padding:2rem 0">Donations appear here live</div>
+  </div>
+</div>
+
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
   <div class="section-label">Follow live on Instagram</div>
@@ -168,13 +186,18 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
     All donations go directly to <a href="https://bringchange2mind.org" target="_blank" style="color:var(--red);font-weight:600;text-decoration:underline">Bring Change 2 Mind</a> — a nonprofit dedicated to mental health advocacy and ending the stigma around mental illness.
   </p>
   <div style="font-size:11px;color:#ccc;margin-top:4px">Powered by Tiltify</div>
+  <div style="font-size:14px;color:#666;text-align:center;margin-top:0.5rem">
+    Questions? <a href="mailto:hi@tylerstandem.com" style="color:var(--red);font-weight:500;text-decoration:underline">hi@tylerstandem.com</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/press" style="color:var(--red);font-weight:500;text-decoration:underline">Press &amp; Media</a>
+  </div>
   <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);max-width:700px;width:100%">
-    <a href="/privacy.html" style="font-size:11px;color:#aaa;text-decoration:none">Privacy Notice</a>
-    <a href="/disclaimer.html" style="font-size:11px;color:#aaa;text-decoration:none">Disclaimer</a>
-    <a href="/terms.html" style="font-size:11px;color:#aaa;text-decoration:none">Terms of Use</a>
-    <a href="/linking.html" style="font-size:11px;color:#aaa;text-decoration:none">Linking Policy</a>
-    <a href="/nondiscrimination.html" style="font-size:11px;color:#aaa;text-decoration:none">Non-Discrimination Notice</a>
-    <a href="/opt-out.html" style="font-size:11px;color:#aaa;text-decoration:none">Your Opt-Out Rights</a>
+    <a href="/privacy" style="font-size:11px;color:#aaa;text-decoration:none">Privacy Notice</a>
+    <a href="/disclaimer" style="font-size:11px;color:#aaa;text-decoration:none">Disclaimer</a>
+    <a href="/terms" style="font-size:11px;color:#aaa;text-decoration:none">Terms of Use</a>
+    <a href="/linking" style="font-size:11px;color:#aaa;text-decoration:none">Linking Policy</a>
+    <a href="/nondiscrimination" style="font-size:11px;color:#aaa;text-decoration:none">Non-Discrimination</a>
+    <a href="/opt-out" style="font-size:11px;color:#aaa;text-decoration:none">Opt-Out Rights</a>
   </div>
   <div style="font-size:11px;color:#ccc;margin-top:0.75rem;text-align:center">
     &copy; 2026 Tyler&#39;s Tandem. Fundraising in support of Bring Change 2 Mind, a registered 501(c)(3) nonprofit.
@@ -263,7 +286,11 @@ async function loadVideos(){
         img.onerror=function(){this.style.display='none';};
         const overlay=document.createElement('div');
         overlay.style.cssText='position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.5) 0%,transparent 50%)';
-        overlay.innerHTML='<svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.3)"/><polygon points="10,8 16,12 10,16" fill="white"/></svg>';
+        overlay.innerHTML='<svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.3)"/><polygon points="10,8 16,12 10,16" fill="white"/></svg><div style="position:absolute;top:7px;right:7px;width:24px;height:24px;opacity:0;transition:opacity 0.2s" class="ig-badge"><svg viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="white" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="white"/></svg></div>';
+        overlay.style.transition='opacity 0.2s';
+        card.addEventListener('mouseenter',()=>{overlay.style.opacity='1';const b=overlay.querySelector('.ig-badge');if(b)b.style.opacity='1';});
+        card.addEventListener('mouseleave',()=>{overlay.style.opacity='0.6';const b=overlay.querySelector('.ig-badge');if(b)b.style.opacity='0';});
+        overlay.style.opacity='0.6';
         card.appendChild(img);
         card.appendChild(overlay);
       } else {
@@ -291,7 +318,7 @@ async function loadCampaign(){
     const raised=d.amount_raised?.value?Math.round(parseFloat(d.amount_raised.value)*100):0;
     const goal=d.goal?.value?Math.round(parseFloat(d.goal.value)*100):0;
     const p=goal>0?Math.min(100,Math.round(raised/goal*100)):0;
-    document.getElementById('raised').textContent=fmt(raised);
+    animateCount(raised);
     document.getElementById('goal-txt').textContent=fmt(goal);
     document.getElementById('pfill').style.width=p+'%';
     if(d.slug&&d.user?.slug){
@@ -303,6 +330,20 @@ async function loadCampaign(){
   }catch(e){console.error('Campaign error',e);}
 }
 
+
+function filterText(str){
+  if(!str)return str;
+  const bad=['fuck','shit','ass','bitch','cunt','dick','cock','pussy','bastard','damn','crap',
+    'piss','fag','nigger','nigga','retard','whore','slut','twat','wanker','bollocks',
+    'bugger','arse','prick','tosser','asshole','arsehole','motherfucker','fucker','bullshit'];
+  let out=str;
+  bad.forEach(w=>{
+    const re=new RegExp('\\b'+w+'\\b','gi');
+    out=out.replace(re,'*'.repeat(w.length));
+  });
+  return out;
+}
+
 let knownIds=new Set(),firstLoad=true;
 async function loadDonations(){
   try{
@@ -311,7 +352,7 @@ async function loadDonations(){
     document.getElementById('ticker-section').style.display='block';
     const track=document.getElementById('ticker-track');
     const html=list.map(x=>{
-      const name=x.donor_name||'Anonymous';
+      const name=filterText(x.donor_name)||'Anonymous';
       const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
       const avatarUrl=x.donor?.avatar?.src||x.donor?.avatar||'';
       const avHtml=avatarUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+avatarUrl+'">':'';
@@ -322,13 +363,13 @@ async function loadDonations(){
     const newOnes=!firstLoad?list.filter(x=>!knownIds.has(x.id)):[];
     list.forEach(x=>knownIds.add(x.id));
     const feed=document.getElementById('live-feed');
-    feed.innerHTML=list.slice(0,30).map(x=>{
-      const name=x.donor_name||'Anonymous';
+    feed.innerHTML=list.slice(0,50).map(x=>{
+      const name=filterText(x.donor_name)||'Anonymous';
       const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
-      const msg=x.donor_comment||'';
+      const msg=filterText(x.donor_comment)||'';
       const isNew=newOnes.some(n=>n.id===x.id);
       const ts=x.completed_at||x.created_at||'';
-      let t='';if(ts){try{const d=Math.round((Date.now()-new Date(ts).getTime())/60000);t=d<1?'just now':d<60?d+'m ago':Math.round(d/60)+'h ago';}catch(e){}}
+      let t='';if(ts){try{const dt=new Date(ts);t=dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}catch(e){}}
       return '<div class="live-item">'+av(x.donor?.avatar?.src,name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+name+(isNew?'<span class="new-badge">New</span>':'')+' </div>'+(msg?'<div class="live-msg">"'+msg+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+' </div></div>';
     }).join('');
     firstLoad=false;
@@ -350,9 +391,39 @@ async function loadLeaderboard(){
   }catch(e){console.error('Leaderboard error',e);}
 }
 
+function animateCount(target){
+  const el=document.getElementById('raised');
+  const duration=1800;
+  const start=performance.now();
+  const startVal=0;
+  function step(now){
+    const elapsed=now-start;
+    const progress=Math.min(elapsed/duration,1);
+    // ease out expo
+    const eased=progress===1?1:1-Math.pow(2,-10*progress);
+    const current=Math.round(startVal+(target-startVal)*eased);
+    el.textContent=fmt(current);
+    if(progress<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+async function loadBanner(){
+  try{
+    const t=await sheetFetch('Settings');
+    const data={};
+    (t.rows||[]).forEach(r=>{const k=r.c[0]?.v;const v=r.c[1]?.v||'';if(k&&k!=='Key')data[k]=v;});
+    if(data.banner){
+      document.getElementById('banner-text').textContent=data.banner;
+      document.getElementById('announcement-banner').style.display='block';
+    }
+  }catch(e){}
+}
+
 async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard()]);}
 
 loadSettings().then(()=>{refresh();loadVideos();});
+loadBanner();
 setInterval(refresh,600000);
 </script>
 </body>

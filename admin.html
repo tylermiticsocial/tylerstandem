@@ -125,6 +125,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   <div class="card">
     <div class="card-head"><h2>Site text</h2></div>
     <div class="field"><label>Logline</label><input id="f-logline" placeholder="One bike. Two seats..."></div>
+    <div class="field"><label>Announcement banner <span style="font-weight:400;color:#bbb">(shows as red strip at top — leave blank to hide)</span></label><input id="f-banner" placeholder="e.g. Ride starts May 20! Donate now to unlock dares"></div>
     <div class="btn-row"><button class="btn" onclick="save('text')">Save text</button><span class="saved" id="sv-text">✓ Saved</span></div>
   </div>
 
@@ -191,6 +192,7 @@ async function loadAll(){
     document.getElementById("f-inc1").value=d.inc_photo_1||"";
     document.getElementById("f-inc2").value=d.inc_photo_2||"";
     document.getElementById("f-logline").value=d.logline||"";
+    document.getElementById("f-banner").value=d.banner||"";
     _token=d.tiltify_token||"";
     ["hero","ride","inc0","inc1","inc2"].forEach(k=>{
       const fmap={hero:"f-hero",ride:"f-ride",inc0:"f-inc0",inc1:"f-inc1",inc2:"f-inc2"};
@@ -239,7 +241,7 @@ async function save(section){
   const u={action:"saveSettings"};
   if(section==="tiltify"||section==="all"){u.tiltify_campaign_id=document.getElementById("f-cid").value.trim();u.tiltify_token=document.getElementById("f-tok").value.trim();}
   if(section==="photos"||section==="all"){u.hero_photo=document.getElementById("f-hero").value.trim();u.ride_photo=document.getElementById("f-ride").value.trim();u.inc_photo_0=document.getElementById("f-inc0").value.trim();u.inc_photo_1=document.getElementById("f-inc1").value.trim();u.inc_photo_2=document.getElementById("f-inc2").value.trim();}
-  if(section==="text"||section==="all"){u.logline=document.getElementById("f-logline").value.trim();}
+  if(section==="text"||section==="all"){u.logline=document.getElementById("f-logline").value.trim();u.banner=document.getElementById("f-banner").value.trim();}
   await gasPost(u);
   const el=document.getElementById("sv-"+section);
   if(el){el.style.opacity="1";setTimeout(()=>el.style.opacity="0",2500);}
