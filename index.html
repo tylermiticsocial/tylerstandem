@@ -291,10 +291,12 @@ function av(url,name,size){
 }
 
 async function sheetFetch(tabName){
-  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(tabName);
+  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(tabName)+'&_='+Date.now();
   const r=await fetch(url);
   const txt=await r.text();
-  const json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  const match=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+  if(!match){console.error('[sheetFetch] bad response for',tabName,txt.slice(0,200));throw new Error('bad response');}
+  const json=JSON.parse(match[1]);
   return json.table;
 }
 
@@ -350,7 +352,7 @@ async function loadSettings(){
     set('stat-avg', avg?avg+' mi':'—');
     set('stat-pct', miles?(pct+'%'):'—');
     set('stat-update', data.ride_update||'—');
-  }catch(e){console.error('Settings error',e);}
+  }catch(e){console.error('[loadSettings error]',e);}
 }
 
 async function loadVideos(){
@@ -779,6 +781,7 @@ function loadDemoMode(){
   }).join('');
 }
 // ── END DEMO MODE ─────────────────────────────────────────────────────────────
+console.log('[Boot] demo mode:', localStorage.getItem('tandem_demo'), '| sheet:', SHEET_ID);
 if(localStorage.getItem('tandem_demo')==='1'){
   // Demo mode: still load settings (photo, banner) but skip live data
   const badge=document.createElement('div');
