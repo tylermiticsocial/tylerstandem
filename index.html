@@ -289,13 +289,23 @@ function av(url,name,size){
 }
 
 async function sheetFetch(tabName){
-  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(tabName)+'&_='+Date.now();
+  // Use CSV export — bypasses gviz cache issues
+  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/export?format=csv&sheet='+encodeURIComponent(tabName)+'&_='+Date.now();
   const r=await fetch(url);
   const txt=await r.text();
-  const match=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-  if(!match){console.error('[sheetFetch] bad response for',tabName,txt.slice(0,200));throw new Error('bad response');}
-  const json=JSON.parse(match[1]);
-  return json.table;
+  // Parse CSV into gviz-compatible table format
+  const lines=txt.trim().split('\n').map(l=>{
+    const cols=[];let cur='',inQ=false;
+    for(let i=0;i<l.length;i++){
+      if(l[i]==='"'){inQ=!inQ;}
+      else if(l[i]===','&&!inQ){cols.push(cur.trim());cur='';}
+      else cur+=l[i];
+    }
+    cols.push(cur.trim());
+    return cols;
+  });
+  const rows=lines.slice(1).map(cols=>({c:cols.map(v=>({v:v||null}))}));
+  return {rows};
 }
 
 async function loadSettings(){
