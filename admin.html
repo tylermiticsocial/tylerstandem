@@ -141,6 +141,19 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
     </div>
     <div id="vstatus" class="status"></div>
   </div>
+
+  <div class="card" style="border:2px dashed var(--border)">
+    <div class="card-head">
+      <h2>🎭 Demo Mode</h2>
+      <span style="font-size:11px;color:#bbb">Fills the site with fake data — no API calls</span>
+    </div>
+    <p style="font-size:13px;color:#888;margin-bottom:1rem;line-height:1.6">Populates the leaderboard, live donations, progress bar, and ticker with realistic fake data so you can show sponsors and partners what the site looks like when it's live.</p>
+    <div class="btn-row">
+      <button class="btn" id="demo-on-btn" onclick="setDemo(true)" style="background:var(--red)">Enable Demo Mode</button>
+      <button class="btn" id="demo-off-btn" onclick="setDemo(false)" style="background:#888;display:none">Disable Demo Mode</button>
+      <span id="demo-status" style="font-size:12px;color:#888"></span>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -272,6 +285,28 @@ function showVStatus(msg,type){
   el.textContent=msg;el.className="status "+type;
   setTimeout(()=>{el.className="status";},4000);
 }
+
+function setDemo(on){
+  if(on){
+    localStorage.setItem('tandem_demo','1');
+    document.getElementById('demo-on-btn').style.display='none';
+    document.getElementById('demo-off-btn').style.display='inline-block';
+    document.getElementById('demo-status').textContent='✓ Demo mode ON — open the site to see it';
+  } else {
+    localStorage.removeItem('tandem_demo');
+    document.getElementById('demo-on-btn').style.display='inline-block';
+    document.getElementById('demo-off-btn').style.display='none';
+    document.getElementById('demo-status').textContent='Demo mode off';
+  }
+}
+// Reflect current state on load
+(function(){
+  if(localStorage.getItem('tandem_demo')==='1'){
+    document.getElementById('demo-on-btn').style.display='none';
+    document.getElementById('demo-off-btn').style.display='inline-block';
+    document.getElementById('demo-status').textContent='✓ Demo mode is ON';
+  }
+})();
 </script>
 </body>
 </html>
