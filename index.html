@@ -548,7 +548,7 @@ function loadDemoMode(){
   let _cfg={};try{_cfg=JSON.parse(localStorage.getItem('tandem_demo_cfg')||'{}');}catch(e){}
   const raisedDollars=_cfg.raised||62842;
   const raised=Math.round(raisedDollars*100);
-  const goal=100000000; // $1,000,000 in cents
+  const goal=10000000; // $100,000 in cents
   // Apply comments to top 3
   if(_cfg.c1)DEMO_NAMES[0].comment=_cfg.c1;
   if(_cfg.c2)DEMO_NAMES[1].comment=_cfg.c2;
@@ -659,7 +659,7 @@ if(localStorage.getItem('tandem_demo')==='1'){
       _fakeDemoIdx++;
       _fakeDemoRaised+=donor.amt;
       animateTo(_fakeDemoRaised);
-      document.getElementById('pfill').style.width=Math.min(100,(_fakeDemoRaised/100000000)*100)+'%';
+      document.getElementById('pfill').style.width=Math.min(100,(_fakeDemoRaised/10000000)*100)+'%';
       // Add to feed
       const feed=document.getElementById('live-feed');
       const el=document.createElement('div');
