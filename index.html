@@ -66,7 +66,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </style>
 </head>
 <body>
-<div id="announcement-banner" style="display:none;background:#b51e00;color:#fff;overflow:hidden;padding:0.3rem 0;font-size:11px;font-weight:800;letter-spacing:0.05em;white-space:nowrap;position:relative">
+<div id="announcement-banner" style="display:none;background:#b51e00;color:#fff;overflow:hidden;padding:0.3rem 0;font-size:11px;font-weight:900;letter-spacing:0.06em;white-space:nowrap;position:relative">
   <div id="banner-track" style="display:inline-flex;width:max-content;animation:bannerScroll 18s linear infinite"></div>
 </div>
 
@@ -264,14 +264,14 @@ async function loadSettings(){
       const b=document.getElementById('announcement-banner');
       const track=document.getElementById('banner-track');
       if(b&&track){
-        const sep=' ✦ ';
+        const sep='   ';
         const item=data.banner+sep;
         const repeated=item.repeat(12);
         track.textContent=repeated+repeated;
         b.style.display='block';
         setTimeout(()=>{
           const w=track.scrollWidth/2;
-          const dur=Math.max(10,w/80);
+          const dur=Math.max(20,w/40);
           track.style.animationDuration=dur+'s';
         },100);
       }
