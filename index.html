@@ -112,7 +112,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
       </div>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-2rem;">
+    <div style="flex:1;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-25rem;">
       <div>
         <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);margin-bottom:4px">% Finished</div>
         <div id="stat-pct" style="font-family:Syne,sans-serif;font-size:5rem;font-weight:800;color:var(--red);line-height:1">0%</div>
@@ -593,11 +593,10 @@ function placeMarkerByPct(pct){
   const coords=getCoordsByPct(pct);
   const marker=document.getElementById('bike-marker');
   if(!coords||!marker) return;
-  const mapW=document.getElementById('ride-map').offsetWidth||600;
-  // Convert 100px offset to % of map width, then subtract from coord
-  const offsetPct=100/mapW*100;
+  // Place right edge of image (arrow tip) ON the red line
+  // left = red line x%, transform translate(-100%) puts right edge at that x
   marker.style.display='block';
-  marker.style.left=(coords[0]-offsetPct)+'%';
+  marker.style.left=coords[0]+'%';
   marker.style.top=coords[1]+'%';
   marker.style.transform='translate(-100%,-50%)';
 }
