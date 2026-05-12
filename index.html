@@ -61,8 +61,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
       <svg style="width:22px;height:22px;stroke:#bbb;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
   </div>
-  <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="width:600px;max-width:95%;margin:0 auto 0.5rem;display:block">
-  <p id="logline" style="font-size:14px;color:#999;max-width:400px;margin:0 auto 1.5rem;line-height:1.6">Riding a tandem bike down the entire California coast with strangers to raise money for Bring Change 2 Mind, a mental health org</p>
+  <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:0.5rem;padding:0 1rem">
+    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="height:55px;width:auto;max-width:55%">
+    <div style="width:1px;height:44px;background:var(--border);flex-shrink:0"></div>
+    <a href="https://bringchange2mind.org" target="_blank" rel="noopener" style="display:flex;align-items:center">
+      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="height:32px;width:auto;max-width:35%" onerror="this.style.display='none'">
+    </a>
+  </div>
+  <p id="logline" style="font-size:14px;color:#999;max-width:400px;margin:0 auto 1.5rem;line-height:1.6">One bike. Two seats. 1,000 miles of strangers. All for mental health.</p>
   <div style="margin-bottom:2rem">
     <a class="donate-btn" id="dlink" href="https://donate.tiltify.com/653378fc-db12-45ed-8192-dafadf84a642/details" target="_blank">Donate</a>
   </div>
@@ -81,7 +87,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div id="ticker-section" style="display:none;margin:0 0 1.5rem">
   <div class="section-label">Recent donations</div>
-  <div class="ticker-outer"><div class="ticker-track" id="ticker-track"></div></div>
+  <div style="max-width:900px;margin:0 auto;padding:0 1.5rem">
+    <div class="ticker-outer" style="border-radius:12px;background:#fff;border:1px solid var(--border);padding:0.6rem 0"><div class="ticker-track" id="ticker-track"></div></div>
+  </div>
 </div>
 
 <div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
@@ -158,13 +166,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div class="footer">
-  <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGOTEXT.png?raw=true" alt="Tyler's Tandem" style="width:90px;max-width:50%;margin-bottom:0.5rem">
-  <a href="https://bringchange2mind.org" target="_blank" rel="noopener" style="text-decoration:none" class="footer-cause-wrap">
-  <div class="footer-cause">
-    <img src="data:image/png;base64,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" alt="Bring Change 2 Mind">
-    <div class="footer-cause-text"><strong>Bring Change 2 Mind</strong>Mental health advocacy &amp; awareness</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem">
+    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGOTEXT.png?raw=true" alt="Tyler's Tandem" style="height:70px;width:auto;max-width:45%">
+    <div style="width:1px;height:56px;background:var(--border);flex-shrink:0"></div>
+    <a href="https://bringchange2mind.org" target="_blank" rel="noopener" style="display:flex;align-items:center">
+      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="height:36px;width:auto;max-width:45%" onerror="this.style.display='none'">
+    </a>
   </div>
-  </a>
+  <p style="font-size:14px;color:#666;line-height:1.8;text-align:center;max-width:500px">
+    All donations go directly to <a href="https://bringchange2mind.org" target="_blank" style="color:var(--red);font-weight:600;text-decoration:underline">Bring Change 2 Mind</a> — a nonprofit dedicated to mental health advocacy and ending the stigma around mental illness.
+  </p>
   <div style="font-size:11px;color:#ccc;margin-top:4px">Powered by Tiltify</div>
   <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);max-width:700px;width:100%">
     <a href="/privacy.html" style="font-size:11px;color:#aaa;text-decoration:none">Privacy Notice</a>
@@ -186,26 +197,26 @@ const TILTIFY_CAMPAIGN_ID = '653378fc-db12-45ed-8192-dafadf84a642';
 function fmt(c){return '$'+(c/100).toLocaleString('en-US',{maximumFractionDigits:0})}
 function initials(n){return (n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
 
-function genAvatar(name,size){
+function genAvatar(size){
   const c=document.createElement('canvas');c.width=size;c.height=size;
   const x=c.getContext('2d');
-  const p=['#b51e00','#c94400','#8c2d00','#7a1400','#a04400'];
-  let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}
-  x.fillStyle=p[Math.abs(h)%p.length];
+  // gray circle background
+  x.fillStyle='#d4d0cb';
   x.beginPath();x.arc(size/2,size/2,size/2,0,Math.PI*2);x.fill();
-  const s=name.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-  x.globalAlpha=0.22;
-  for(let i=0;i<3;i++){x.fillStyle='#fff';x.beginPath();x.arc(((s*(i+1)*37)%size)-(size/4)+size/2,((s*(i+2)*53)%size)-(size/4)+size/2,size*(0.28+((s*(i+3))%10)/28),0,Math.PI*2);x.fill();}
-  x.globalAlpha=1;x.fillStyle='rgba(255,255,255,0.92)';
-  x.font='bold '+(size*0.32)+'px Syne,sans-serif';
-  x.textAlign='center';x.textBaseline='middle';
-  x.fillText(initials(name),size/2,size/2+1);
+  // head
+  x.fillStyle='#a8a49e';
+  x.beginPath();x.arc(size/2,size*0.38,size*0.22,0,Math.PI*2);x.fill();
+  // body
+  x.fillStyle='#a8a49e';
+  x.beginPath();
+  x.arc(size/2,size*0.85,size*0.32,Math.PI,0);
+  x.fill();
   return c.toDataURL();
 }
 
 function av(url,name,size){
   var n=name.replace(/'/g,'');
-  return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(name,size*2))+'" onerror="this.src=genAvatar(\'' +n+ '\','+size*2+')">';
+  return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(size*2))+'" onerror="this.src=genAvatar(\'' +n+ '\','+size*2+')">';
 }
 
 async function sheetFetch(tabName){
