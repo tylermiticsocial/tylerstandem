@@ -405,8 +405,8 @@ async function loadLeaderboard(){
     if(!top.length){lb.innerHTML='<div style="grid-column:span 4;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">No donors yet — be the first!</div>';return;}
 
     // Build podium for top 3
-    if(top.length>=1){
-      podiumEl.style.display='block';
+    podiumEl.style.display='block';
+    {
       // Order: 2nd, 1st, 3rd
       const podiumOrder=[
         top.length>1?{data:top[1],rank:2,medal:'🥈',color:'#777',height:'120px',size:110,fontSize:'1rem'}:null,
