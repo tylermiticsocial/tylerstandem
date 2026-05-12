@@ -338,7 +338,6 @@ async function loadSettings(){
       set('stat-strangers', strangers||'—');
       set('stat-avg', avg?avg+' mi':'—');
       set('stat-pct', pct+'%');
-      set('stat-update', data.ride_update||'—');
     }
   }catch(e){console.error('[loadSettings error]',e);}
 }
