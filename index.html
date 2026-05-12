@@ -19,8 +19,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .prog-fill{background:var(--red);height:10px;border-radius:999px;transition:width 1.4s cubic-bezier(.4,0,.2,1);width:0%}
 .ticker-outer{overflow:hidden;position:relative;padding:0.1rem 0}
 .ticker-outer::before,.ticker-outer::after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
-.ticker-outer::before{left:0;background:linear-gradient(to right,var(--cream) 60%,transparent)}
-.ticker-outer::after{right:0;background:linear-gradient(to left,var(--cream) 60%,transparent)}
+.ticker-outer::before{left:0;background:linear-gradient(to right,#f5f0e8 40%,transparent)}
+.ticker-outer::after{right:0;background:linear-gradient(to left,#f5f0e8 40%,transparent)}
 .ticker-track{display:flex;width:max-content;animation:ticker 50s linear infinite}
 .ticker-track:hover{animation-play-state:paused}
 @keyframes ticker{from{transform:translateX(-50%)}to{transform:translateX(0)}}
@@ -80,10 +80,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div id="ticker-section" style="display:none;margin:0 0 1.5rem">
-  <div class="section-label">Recent donations</div>
-  <div style="max-width:900px;margin:0 auto;padding:0 1.5rem">
-    <div class="ticker-outer"><div class="ticker-track" id="ticker-track"></div></div>
-  </div>
+  <div class="ticker-outer"><div class="ticker-track" id="ticker-track"></div></div>
 </div>
 
 <div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
@@ -160,11 +157,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div class="footer">
-  <div style="display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:1rem">
-    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGOTEXT.png?raw=true" alt="Tyler's Tandem" style="width:200px;height:auto">
+  <div style="display:flex;align-items:center;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-bottom:1.5rem;width:100%">
+    <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGOTEXT.png?raw=true" alt="Tyler's Tandem" style="width:280px;height:auto">
     <div style="width:1px;height:50px;background:var(--border);flex-shrink:0"></div>
     <a href="https://bringchange2mind.org" target="_blank" rel="noopener">
-      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="width:200px;height:auto" onerror="this.style.display='none'">
+      <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/BC2MLOGO.png?raw=true" alt="Bring Change 2 Mind" style="width:260px;height:auto" onerror="this.style.display='none'">
     </a>
   </div>
   <p style="font-size:14px;color:#666;line-height:1.8;text-align:center;max-width:500px">
