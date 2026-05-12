@@ -73,7 +73,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div id="hero-banner" style="padding:4rem 1.5rem 2.5rem;margin-bottom:0"><div style="text-align:center;max-width:700px;margin:0 auto">
   <div style="margin-bottom:1.25rem">
-    <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center">
+    <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center">
       <svg style="width:22px;height:22px;stroke:#bbb;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
   </div>
@@ -364,7 +364,7 @@ function filterText(str){
   return out;
 }
 
-let knownIds=new Set(),firstLoad=true;
+let knownIds=new Set(),firstLoad=true,donorCommentMap={};
 async function loadDonations(){
   try{
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
@@ -381,7 +381,7 @@ async function loadDonations(){
     track.innerHTML=html+html;
     setTimeout(()=>{track.style.animationDuration=Math.max(25,track.scrollWidth/2/80)+'s';},100);
     const newOnes=!firstLoad?list.filter(x=>!knownIds.has(x.id)):[];
-    list.forEach(x=>knownIds.add(x.id));
+    list.forEach(x=>{knownIds.add(x.id);if(x.donor_name&&x.donor_comment){donorCommentMap[x.donor_name]=x.donor_comment;}});
     const feed=document.getElementById('live-feed');
     feed.innerHTML=list.slice(0,50).map(x=>{
       const name=filterText(x.donor_name)||'Anonymous';
@@ -420,7 +420,7 @@ async function loadLeaderboard(){
           const e=p.data;
           const name=e.name||'Anonymous';
           const amt=e.amount?.value?parseFloat(e.amount.value):0;
-          const comment=e.donor_comment||e.comment||'';
+          const comment=e.donor_comment||e.comment||donorCommentMap[e.name]||'';
           const avatarUrl=e.avatar?.src||e.avatar||'';
           const sz=p.size;
           const av=avatarUrl
