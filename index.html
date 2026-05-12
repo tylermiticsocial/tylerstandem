@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -296,12 +296,12 @@ async function loadSettings(){
     const rows=t.rows||[];
     const data={};
     rows.forEach(r=>{
-      const k=r.c[0]?.v;
-      const v=r.c[1]?.v??r.c[1]?.f??null; // check v first, then formatted value (for hyperlinks)
-      if(k&&k!=='Key'&&v!==null&&v!=='')data[k]=v;
+      const k=(r.c[0]?.v||'').toString().trim();
+      const v=(r.c[1]?.v||'').toString().trim();
+      if(k&&k!=='Key'&&v)data[k]=v;
     });
     console.log('[Settings loaded]', data);
-    if(data.hero_photo){document.getElementById('hero-photo-wrap').innerHTML='<img class="hero-photo" src="'+data.hero_photo+'" alt="Tyler">';}
+    if(data.hero_photo){document.getElementById('hero-photo-wrap').innerHTML='<img class="hero-photo" src="'+data.hero_photo+'" alt="Tyler" onerror="this.style.display=\'none\'">';}
     // ride-photo-wrap replaced by map
     if(data.logline){document.getElementById('logline').textContent=data.logline;}
     if(data.tiltify_campaign_id){window._campaignId=data.tiltify_campaign_id;}
@@ -592,12 +592,6 @@ function getCityCoords(cityKey){
   return COAST_PATH[idx];
 }
 
-  const [exp,eyp]=COAST_PATH[endIdx];
-  ctx.beginPath();
-  ctx.arc((exp/100)*W,(eyp/100)*H,dotR,0,Math.PI*2);
-  ctx.fill();
-  console.log('[drawRoute]',cityKey,'W='+W,'H='+H,'endIdx='+endIdx,'firstDot='+(COAST_PATH[0][0]/100*W).toFixed(0)+'px');
-}
 
 function placeMarker(cityRaw){
   const cityKey=(cityRaw||'').toLowerCase().trim().replace(/,.*$/,'').trim();
