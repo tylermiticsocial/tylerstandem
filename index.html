@@ -580,12 +580,12 @@ function loadDemoMode(){
 }
 // ── END DEMO MODE ─────────────────────────────────────────────────────────────
 if(localStorage.getItem('tandem_demo')==='1'){
-  loadSettings().then(()=>{loadVideos();loadDemoMode();});
-  // show a small indicator
+  // Demo mode: skip all API calls, just show fake data
   const badge=document.createElement('div');
   badge.textContent='🎭 Demo Mode';
   badge.style.cssText='position:fixed;bottom:12px;right:12px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;z-index:9999;letter-spacing:0.05em';
   document.body.appendChild(badge);
+  loadDemoMode();
 } else {
   loadSettings().then(()=>{refresh();loadVideos();});
 }
