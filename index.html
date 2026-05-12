@@ -77,8 +77,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div id="hero-banner" style="padding:3rem 1.5rem 2.5rem;margin-bottom:0"><div style="text-align:center;max-width:700px;margin:0 auto">
   <div style="margin-bottom:1.25rem">
-    <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center">
-      <svg style="width:22px;height:22px;stroke:#bbb;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;border:2px dashed var(--border);overflow:hidden;display:inline-flex;align-items:center;justify-content:center"><img class="hero-photo" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/Tylerpfp.png" alt="Tyler" onerror="this.style.display='none'">
     </div>
   </div>
   <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="width:100%;max-width:100%;height:auto;margin:0 auto 0.5rem;display:block">
@@ -104,7 +103,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div class="section-label" style="margin-bottom:1rem">WHERE WE ARE</div>
   <div style="display:flex;gap:2rem;align-items:flex-start">
 
     <div id="ride-map" style="position:relative;flex:0 0 45%;user-select:none">
@@ -306,8 +304,9 @@ async function loadSettings(){
     const rows=t.rows||[];
     const data={};
     rows.forEach(r=>{
-      const k=r.c[0]?.v;const v=r.c[1]?.v;
-      if(k&&k!=='Key'&&v)data[k]=v;
+      const k=r.c[0]?.v;
+      const v=r.c[1]?.v??r.c[1]?.f??null; // check v first, then formatted value (for hyperlinks)
+      if(k&&k!=='Key'&&v!==null&&v!=='')data[k]=v;
     });
     console.log('[Settings loaded]', data);
     if(data.hero_photo){document.getElementById('hero-photo-wrap').innerHTML='<img class="hero-photo" src="'+data.hero_photo+'" alt="Tyler">';}
@@ -318,15 +317,14 @@ async function loadSettings(){
     if(data.banner){
       const b=document.getElementById('announcement-banner');
       const track=document.getElementById('banner-track');
+      console.log('[Banner]', data.banner, b, track);
       if(b&&track){
-        const sep='   ';
+        const sep='   •   ';
         const item=data.banner+sep;
-        const repeated=item.repeat(12);
-        track.textContent=repeated+repeated;
+        track.textContent=item.repeat(20);
         b.style.display='block';
         setTimeout(()=>{
-          const w=track.scrollWidth/2;
-          const dur=Math.max(20,w/40);
+          const dur=Math.max(20,track.scrollWidth/2/80);
           track.style.animationDuration=dur+'s';
         },100);
       }
@@ -336,22 +334,27 @@ async function loadSettings(){
     if(data.inc_photo_2){document.getElementById('inc-img-2').innerHTML='<img src="'+data.inc_photo_2+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
     // Ride map + stats
     const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!==undefined&&v!==null)el.textContent=v;};
-    const rawCity = (data.current_city||'').toString().trim();
-    if(rawCity) placeMarker(rawCity);
-    document.getElementById('stat-city') && (document.getElementById('stat-city').textContent = rawCity||'Not started yet');
-    const miles=parseFloat(data.miles_ridden)||0;
-    const days=parseInt(data.days_on_bike)||0;
-    const strangers=parseInt(data.strangers_met)||0;
-    const total=1000;
-    const avg=days>0?Math.round(miles/days):0;
-    const pct=Math.round((miles/total)*100);
-    set('stat-miles', miles?miles+' mi':'—');
-    set('stat-days', days||'—');
-    set('stat-remaining', miles?(total-miles)+' mi':'—');
-    set('stat-strangers', strangers||'—');
-    set('stat-avg', avg?avg+' mi':'—');
-    set('stat-pct', miles?(pct+'%'):'—');
-    set('stat-update', data.ride_update||'—');
+    // Skip map/stats in demo mode — loadDemoMode handles those
+    if(!localStorage.getItem('tandem_demo')){
+      const rawCity = (data.current_city||'').toString().trim();
+      if(rawCity) placeMarker(rawCity);
+      document.getElementById('stat-city') && (document.getElementById('stat-city').textContent = rawCity||'Not started yet');
+    }
+    if(!localStorage.getItem('tandem_demo')){
+      const miles=parseFloat(data.miles_ridden)||0;
+      const days=parseInt(data.days_on_bike)||0;
+      const strangers=parseInt(data.strangers_met)||0;
+      const total=1000;
+      const avg=days>0?Math.round(miles/days):0;
+      const pct=Math.round((miles/total)*100);
+      set('stat-miles', miles?miles+' mi':'—');
+      set('stat-days', days||'—');
+      set('stat-remaining', miles?(total-miles)+' mi':'—');
+      set('stat-strangers', strangers||'—');
+      set('stat-avg', avg?avg+' mi':'—');
+      set('stat-pct', miles?(pct+'%'):'—');
+      set('stat-update', data.ride_update||'—');
+    }
   }catch(e){console.error('[loadSettings error]',e);}
 }
 
