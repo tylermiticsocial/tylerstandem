@@ -79,6 +79,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div style="margin-bottom:1.25rem">
     <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center"><img class="hero-photo" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/Tylerpfp.png" alt="Tyler" onerror="this.style.display='none'">
     </div>
+    <a href="https://instagram.com/tylermitic" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;font-weight:600;color:#888;text-decoration:none;letter-spacing:0.01em">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#888" stroke="none"/></svg>
+      @tylermitic
+    </a>
   </div>
   <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="width:100%;max-width:100%;height:auto;margin:0 auto 0.5rem;display:block">
   <p id="logline" style="font-size:14px;color:#999;max-width:400px;margin:0 auto 1.5rem;line-height:1.6">One bike. Two seats. 1,000 miles of strangers. All for mental health.</p>
@@ -182,23 +186,25 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+    <div class="section-label" style="margin-bottom:0">Follow live on Instagram</div>
+    <a href="https://instagram.com/tylermitic" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">@tylermitic →</a>
+  </div>
+  <div style="position:relative">
+    <div id="ig-scroll" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+      <div id="ig-placeholder" style="min-width:180px;background:var(--cream2);border:1px dashed var(--border);border-radius:4px;padding:12px 12px 40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;aspect-ratio:3/4">
+        <svg style="width:24px;height:24px;stroke:#ccc;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#ccc" stroke="none"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
     <div class="section-label" style="margin-bottom:0">Live donations</div>
     <a href="/donations" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">View all →</a>
   </div>
   <div style="display:flex;flex-direction:column;gap:9px" id="live-feed">
     <div style="text-align:center;color:#ccc;font-size:13px;padding:2rem 0">Donations appear here live</div>
-  </div>
-</div>
-
-
-<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div class="section-label">Follow live on Instagram</div>
-  <div style="position:relative">
-    <div id="ig-scroll" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none">
-      <div id="ig-placeholder" style="min-width:140px;height:200px;background:var(--cream2);border:1px dashed var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg style="width:24px;height:24px;stroke:#ccc;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#ccc" stroke="none"/></svg>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -556,16 +562,9 @@ async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadL
 
 
 // ── RIDE MAP ──────────────────────────────────────────────────────────────────
-const COAST_PATH=[[16.38,14.28],[16.71,14.68],[17.77,18.41],[16.71,22.82],[14.83,26.42],[19.4,30.22],[20.05,35.09],[22.17,38.69],[26.32,42.83],[28.77,46.96],[30.56,51.37],[35.29,53.24],[33.01,57.1],[42.62,64.38],[44.58,70.25],[51.34,71.51],[56.64,74.25],[61.7,76.65],[66.75,80.85],[68.7,85.39]];
+const COAST_PATH=[[15.48,6.67],[15.65,8.67],[15.57,11.01],[15.73,12.01],[15.65,12.81],[15.81,14.34],[16.06,16.54],[16.22,17.88],[16.3,18.68],[16.38,21.21],[16.38,22.01],[16.46,23.48],[16.38,25.02],[16.46,26.02],[16.71,28.02],[17.77,30.22],[18.09,30.69],[18.34,31.22],[18.58,31.89],[19.4,33.36],[19.56,34.36],[19.72,36.36],[20.05,38.69],[20.37,39.69],[20.78,41.36],[21.43,43.03],[22.0,44.03],[22.66,45.03],[26.32,46.96],[27.3,47.7],[28.52,48.37],[29.34,48.83],[30.56,49.5],[31.78,50.03],[33.01,50.57],[34.23,51.23],[35.29,51.9],[36.02,52.57],[36.67,53.37],[37.33,54.17],[37.9,55.04],[39.93,57.04],[41.16,58.04],[41.97,58.84],[42.79,59.91],[43.6,60.84],[44.58,62.37]];
 
-const CITY_IDX={
-  'san francisco':49,'pacifica':55,'half moon bay':63,'santa cruz':74,
-  'monterey':82,'carmel':85,'big sur':95,'san simeon':110,
-  'morro bay':116,'san luis obispo':121,'pismo beach':125,
-  'santa barbara':138,'ventura':143,'malibu':146,'santa monica':148,
-  'los angeles':149,'long beach':150,'san clemente':151,
-  'oceanside':152,'encinitas':152,'san diego':152
-};
+const CITY_IDX={'crescent city':0,'trinidad':1,'eureka':2,'fortuna':3,'ferndale':4,'shelter cove':5,'westport':6,'fort bragg':7,'mendocino':8,'bodega bay':9,'jenner':10,'stinson beach':11,'san francisco':12,'pacifica':13,'half moon bay':14,'santa cruz':15,'capitola':16,'aptos':17,'watsonville':18,'monterey':19,'carmel':20,'big sur':21,'cambria':22,'san simeon':23,'morro bay':24,'san luis obispo':25,'pismo beach':26,'guadalupe':27,'santa barbara':28,'carpinteria':29,'ventura':30,'oxnard':31,'malibu':32,'santa monica':33,'los angeles':34,'long beach':35,'huntington beach':36,'newport beach':37,'laguna beach':38,'dana point':39,'san clemente':40,'oceanside':41,'carlsbad':42,'encinitas':43,'del mar':44,'la jolla':45,'san diego':46};
 
 // Get position along coast path by percentage (0-100)
 function getCoordsByPct(pct){
