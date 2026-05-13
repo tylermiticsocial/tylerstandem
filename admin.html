@@ -88,6 +88,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   <div class="topbar">
     <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="height:28px;width:auto">
     <div class="topbar-links">
+      <a href="#" onclick="exportSettings()">⬇ Export</a>
+      <label style="font-size:13px;color:var(--red);font-weight:500;cursor:pointer">⬆ Import<input type="file" accept=".json" style="display:none" onchange="importSettings(this)"></label>
       <a href="/" target="_blank">View site</a>
       <a href="https://docs.google.com/spreadsheets/d/1mNtn9OB2dWK39WqVUZXcN94Y4Rwo3NBxhq7x_vN6E38/edit" target="_blank">Sheet</a>
       <a href="https://app.tiltify.com" target="_blank">Tiltify</a>
@@ -172,7 +174,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
 
 <script>
 const SHEET_ID="1mNtn9OB2dWK39WqVUZXcN94Y4Rwo3NBxhq7x_vN6E38";
-const GAS_URL="https://script.google.com/macros/s/AKfycbywuTzYTtvgPtK2fDljqs2n-0RMItdftVpksUjFCRFHxw0CuUCfmKvD1vGpsOChvuG7/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycbwjJ4SR2MsUPeSz0gH5R4QPdVzpaz7mhRo_LZ4D8SIOs9dGhiXW7ofUZjl4ED7IfG3Y/exec";
 const CAMPAIGN_ID="653378fc-db12-45ed-8192-dafadf84a642";
 const TILTIFY_BASE="https://v5api.tiltify.com";
 const PWD="yourmother";
@@ -200,49 +202,61 @@ async function sheetFetch(tab){
   return json.table;
 }
 
-async function gasPost(data){
-  // GAS requires form-encoded POST when called cross-origin (no-cors strips Content-Type)
-  const form=new FormData();
-  form.append('payload', JSON.stringify(data));
-  await fetch(GAS_URL,{method:"POST",mode:"no-cors",body:form});
+// Cache in localStorage for instant UI, sync to Edge Config for persistence
+function getSettings(){try{return JSON.parse(localStorage.getItem('tandem_settings')||'{}');}catch(e){return {};}}
+
+async function saveSettingsLocal(d){
+  localStorage.setItem('tandem_settings',JSON.stringify(d));
+  // Sync to Edge Config
+  try{
+    await fetch('/api/settings',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key:'tandem_settings',value:d})
+    });
+  }catch(e){console.error('Sync error',e);}
+}
+
+async function loadFromServer(){
+  try{
+    const r=await fetch('/api/settings');
+    const {settings,videos}=await r.json();
+    if(settings&&Object.keys(settings).length){
+      localStorage.setItem('tandem_settings',JSON.stringify(settings));
+    }
+    if(videos&&videos.length){
+      localStorage.setItem('tandem_videos',JSON.stringify(videos));
+    }
+  }catch(e){console.error('Load from server error',e);}
 }
 
 let _token="";
 
 async function loadAll(){
-  try{
-    const t=await sheetFetch("Settings");
-    const d={};
-    (t.rows||[]).forEach(r=>{const k=r.c[0]?.v;const v=r.c[1]?.v||"";if(k&&k!=="Key")d[k]=v;});
-    document.getElementById("f-cid").value=d.tiltify_campaign_id||"";
-    document.getElementById("f-tok").value=d.tiltify_token||"";
-    document.getElementById("f-hero").value=d.hero_photo||"";
-    document.getElementById("f-ride").value=d.ride_photo||"";
-    document.getElementById("f-inc0").value=d.inc_photo_0||"";
-    document.getElementById("f-inc1").value=d.inc_photo_1||"";
-    document.getElementById("f-inc2").value=d.inc_photo_2||"";
-    document.getElementById("f-logline").value=d.logline||"";
-    document.getElementById("f-city").value=d.current_city||"";
-    document.getElementById("f-miles").value=d.miles_ridden||"";
-    document.getElementById("f-days").value=d.days_on_bike||"";
-    document.getElementById("f-strangers").value=d.strangers_met||"";
-    document.getElementById("f-ride-update").value=d.ride_update||"";
-    document.getElementById("f-banner").value=d.banner||"";
-    _token=d.tiltify_token||"";
-    ["hero","ride","inc0","inc1","inc2"].forEach(k=>{
-      const fmap={hero:"f-hero",ride:"f-ride",inc0:"f-inc0",inc1:"f-inc1",inc2:"f-inc2"};
-      const pmap={hero:"p-hero",ride:"p-ride",inc0:"p-inc0",inc1:"p-inc1",inc2:"p-inc2"};
-      const v=document.getElementById(fmap[k]).value;
-      if(v){const img=document.getElementById(pmap[k]);img.src=v;img.style.display="block";img.onerror=function(){this.style.display="none"};}
-    });
-    loadStats();
-  }catch(e){console.error("Settings error",e);}
-
-  try{
-    const t=await sheetFetch("Videos");
-    const vids=(t.rows||[]).filter(r=>r.c[0]?.v&&r.c[0].v!=="url").map(r=>({url:r.c[0].v,thumb:r.c[1]?.v||""})).reverse();
-    renderVideos(vids);
-  }catch(e){console.error("Videos error",e);}
+  await loadFromServer();
+  const d=getSettings();
+  const fields={
+    'f-cid':'tiltify_campaign_id','f-tok':'tiltify_token',
+    'f-hero':'hero_photo','f-inc0':'inc_photo_0','f-inc1':'inc_photo_1','f-inc2':'inc_photo_2',
+    'f-logline':'logline','f-banner':'banner',
+    'f-city':'current_city','f-miles':'miles_ridden','f-days':'days_on_bike',
+    'f-strangers':'strangers_met','f-ride-update':'ride_update',
+    'd-raised':'demo_raised','d-donors':'demo_donors',
+    'd-c1':'demo_c1','d-c2':'demo_c2','d-c3':'demo_c3'
+  };
+  Object.entries(fields).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el&&d[key]!==undefined) el.value=d[key];
+  });
+  _token=d.tiltify_token||'';
+  ['hero','inc0','inc1','inc2'].forEach(k=>{
+    const fmap={hero:'f-hero',inc0:'f-inc0',inc1:'f-inc1',inc2:'f-inc2'};
+    const pmap={hero:'p-hero',inc0:'p-inc0',inc1:'p-inc1',inc2:'p-inc2'};
+    const v=document.getElementById(fmap[k])?.value;
+    if(v){const img=document.getElementById(pmap[k]);if(img){img.src=v;img.style.display='block';img.onerror=function(){this.style.display='none'};}}
+  });
+  loadStats();
+  renderVideos(JSON.parse(localStorage.getItem('tandem_videos')||'[]'));
 }
 
 async function loadStats(){
@@ -272,38 +286,39 @@ function renderVideos(vids){
   list._vids=vids;
 }
 
-async function save(section){
-  const u={action:"saveSettings"};
-  if(section==="tiltify"||section==="all"){u.tiltify_campaign_id=document.getElementById("f-cid").value.trim();u.tiltify_token=document.getElementById("f-tok").value.trim();}
-  if(section==="photos"||section==="all"){u.hero_photo=document.getElementById("f-hero").value.trim();u.ride_photo=document.getElementById("f-ride").value.trim();u.inc_photo_0=document.getElementById("f-inc0").value.trim();u.inc_photo_1=document.getElementById("f-inc1").value.trim();u.inc_photo_2=document.getElementById("f-inc2").value.trim();}
-  if(section==="text"||section==="all"){u.logline=document.getElementById("f-logline").value.trim();u.banner=document.getElementById("f-banner").value.trim();u.current_city=document.getElementById("f-city").value.trim();
-    u.miles_ridden=document.getElementById("f-miles").value.trim();
-    u.days_on_bike=document.getElementById("f-days").value.trim();
-    u.strangers_met=document.getElementById("f-strangers").value.trim();
-    u.ride_update=document.getElementById("f-ride-update").value.trim();}
-  await gasPost(u);
-  const el=document.getElementById("sv-"+section);
+function save(section){
+  const d=getSettings();
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  if(section==="tiltify"||section==="all"){d.tiltify_campaign_id=g('f-cid');d.tiltify_token=g('f-tok');}
+  if(section==="photos"||section==="all"){d.hero_photo=g('f-hero');d.inc_photo_0=g('f-inc0');d.inc_photo_1=g('f-inc1');d.inc_photo_2=g('f-inc2');}
+  if(section==="text"||section==="all"){d.logline=g('f-logline');d.banner=g('f-banner');}
+  if(section==="ride"||section==="all"){d.current_city=g('f-city');d.miles_ridden=g('f-miles');d.days_on_bike=g('f-days');d.strangers_met=g('f-strangers');d.ride_update=g('f-ride-update');}
+  if(section==="demo"||section==="all"){d.demo_raised=g('d-raised');d.demo_donors=g('d-donors');d.demo_c1=g('d-c1');d.demo_c2=g('d-c2');d.demo_c3=g('d-c3');}
+  saveSettingsLocal(d);
+  const el=document.getElementById('sv-'+section);
   if(el){el.style.opacity="1";setTimeout(()=>el.style.opacity="0",2500);}
 }
 
-async function addVideo(){
-  const url=document.getElementById("v-url").value.trim();
-  const thumb=document.getElementById("v-thumb").value.trim();
+function addVideo(){
+  const url=document.getElementById('v-url').value.trim();
+  const thumb=document.getElementById('v-thumb').value.trim();
   if(!url){return;}
-  if(!url.includes("instagram.com")){showVStatus("Paste a valid Instagram URL","err");return;}
-  await gasPost({action:"addVideo",url,thumb});
-  document.getElementById("v-url").value="";
-  document.getElementById("v-thumb").value="";
-  showVStatus("Video added! Refresh site in ~30s.","ok");
-  setTimeout(loadAll,3000);
+  const vids=JSON.parse(localStorage.getItem('tandem_videos')||'[]');
+  vids.unshift({url,thumb});
+  localStorage.setItem('tandem_videos',JSON.stringify(vids));
+  fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'tandem_videos',value:vids})}).catch(()=>{});
+  document.getElementById('v-url').value='';
+  document.getElementById('v-thumb').value='';
+  renderVideos(vids);
+  showVStatus('Video added!','ok');
 }
 
-async function delVideo(i){
-  const vids=document.getElementById("vlist")._vids||[];
-  if(!vids[i])return;
-  await gasPost({action:"removeVideo",url:vids[i].url});
-  showVStatus("Removed.","ok");
-  setTimeout(loadAll,2000);
+function delVideo(i){
+  const vids=JSON.parse(localStorage.getItem('tandem_videos')||'[]');
+  vids.splice(i,1);
+  localStorage.setItem('tandem_videos',JSON.stringify(vids));
+  renderVideos(vids);
+  showVStatus('Removed.','ok');
 }
 
 function showVStatus(msg,type){
@@ -355,6 +370,31 @@ function setDemo(on){
     document.getElementById('demo-status').textContent='✓ Demo mode is ON';
   }
 })();
+
+function exportSettings(){
+  const d={settings:getSettings(),videos:JSON.parse(localStorage.getItem('tandem_videos')||'[]')};
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='tandem-settings-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+function importSettings(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.settings)localStorage.setItem('tandem_settings',JSON.stringify(d.settings));
+      if(d.videos)localStorage.setItem('tandem_videos',JSON.stringify(d.videos));
+      alert('Settings imported! Reloading...');
+      location.reload();
+    }catch(err){alert('Invalid JSON file');}
+  };
+  reader.readAsText(file);
+}
 </script>
 </body>
 </html>

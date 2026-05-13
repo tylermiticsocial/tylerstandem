@@ -1,0 +1,7 @@
+{
+  "name": "tylerstandem",
+  "version": "1.0.0",
+  "dependencies": {
+    "@vercel/edge-config": "^1.0.0"
+  }
+}
