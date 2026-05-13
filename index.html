@@ -191,7 +191,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   </div>
   <div style="position:relative">
     <div id="ig-scroll" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none">
-      <div id="ig-placeholder" style="min-width:180px;background:var(--cream2);border:1px dashed var(--border);border-radius:4px;padding:12px 12px 40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;aspect-ratio:3/4">
+      <div id="ig-placeholder" style="width:210px;height:252px;background:var(--cream2);border:1px dashed var(--border);border-radius:4px;padding:12px 12px 48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
         <svg style="width:24px;height:24px;stroke:#ccc;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#ccc" stroke="none"/></svg>
       </div>
     </div>
@@ -475,60 +475,72 @@ async function loadDonations(){
   }catch(e){console.error('Donations error',e);}
 }
 
+function emptyPodiumSlot(rank,color,height,size,fontSize){
+  const sz=size;
+  return'<div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">'
+    +'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--cream2);border:4px dashed '+color+';display:flex;align-items:center;justify-content:center;margin:0 auto"><span style="font-size:'+(sz*0.45)+'px;color:#ccc">?</span></div>'
+    +'<div style="font-size:13px;font-weight:700;color:#ccc;margin-top:10px">—</div>'
+    +'<div style="font-family:Syne,sans-serif;font-size:'+fontSize+';font-weight:800;color:#ddd">—</div>'
+    +'<div style="width:100%;background:'+color+';opacity:0.3;border-radius:10px 10px 0 0;height:'+height+';display:flex;align-items:center;justify-content:center;margin-top:10px">'
+    +'<span style="font-family:Syne,sans-serif;font-size:'+(rank===1?'2.8rem':'2rem')+';font-weight:900;color:rgba(255,255,255,0.85)">#'+rank+'</span>'
+    +'</div></div>';
+}
+
+function emptyLbCard(num){
+  return'<div class="lb-card"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#ddd;flex-shrink:0">'+num+'</div>'
+    +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="color:#ccc;font-size:16px">?</span></div>'
+    +'<div style="flex:1;min-width:0"><div class="lb-name" style="color:#ccc">—</div><div class="lb-amt" style="color:#ddd">—</div></div></div>';
+}
+
 async function loadLeaderboard(){
   try{
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donor_leaderboard');
     const top=(list||[]).slice(0,20);
     const lb=document.getElementById('lb');
     const podiumEl=document.getElementById('lb-podium');
-    if(!top.length){lb.innerHTML='<div style="grid-column:span 4;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">No donors yet — be the first!</div>';return;}
 
-    // Build podium for top 3
+    // Always show podium with ? placeholders for empty spots
     podiumEl.style.display='block';
-    {
-      // Order: 2nd, 1st, 3rd
-      const podiumOrder=[
-        top.length>1?{data:top[1],rank:2,color:'#777',height:'120px',size:110,fontSize:'1rem'}:null,
-        {data:top[0],rank:1,color:'#b51e00',height:'160px',size:140,fontSize:'1.2rem'},
-        top.length>2?{data:top[2],rank:3,color:'#8c5a2a',height:'90px',size:90,fontSize:'0.9rem'}:null
-      ];
+    const slots=[
+      {data:top[1]||null,rank:2,color:'#777',height:'120px',size:110,fontSize:'1rem'},
+      {data:top[0]||null,rank:1,color:'#b51e00',height:'160px',size:140,fontSize:'1.2rem'},
+      {data:top[2]||null,rank:3,color:'#8c5a2a',height:'90px',size:90,fontSize:'0.9rem'},
+    ];
+    podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:16px;padding:0 1rem">'
+      +slots.map(p=>{
+        if(!p.data) return emptyPodiumSlot(p.rank,p.color,p.height,p.size,p.fontSize);
+        const e=p.data;
+        const name=e.name||'Anonymous';
+        const amt=e.amount?.value?parseFloat(e.amount.value):0;
+        const comment=e.donor_comment||e.comment||donorCommentMap[(e.name||'').toLowerCase().trim()]||'';
+        const avatarUrl=e.avatar?.src||e.avatar||'';
+        const sz=p.size;
+        const av=avatarUrl
+          ?'<img src="'+avatarUrl+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;border:4px solid '+p.color+';box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;margin:0 auto" onerror="this.style.display=\'none\'">'
+          :'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--cream2);border:4px solid '+p.color+';display:flex;align-items:center;justify-content:center;margin:0 auto"><svg style="width:'+(sz*0.35)+'px;height:'+(sz*0.35)+'px;fill:#bbb" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>';
+        const commentHtml=comment?'<div style="font-size:11px;color:#999;font-style:italic;margin-top:5px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
+        return'<div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">'
+          +av
+          +'<div style="font-size:'+(p.rank===1?'15px':'13px')+';font-weight:700;color:#111;margin-top:10px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'
+          +'<div style="font-family:Syne,sans-serif;font-size:'+p.fontSize+';font-weight:800;color:var(--red)">'+fmt(Math.round(amt*100))+'</div>'
+          +commentHtml
+          +'<div style="width:100%;background:'+p.color+';border-radius:10px 10px 0 0;height:'+p.height+';display:flex;align-items:center;justify-content:center;margin-top:10px">'
+          +'<span style="font-family:Syne,sans-serif;font-size:'+(p.rank===1?'2.8rem':'2rem')+';font-weight:900;color:rgba(255,255,255,0.85)">#'+p.rank+'</span>'
+          +'</div></div>';
+      }).join('')
+      +'</div>';
 
-      podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:16px;padding:0 1rem">'
-        +podiumOrder.map(p=>{
-          if(!p)return'<div style="flex:1;max-width:200px"></div>';
-          const e=p.data;
-          const name=e.name||'Anonymous';
-          const amt=e.amount?.value?parseFloat(e.amount.value):0;
-          const comment=e.donor_comment||e.comment||donorCommentMap[(e.name||'').toLowerCase().trim()]||'';
-          const avatarUrl=e.avatar?.src||e.avatar||'';
-          const sz=p.size;
-          const av=avatarUrl
-            ?'<img src="'+avatarUrl+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;border:4px solid '+p.color+';box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;margin:0 auto" onerror="this.style.display=\'none\'">'
-            :'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--cream2);border:4px solid '+p.color+';display:flex;align-items:center;justify-content:center;margin:0 auto"><svg style="width:'+(sz*0.35)+'px;height:'+(sz*0.35)+'px;fill:#bbb" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>';
-          const commentHtml=comment?'<div style="font-size:11px;color:#999;font-style:italic;margin-top:5px;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
-          return'<div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">'
-            +av
-            +'<div style="font-size:'+(p.rank===1?'15px':'13px')+';font-weight:700;color:#111;margin-top:10px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'
-            +'<div style="font-family:Syne,sans-serif;font-size:'+p.fontSize+';font-weight:800;color:var(--red)">'+fmt(Math.round(amt*100))+'</div>'
-            +commentHtml
-            +'<div style="width:100%;background:'+p.color+';border-radius:10px 10px 0 0;height:'+p.height+';display:flex;align-items:center;justify-content:center;margin-top:10px">'
-            +'<span style="font-family:Syne,sans-serif;font-size:'+(p.rank===1?'2.8rem':'2rem')+';font-weight:900;color:rgba(255,255,255,0.85)">#'+p.rank+'</span>'
-            +'</div>'
-            +'</div>';
-        }).join('')
-        +'</div>';
-    }
-
-    // Rest of leaderboard (4+)
-    const rest=top.slice(3);
-    if(!rest.length){lb.innerHTML='';return;}
-    lb.innerHTML=rest.map((e,i)=>{
-      const isOrphan=(i===rest.length-1)&&(rest.length%4!==0);
+    // Always show all 20 spots (4-20), fill empty with ?
+    lb.innerHTML=Array.from({length:17},(_,i)=>{
+      const e=top[i+3]||null;
+      const num=i+4;
+      if(!e) return emptyLbCard(num);
+      const isOrphan=(i===16)&&(top.length<20||top.length%4!==0);
       const amt=e.amount?.value?parseFloat(e.amount.value):0;
       const name=e.name||'Anonymous';
       const lbAvUrl=e.avatar?.src||e.avatar||'';
-      const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'">':'';
-      return'<div class="lb-card'+(isOrphan?' lb-orphan':'')+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+(i+4)+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
+      const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'">':'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);flex-shrink:0"></div>';
+      return'<div class="lb-card'+(isOrphan?' lb-orphan':'')+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
     }).join('');
   }catch(e){console.error('Leaderboard error',e);}
 }
