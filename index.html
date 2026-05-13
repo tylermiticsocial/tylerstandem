@@ -277,6 +277,7 @@ async function sheetFetch(tabName){
     const v=comma>=0?line.slice(comma+1).trim():'';
     return {c:[{v:k||null},{v:v||null}]};
   });
+  console.log('[sheetFetch]', tabName, rows.length, 'rows', rows.slice(0,3));
   return {rows};
 }
 
@@ -596,7 +597,8 @@ function placeMarkerByPct(pct){
   if(!coords||!marker) return;
   // Arrow tip lands 100px left of the red line
   // 100px / imageWidth * 100 = 8.15% offset
-  const offsetPct=8.15;
+  const mapW=document.getElementById('ride-map').offsetWidth||600;
+  const offsetPct=30/mapW*100;
   marker.style.display='block';
   marker.style.left=(coords[0]-offsetPct)+'%';
   marker.style.top=coords[1]+'%';
