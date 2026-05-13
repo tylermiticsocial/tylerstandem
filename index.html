@@ -318,25 +318,17 @@ async function loadSettings(){
     // Skip map/stats in demo mode — loadDemoMode handles those
     if(!localStorage.getItem('tandem_demo')){
       const rawCity = (data.current_city||'').toString().trim();
-      document.getElementById('stat-city') && (document.getElementById('stat-city').textContent = rawCity||'Not started yet');
-      // Position bike by miles % along the route
-
-    }
-    if(!localStorage.getItem('tandem_demo')){
       const miles=parseFloat(data.miles_ridden)||0;
       const days=parseInt(data.days_on_bike)||0;
-      const strangers=parseInt(data.strangers_met)||0;
       const total=parseFloat(data.total_miles)||1000;
-      const avg=days>0?Math.round(miles/days):0;
       const pct=total>0?Math.round((miles/total)*100):0;
-      // Position bike by miles % along the coast path
-      placeMarkerByPct(total>0?(miles/total)*100:0); // always show bike
-      set('stat-miles', miles?miles+' mi':'—');
-      set('stat-days', days||'—');
-      set('stat-remaining', miles?(total-miles)+' mi':'—');
-      set('stat-strangers', strangers||'—');
-      set('stat-avg', avg?avg+' mi':'—');
+      // Always show city and stats
+      const cityEl=document.getElementById('stat-city');
+      if(cityEl) cityEl.textContent=rawCity||'Starting soon';
+      set('stat-days', days?days+' days':'—');
       set('stat-pct', pct+'%');
+      // Always show bike marker
+      placeMarkerByPct((miles/total)*100);
     }
   }catch(e){console.error('[loadSettings error]',e);}
 }
