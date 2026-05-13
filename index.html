@@ -271,11 +271,15 @@ function getSiteVideos(){try{return JSON.parse(localStorage.getItem('tandem_vide
 
 async function fetchSettingsFromServer(){
   try{
-    const r=await fetch('/api/settings');
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),3000);
+    const r=await fetch('/api/settings',{signal:controller.signal});
+    clearTimeout(timeout);
     const {settings,videos}=await r.json();
     if(settings&&Object.keys(settings).length) localStorage.setItem('tandem_settings',JSON.stringify(settings));
     if(videos&&videos.length) localStorage.setItem('tandem_videos',JSON.stringify(videos));
-  }catch(e){console.log('Using cached settings');}
+    console.log('[Settings synced from Edge Config]');
+  }catch(e){console.log('[Using cached settings]',e.message);}
 }
 async function loadSettings(){
   try{
@@ -779,9 +783,12 @@ if(localStorage.getItem('tandem_demo')==='1'){
     },8000);
   }
   // Start fake refresh only after loadDemoMode has finished animating (2s delay)
-  fetchSettingsFromServer().then(()=>loadSettings()).then(()=>{loadVideos();loadDemoMode();setTimeout(startFakeRefresh,2000);});
+  loadSettings().then(()=>{loadVideos();loadDemoMode();setTimeout(startFakeRefresh,2000);});
+fetchSettingsFromServer().then(()=>loadSettings()).catch(()=>{});
 } else {
-  fetchSettingsFromServer().then(()=>loadSettings()).then(()=>{refresh();loadVideos();});
+  // Load immediately from localStorage, then sync from server in background
+loadSettings().then(()=>{refresh();loadVideos();});
+fetchSettingsFromServer().then(()=>loadSettings()).catch(()=>{});
   setInterval(refresh,10000);
 }
 </script>
