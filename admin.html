@@ -130,6 +130,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
     <div class="two">
       <div class="field"><label>Miles ridden</label><input id="f-miles" type="number" placeholder="0"></div>
       <div class="field"><label>Days on bike</label><input id="f-days" type="number" placeholder="0"></div>
+      <div class="field"><label>Total miles (goal)</label><input id="f-total-miles" type="number" placeholder="1200"></div>
     </div>
     <div class="field"><label>Strangers met</label><input id="f-strangers" type="number" placeholder="0"></div>
     <div class="btn-row"><button class="btn" onclick="save('ride')">Save ride stats</button><span class="saved" id="sv-ride">✓ Saved</span></div>
@@ -252,7 +253,7 @@ async function loadAll(){
     'f-hero':'hero_photo','f-inc0':'inc_photo_0','f-inc1':'inc_photo_1','f-inc2':'inc_photo_2',
     'f-logline':'logline','f-banner':'banner',
     'f-city':'current_city','f-miles':'miles_ridden','f-days':'days_on_bike',
-    'f-strangers':'strangers_met','f-ride-update':'ride_update',
+    'f-strangers':'strangers_met','f-ride-update':'ride_update','f-total-miles':'total_miles',
     'd-raised':'demo_raised','d-donors':'demo_donors',
     'd-c1':'demo_c1','d-c2':'demo_c2','d-c3':'demo_c3'
   };
@@ -304,7 +305,7 @@ function save(section){
   if(section==="tiltify"||section==="all"){d.tiltify_campaign_id=g('f-cid');d.tiltify_token=g('f-tok');}
   if(section==="photos"||section==="all"){d.hero_photo=g('f-hero');d.inc_photo_0=g('f-inc0');d.inc_photo_1=g('f-inc1');d.inc_photo_2=g('f-inc2');}
   if(section==="text"||section==="all"){d.logline=g('f-logline');d.banner=g('f-banner');}
-  if(section==="ride"||section==="all"){d.current_city=g('f-city');d.miles_ridden=g('f-miles');d.days_on_bike=g('f-days');d.strangers_met=g('f-strangers');d.ride_update=g('f-ride-update');}
+  if(section==="ride"||section==="all"){d.current_city=g('f-city');d.miles_ridden=g('f-miles');d.days_on_bike=g('f-days');d.strangers_met=g('f-strangers');d.ride_update=g('f-ride-update');d.total_miles=g('f-total-miles');}
   if(section==="demo"||section==="all"){d.demo_raised=g('d-raised');d.demo_donors=g('d-donors');d.demo_c1=g('d-c1');d.demo_c2=g('d-c2');d.demo_c3=g('d-c3');}
   saveSettingsLocal(d);
   const el=document.getElementById('sv-'+section);

@@ -327,14 +327,12 @@ async function loadSettings(){
       const miles=parseFloat(data.miles_ridden)||0;
       const days=parseInt(data.days_on_bike)||0;
       const total=parseFloat(data.total_miles)||1000;
-      const pct=total>0?Math.round((miles/total)*100):0;
-      // Always show city and stats
+      const pct=total>0?Math.min(100,Math.round((miles/total)*100)):0;
       const cityEl=document.getElementById('stat-city');
       if(cityEl) cityEl.textContent=rawCity||'Starting soon';
-      set('stat-days', days?days+' days':'—');
+      set('stat-days', days?(days+' day'+(days===1?'':'s')):'—');
       set('stat-pct', pct+'%');
-      // Always show bike marker
-      placeMarkerByPct((miles/total)*100);
+      placeMarkerByPct(Math.min(100,(miles/total)*100));
     }
   }catch(e){console.error('[loadSettings error]',e);}
 }
