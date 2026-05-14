@@ -125,14 +125,18 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   </div>
 
   <div class="card">
-    <div class="card-head"><h2>Site text</h2></div>
+    <div class="card-head"><h2>🚲 Ride progress</h2></div>
     <div class="field"><label>Current city <span style="font-weight:400;color:#bbb">(moves the bike on the map)</span></label><input id="f-city" placeholder="e.g. Monterey"><div class="hint">Crescent City · Trinidad · Eureka · Fortuna · Ferndale · Shelter Cove · Westport · Fort Bragg · Mendocino · Bodega Bay · Jenner · Stinson Beach · San Francisco · Pacifica · Half Moon Bay · Santa Cruz · Capitola · Aptos · Watsonville · Monterey · Carmel · Big Sur · Cambria · San Simeon · Morro Bay · San Luis Obispo · Pismo Beach · Guadalupe · Santa Barbara · Carpinteria · Ventura · Oxnard · Malibu · Santa Monica · Los Angeles · Long Beach · Huntington Beach · Newport Beach · Laguna Beach · Dana Point · San Clemente · Oceanside · Carlsbad · Encinitas · Del Mar · La Jolla · San Diego</div></div>
     <div class="two">
       <div class="field"><label>Miles ridden</label><input id="f-miles" type="number" placeholder="0"></div>
       <div class="field"><label>Days on bike</label><input id="f-days" type="number" placeholder="0"></div>
     </div>
     <div class="field"><label>Strangers met</label><input id="f-strangers" type="number" placeholder="0"></div>
-    <div class="field"><label>Latest update <span style="font-weight:400;color:#bbb">(shown below the stats)</span></label><input id="f-ride-update" placeholder="e.g. Just rolled into Monterey, legs are screaming..."></div>
+    <div class="btn-row"><button class="btn" onclick="save('ride')">Save ride stats</button><span class="saved" id="sv-ride">✓ Saved</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Site text</h2></div>
     <div class="field"><label>Logline</label><input id="f-logline" placeholder="One bike. Two seats..."></div>
     <div class="field"><label>Announcement banner <span style="font-weight:400;color:#bbb">(shows as red strip at top — leave blank to hide)</span></label><input id="f-banner" placeholder="e.g. Ride starts May 20! Donate now to unlock dares"></div>
     <div class="btn-row"><button class="btn" onclick="save('text')">Save text</button><span class="saved" id="sv-text">✓ Saved</span></div>
@@ -206,15 +210,23 @@ async function sheetFetch(tab){
 function getSettings(){try{return JSON.parse(localStorage.getItem('tandem_settings')||'{}');}catch(e){return {};}}
 
 async function saveSettingsLocal(d){
-  localStorage.setItem('tandem_settings',JSON.stringify(d));
-  // Sync to Edge Config
+  // Always merge with current Edge Config so we never wipe other fields
   try{
+    const r=await fetch('/api/settings');
+    const {settings}=await r.json();
+    const merged={...settings,...d};
+    localStorage.setItem('tandem_settings',JSON.stringify(merged));
     await fetch('/api/settings',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({key:'tandem_settings',value:d})
+      body:JSON.stringify({key:'tandem_settings',value:merged})
     });
-  }catch(e){console.error('Sync error',e);}
+    console.log('[Saved to Edge Config]', merged);
+  }catch(e){
+    // Fallback: just save locally
+    localStorage.setItem('tandem_settings',JSON.stringify(d));
+    console.error('Sync error',e);
+  }
 }
 
 async function loadFromServer(){
