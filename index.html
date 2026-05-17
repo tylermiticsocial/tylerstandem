@@ -71,12 +71,17 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .map-row{display:flex;gap:2rem;align-items:flex-start}
 #ride-map{position:relative;flex:0 0 55%;user-select:none;margin-left:150px}
 .map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-160px;margin-top:50px;z-index:10;position:relative}
+@media(min-width:801px) and (max-width:1100px){
+  .map-section{padding:0 1.5rem}
+  #ride-map{margin-left:0;flex:0 0 50%}
+  .map-stats{margin-left:0}
+}
 @media(max-width:800px){
-  .map-section{padding:0 1.5rem;margin-bottom:3rem}
+  .map-section{padding:0 1rem 0 0;margin-bottom:3rem}
   .map-row{flex-direction:column;gap:0;align-items:stretch}
-  #ride-map{flex:none;width:72%;margin-left:auto;margin-right:0}
-  #ride-map #bike-marker img{width:110px}
-  .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
+  #ride-map{flex:none;width:75%;margin-left:auto;margin-right:0}
+  #ride-map #bike-marker img{width:75px}
+  .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
   .map-stats>div{flex:1;text-align:center;min-width:0}
   #stat-city,#stat-days{font-size:0.75rem!important}
