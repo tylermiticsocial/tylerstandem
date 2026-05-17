@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tyler's Tandem</title>
-<link rel="icon" type="image/png" href="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGO.png?raw=true" sizes="any"><link rel="apple-touch-icon" href="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMLOGO.png?raw=true">
+<link rel="icon" type="image/png" href="images/favicon.png"><link rel="apple-touch-icon" href="images/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
@@ -67,6 +67,21 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .footer-cause img{height:28px;width:auto}
 .footer-cause-text{font-size:12px;color:#999;line-height:1.4;text-align:left}
 .footer-cause-text strong{color:#444;font-weight:500;display:block}
+.map-section{max-width:1100px;margin:20px auto 2rem;padding:0 1.5rem 0 calc(1.5rem + 150px)}
+.map-row{display:flex;gap:2rem;align-items:flex-start}
+#ride-map{position:relative;flex:0 0 55%;user-select:none;margin-left:150px}
+.map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-160px;margin-top:50px;z-index:10;position:relative}
+@media(max-width:800px){
+  .map-section{padding:0 1.5rem;margin-bottom:3rem}
+  .map-row{flex-direction:column;gap:0;align-items:stretch}
+  #ride-map{flex:none;width:72%;margin-left:auto;margin-right:0}
+  #ride-map #bike-marker img{width:110px}
+  .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
+  .map-stats>div[style*="height:1px"]{display:none}
+  .map-stats>div{flex:1;text-align:center;min-width:0}
+  #stat-city,#stat-days{font-size:0.75rem!important}
+  #stat-pct{font-size:1.4rem!important}
+}
 </style>
 </head>
 <body>
@@ -106,17 +121,17 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div class="ticker-outer"><div class="ticker-track" id="ticker-track"></div></div>
 </div>
 
-<div style="max-width:1100px;margin:20px auto 2rem;padding:0 1.5rem 0 calc(1.5rem + 150px)">
-  <div style="display:flex;gap:2rem;align-items:flex-start">
+<div class="map-section">
+  <div class="map-row">
 
-    <div id="ride-map" style="position:relative;flex:0 0 55%;user-select:none;margin-left:150px">
+    <div id="ride-map">
       <img id="ca-map-img" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/startendca.png" alt="California" style="width:100%;display:block;border-radius:16px">
         <div id="bike-marker" style="position:absolute;transform:translate(-100%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1),top 1.2s cubic-bezier(0.4,0,0.2,1);display:none;z-index:10">
         <img src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/strangerarrow.png" style="width:180px;height:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.12))">
       </div>
     </div>
 
-    <div style="flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-160px;margin-top:50px;z-index:10;position:relative;">
+    <div class="map-stats">
       <div>
         <div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);margin-bottom:2px">% Finished</div>
         <div id="stat-pct" style="font-family:Syne,sans-serif;font-size:clamp(1.7rem,5vw,2.8rem);font-weight:800;color:var(--red);line-height:1;font-variant-numeric:tabular-nums">0%</div>
