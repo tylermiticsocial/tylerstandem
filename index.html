@@ -67,6 +67,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .footer-cause img{height:28px;width:auto}
 .footer-cause-text{font-size:12px;color:#999;line-height:1.4;text-align:left}
 .footer-cause-text strong{color:#444;font-weight:500;display:block}
+@media(max-width:700px){.lb-extra{display:none}.lb-extra.lb-shown{display:flex}}
 .map-section{max-width:1100px;margin:20px auto 2rem;padding:0 1.5rem 0 calc(1.5rem + 150px)}
 .map-row{display:flex;gap:2rem;align-items:flex-start}
 #ride-map{position:relative;flex:0 0 55%;user-select:none;margin-left:150px}
@@ -78,7 +79,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 }
 #bike-marker{transform:translate(calc(-100% + 10px),-50%) !important}
 @media(max-width:768px){
-  .map-section{padding:0 1rem 0 0;margin-bottom:3rem}
+  .map-section{padding:0 1rem 0 0;margin-bottom:3rem;overflow:hidden}
   .map-row{flex-direction:column;gap:0;align-items:stretch}
   #ride-map{flex:none;width:60%;margin-left:auto;margin-right:0}
   #ride-map #bike-marker img{width:130px}
@@ -169,6 +170,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div class="lb-grid" id="lb">
     <div style="grid-column:span 4;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">Leaderboard loads here</div>
   </div>
+  <div id="lb-load-more" style="display:none;text-align:center;margin-top:1rem">
+    <button onclick="(function(){document.querySelectorAll('.lb-extra').forEach(el=>el.classList.add('lb-shown'));document.getElementById('lb-load-more').style.display='none';})()" style="background:none;border:1px solid var(--border);border-radius:999px;padding:0.5rem 1.5rem;font-family:Syne,sans-serif;font-size:0.85rem;font-weight:700;color:#888;cursor:pointer;letter-spacing:0.03em">Load more</button>
+  </div>
 </div>
 
 
@@ -198,8 +202,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
         <svg style="width:22px;height:22px;stroke:#d0c8bf;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
       <div style="flex:1;padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">$5,000</span><span style="color:#ddd">—</span><span class="inc-title">Sponsor a video</span></div>
-        <div style="font-size:12px;color:#aaa;line-height:1.55">We dedicate a full ride video to you — your name in the title, a shoutout at the start, and your story shared with everyone watching.</div>
+        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">?</span><span style="color:#ddd">—</span><span class="inc-title">Sponsor a video</span></div>
+        <div style="font-size:12px;color:#aaa;line-height:1.55">Interested in sponsoring an episode of Tyler's Tandem? Email us at <a href="mailto:hi@tylerstandem.com" style="color:var(--red);text-decoration:none;font-weight:500">hi@tylerstandem.com</a> and let's work something out.</div>
       </div>
     </div>
   </div>
@@ -353,7 +357,7 @@ async function loadSettings(){
       if(cityEl) cityEl.textContent=rawCity||'Starting soon';
       set('stat-days', days?(days+' day'+(days===1?'':'s')):'—');
       set('stat-pct', pct+'%');
-      placeMarkerByPct(Math.min(100,(miles/total)*100));
+      if(miles>0) placeMarkerByPct(Math.min(100,(miles/total)*100));
     }
   }catch(e){console.error('[loadSettings error]',e);}
 }
@@ -549,18 +553,26 @@ async function loadLeaderboard(){
       }).join('')
       +'</div>';
 
-    // Always show all 20 spots (4-20), fill empty with ?
+    // Show spots 4-20, mark 11-20 as lb-extra (hidden on mobile until "Load more")
     lb.innerHTML=Array.from({length:17},(_,i)=>{
       const e=top[i+3]||null;
       const num=i+4;
-      if(!e) return emptyLbCard(num);
+      const cls='lb-card'+(i>=7?' lb-extra':'');
+      if(!e){
+        return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#ddd;flex-shrink:0">'+num+'</div>'
+          +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0"></div>'
+          +'<div style="flex:1;min-width:0"><div class="lb-name" style="color:#ccc">—</div><div class="lb-amt" style="color:#ddd">—</div></div></div>';
+      }
       const isOrphan=(i===16)&&(top.length<20||top.length%4!==0);
       const amt=e.amount?.value?parseFloat(e.amount.value):0;
       const name=e.name||'Anonymous';
       const lbAvUrl=e.avatar?.src||e.avatar||'';
       const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'">':'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);flex-shrink:0"></div>';
-      return'<div class="lb-card'+(isOrphan?' lb-orphan':'')+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
+      return'<div class="'+cls+(isOrphan?' lb-orphan':'')+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
     }).join('');
+
+    const btn=document.getElementById('lb-load-more');
+    if(btn) btn.style.display='';
   }catch(e){console.error('Leaderboard error',e);}
 }
 
