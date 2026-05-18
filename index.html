@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--red:#b51e00;--dark-red:#7a1400;--cream:#f5f0e8;--cream2:#ece6da;--border:#ddd6c8;--white:#fff}
-body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-height:100vh}
+body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-height:100vh;overflow-x:hidden}
 .hero-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--white);box-shadow:0 0 0 3px var(--cream2)}
 .donate-btn{display:inline-block;background:var(--red);color:#fff;text-decoration:none;border-radius:999px;padding:0.85rem 2.5rem;font-family:"Syne",sans-serif;font-size:1.1rem;font-weight:800;border:none;cursor:pointer;letter-spacing:0.01em}
 .donate-btn:hover{background:var(--dark-red)}
@@ -68,21 +68,17 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .footer-cause-text{font-size:12px;color:#999;line-height:1.4;text-align:left}
 .footer-cause-text strong{color:#444;font-weight:500;display:block}
 @media(max-width:700px){.lb-extra{display:none}.lb-extra.lb-shown{display:flex}}
-.map-section{max-width:1100px;margin:20px auto 2rem;padding:0 1.5rem 0 calc(1.5rem + 150px)}
-.map-row{display:flex;gap:2rem;align-items:flex-start}
-#ride-map{position:relative;flex:0 0 55%;user-select:none;margin-left:150px}
-.map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-160px;margin-top:50px;z-index:10;position:relative}
-@media(min-width:769px) and (max-width:1149px){
-  .map-section{padding:0 1.5rem 0 160px}
-  #ride-map{margin-left:0;flex:0 0 55%}
-  .map-stats{margin-left:1.5rem;margin-top:0}
-}
+.map-section{max-width:700px;margin:20px auto 2rem;padding:0 1.5rem;overflow:visible}
+.map-row{display:flex;gap:2rem;align-items:flex-start;justify-content:center}
+#ride-map{position:relative;flex:0 0 auto;width:240px;user-select:none;overflow:visible}
+#ride-map #bike-marker img{width:90px}
+.map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;z-index:10;position:relative}
 #bike-marker{transform:translate(calc(-100% + 10px),-50%) !important}
 @media(max-width:768px){
-  .map-section{padding:0 1rem 0 0;margin-bottom:3rem;overflow:hidden}
-  .map-row{flex-direction:column;gap:0;align-items:stretch}
-  #ride-map{flex:none;width:60%;margin-left:auto;margin-right:0}
-  #ride-map #bike-marker img{width:130px}
+  .map-section{padding:0 1rem;margin-bottom:3rem;overflow:visible}
+  .map-row{flex-direction:column;gap:0;align-items:center}
+  #ride-map{flex:none;width:62%;margin:0 auto;overflow:visible}
+  #ride-map #bike-marker img{width:65px}
   .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
   .map-stats>div{flex:1;text-align:center;min-width:0}
@@ -184,17 +180,25 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
         <svg style="width:22px;height:22px;stroke:#d0c8bf;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
       <div style="flex:1;padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">$100</span><span style="color:#ddd">—</span><span class="inc-title">Name on Instagram story</span></div>
-        <div style="font-size:12px;color:#aaa;line-height:1.55">Story shoutout alongside everyone else who donated $100+ in the last 24 hours.</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:5px;flex-wrap:wrap">
+          <span class="inc-amount">$5</span><span style="font-family:Syne,sans-serif;font-size:0.75rem;font-weight:800;color:#aaa;letter-spacing:0.05em">BASE</span>
+          <span style="font-size:10px;background:var(--cream2);color:#888;border-radius:999px;padding:2px 8px;letter-spacing:0.04em;font-weight:600;border:1px solid var(--border)">Floor tier</span>
+        </div>
+        <div class="inc-title" style="margin-bottom:5px">Your name on the digital wall</div>
+        <div style="font-size:12px;color:#aaa;line-height:1.55">Every donor $5+ gets their name on the donor wall at the bottom of this page.</div>
       </div>
     </div>
-    <div class="inc-card">
+    <div class="inc-card" style="border-color:var(--red)">
       <div id="inc-img-1" style="width:33%;min-height:140px;flex-shrink:0;background:var(--cream2);display:flex;align-items:center;justify-content:center;overflow:hidden">
         <svg style="width:22px;height:22px;stroke:#d0c8bf;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
       <div style="flex:1;padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">$1,000</span><span style="color:#ddd">—</span><span class="inc-title">Verbal shout out on camera</span></div>
-        <div style="font-size:12px;color:#aaa;line-height:1.55">A personal appreciation reel posted to <a href="https://instagram.com/tylermitic" target="_blank" style="color:var(--red);text-decoration:none;font-weight:500">@tylermitic</a>.</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:5px;flex-wrap:wrap">
+          <span class="inc-amount">$100</span><span style="font-family:Syne,sans-serif;font-size:0.75rem;font-weight:800;color:var(--red);letter-spacing:0.05em">STORY</span>
+          <span style="font-size:10px;background:#fff0ee;color:var(--red);border-radius:999px;padding:2px 8px;letter-spacing:0.04em;font-weight:600;border:1px solid var(--red)">Anchor tier</span>
+        </div>
+        <div class="inc-title" style="margin-bottom:5px">Name on an Instagram story</div>
+        <div style="font-size:12px;color:#aaa;line-height:1.55">Story shoutout alongside everyone else who donated $100+ in the last 24 hours.</div>
       </div>
     </div>
     <div class="inc-card">
@@ -202,8 +206,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
         <svg style="width:22px;height:22px;stroke:#d0c8bf;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
       <div style="flex:1;padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">?</span><span style="color:#ddd">—</span><span class="inc-title">Sponsor a video</span></div>
-        <div style="font-size:12px;color:#aaa;line-height:1.55">Interested in sponsoring an episode of Tyler's Tandem? Email us at <a href="mailto:hi@tylerstandem.com" style="color:var(--red);text-decoration:none;font-weight:500">hi@tylerstandem.com</a> and let's work something out.</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:5px;flex-wrap:wrap">
+          <span class="inc-amount">?</span><span style="font-family:Syne,sans-serif;font-size:0.75rem;font-weight:800;color:#aaa;letter-spacing:0.05em">SPONSOR</span>
+          <a href="mailto:hi@tylerstandem.com" style="font-size:10px;background:var(--cream2);color:var(--red);border-radius:999px;padding:2px 8px;letter-spacing:0.04em;font-weight:600;border:1px solid var(--border);text-decoration:none">Get in touch</a>
+        </div>
+        <div class="inc-title" style="margin-bottom:5px">Interested in sponsoring a video?</div>
+        <div style="font-size:12px;color:#aaa;line-height:1.55">Email us at <a href="mailto:hi@tylerstandem.com" style="color:var(--red);text-decoration:none;font-weight:500">hi@tylerstandem.com</a> and let's work something out.</div>
       </div>
     </div>
   </div>
@@ -223,15 +231,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   </div>
 </div>
 
-<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
-    <div class="section-label" style="margin-bottom:0">Live donations</div>
-    <a href="/donations" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">View all →</a>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:9px" id="live-feed">
-    <div style="text-align:center;color:#ccc;font-size:13px;padding:2rem 0">Donations appear here live</div>
-  </div>
-</div>
 
 <div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem;text-align:center">
   <a class="donate-btn" id="dlink2" href="https://donate.tiltify.com/653378fc-db12-45ed-8192-dafadf84a642/details" target="_blank" style="display:inline-block;background:var(--red);color:#fff;text-decoration:none;border-radius:999px;padding:0.85rem 2.5rem;font-family:Syne,sans-serif;font-size:1.1rem;font-weight:800;border:none;cursor:pointer;letter-spacing:0.01em">Donate</a>
@@ -267,6 +266,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   </div>
 </div>
 
+<div id="donor-wall-section" style="max-width:700px;margin:0 auto;padding:2rem 1.5rem 3rem">
+  <div class="section-label">Donor wall</div>
+  <p style="font-size:12px;color:#bbb;margin-bottom:1.25rem">Everyone who donated $5 or more — thank you.</p>
+  <div id="donor-wall" style="font-size:14px;color:#111;line-height:2;word-break:break-word">
+    <span style="color:#ccc;font-size:13px">Loading...</span>
+  </div>
+</div>
+
 <script>
 const SHEET_ID = '1mNtn9OB2dWK39WqVUZXcN94Y4Rwo3NBxhq7x_vN6E38';
 const TILTIFY_CAMPAIGN_ID = '653378fc-db12-45ed-8192-dafadf84a642';
@@ -299,6 +306,7 @@ function av(url,name,size){
 // Settings from Edge Config (cached in localStorage)
 function getSiteSettings(){try{return JSON.parse(localStorage.getItem('tandem_settings')||'{}');}catch(e){return {};}}
 function getSiteVideos(){try{return JSON.parse(localStorage.getItem('tandem_videos')||'[]');}catch(e){return [];}}
+function getManualDonations(){try{return JSON.parse(localStorage.getItem('tandem_manual_donations')||'[]');}catch(e){return [];}}
 
 async function fetchSettingsFromServer(){
   try{
@@ -312,6 +320,10 @@ async function fetchSettingsFromServer(){
     }
     if(videos&&videos.length){
       localStorage.setItem('tandem_videos',JSON.stringify(videos));
+    }
+    const manual=(await (await fetch('/api/settings?key=tandem_manual_donations')).json()).value;
+    if(manual&&Array.isArray(manual)&&manual.length){
+      localStorage.setItem('tandem_manual_donations',JSON.stringify(manual));
     }
     console.log('[Settings synced from Edge Config]', settings);
   }catch(e){console.log('[Using cached settings]',e.message);}
@@ -414,7 +426,9 @@ async function loadCampaign(){
   try{
     const c=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid()));
     const d=(await c.json()).data;
-    const raised=d.amount_raised?.value?Math.round(parseFloat(d.amount_raised.value)*100):null;
+    const tiltifyRaised=d.amount_raised?.value?Math.round(parseFloat(d.amount_raised.value)*100):null;
+    const manualCents=getManualDonations().reduce((s,m)=>s+Math.round((parseFloat(m.amount)||0)*100),0);
+    const raised=tiltifyRaised!=null?tiltifyRaised+manualCents:null;
     const goal=d.goal?.value?Math.round(parseFloat(d.goal.value)*100):null;
     const p=goal>0&&raised!=null?Math.min(100,Math.round(raised/goal*100)):0;
     if(raised!=null)animateCount(raised);else document.getElementById('raised').textContent='N/A';
@@ -443,58 +457,34 @@ function filterText(str){
   return out;
 }
 
-let knownIds=new Set(),firstLoad=true,donorCommentMap={};
+let donorCommentMap={};
 async function loadDonations(){
   try{
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
-    if(!list.length)return;
+    const manuals=getManualDonations();
+    // Build ticker items from both sources
+    const tickerItems=[
+      ...list.map(x=>({
+        name:filterText(x.donor_name)||'Anonymous',
+        amt:x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0',
+        avatar:x.donor?.avatar?.src||x.donor?.avatar||''
+      })),
+      ...manuals.map(m=>({
+        name:filterText(m.name)||'Anonymous',
+        amt:fmt(Math.round((parseFloat(m.amount)||0)*100)),
+        avatar:m.avatar||''
+      }))
+    ];
+    if(!tickerItems.length)return;
     document.getElementById('ticker-section').style.display='block';
-  // Donor count from config
-  const donorCountEl=document.getElementById('donor-count');
-  if(donorCountEl){donorCountEl.textContent=(_cfg.donors||247).toLocaleString()+' donors';}
     const track=document.getElementById('ticker-track');
-    const html=list.map(x=>{
-      const name=filterText(x.donor_name)||'Anonymous';
-      const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
-      const avatarUrl=x.donor?.avatar?.src||x.donor?.avatar||'';
-      const avHtml=avatarUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+avatarUrl+'">':'';
-      return '<div class="t-item">'+avHtml+'<span style="font-size:14px;font-weight:500;color:#333">'+name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+amt+'</span><div class="t-sep"></div></div>';
+    const html=tickerItems.map(x=>{
+      const avHtml=x.avatar?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+x.avatar+'">':'';
+      return '<div class="t-item">'+avHtml+'<span style="font-size:14px;font-weight:500;color:#333">'+x.name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+x.amt+'</span><div class="t-sep"></div></div>';
     }).join('');
     track.innerHTML=html+html;
     setTimeout(()=>{track.style.animationDuration=Math.max(25,track.scrollWidth/2/80)+'s';},100);
-    const newOnes=!firstLoad?list.filter(x=>!knownIds.has(x.id)):[];
-    list.forEach(x=>{knownIds.add(x.id);if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
-    const feed=document.getElementById('live-feed');
-    function makeFeedItem(x,isNew){
-      const name=filterText(x.donor_name)||'Anonymous';
-      const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
-      const msg=filterText(x.donor_comment)||'';
-      const ts=x.completed_at||x.created_at||'';
-      let t='';if(ts){try{const dt=new Date(ts);t=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}catch(e){}}
-      const el=document.createElement('div');
-      el.className='live-item'+(isNew?' live-item-new':'');
-      el.innerHTML=av(x.donor?.avatar?.src,name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+name+(isNew?'<span class="new-badge">New</span>':'')+' </div>'+(msg?'<div class="live-msg">"'+msg+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+' </div>';
-      return el;
-    }
-    if(firstLoad){
-      // Initial render: show 8 most recent, no animation
-      feed.innerHTML='';
-      list.slice(0,10).forEach(x=>feed.appendChild(makeFeedItem(x,false)));
-    } else if(newOnes.length){
-      // Animate new ones in at top, fade out bottom if over 8
-      for(const x of newOnes.slice(0,10)){
-        const el=makeFeedItem(x,true);
-        feed.insertBefore(el,feed.firstChild);
-        if(x.amount?.value) showDonationToast(x.amount.value);
-      }
-      // Trim to 8, fade out extras
-      while(feed.children.length>10){
-        const last=feed.lastChild;
-        last.classList.add('live-item-out');
-        setTimeout(()=>last.remove(),300);
-      }
-    }
-    firstLoad=false;
+    list.forEach(x=>{if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
   }catch(e){console.error('Donations error',e);}
 }
 
@@ -517,8 +507,15 @@ function emptyLbCard(num){
 
 async function loadLeaderboard(){
   try{
-    const list=await tiltify('/api/public/campaigns/'+cid()+'/donor_leaderboard');
-    const top=(list||[]).slice(0,20);
+    const raw=await tiltify('/api/public/campaigns/'+cid()+'/donor_leaderboard');
+    const manuals=getManualDonations().map(m=>({
+      name:filterText(m.name)||'Anonymous',
+      amount:{value:(parseFloat(m.amount)||0).toString()},
+      avatar:{src:m.avatar||''},
+      donor_comment:m.comment||''
+    }));
+    const combined=[...(raw||[]),...manuals].sort((a,b)=>parseFloat(b.amount?.value||0)-parseFloat(a.amount?.value||0));
+    const top=combined.slice(0,20);
     const lb=document.getElementById('lb');
     const podiumEl=document.getElementById('lb-podium');
 
@@ -600,7 +597,23 @@ function animateTo(target,fromOverride){
 
 // banner handled in loadSettings
 
-async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard()]);}
+async function loadDonorWall(){
+  const wall=document.getElementById('donor-wall');
+  if(!wall)return;
+  try{
+    const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
+    const manuals=getManualDonations();
+    const allDonors=[
+      ...list.filter(x=>{const a=x.amount?.value?parseFloat(x.amount.value):0;return a>=5;}).map(x=>filterText(x.donor_name)||'Anonymous'),
+      ...manuals.filter(m=>(parseFloat(m.amount)||0)>=5).map(m=>filterText(m.name)||'Anonymous')
+    ];
+    if(!allDonors.length){wall.innerHTML='<span style="color:#ccc;font-size:13px">No donors yet — be the first!</span>';return;}
+    const unique=[...new Set(allDonors.map(n=>n.trim()))].sort((a,b)=>a.localeCompare(b));
+    wall.innerHTML=unique.map((n,i)=>'<span>'+n+(i<unique.length-1?'<span style="color:#ccc;margin:0 0.5rem">&middot;</span>':'')+'</span>').join('');
+  }catch(e){wall.innerHTML='<span style="color:#ccc;font-size:13px">Could not load donors.</span>';console.error('Donor wall error',e);}
+}
+
+async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard(),loadDonorWall()]);}
 
 
 
@@ -701,30 +714,13 @@ function loadDemoMode(){
   track.innerHTML=items+items;
   setTimeout(()=>{track.style.animationDuration=Math.max(25,track.scrollWidth/2/80)+'s';},100);
 
-  // Live feed
-  const feed=document.getElementById('live-feed');
-  const comments=['So proud of you!!','Mental health matters 💙','Ride safe Tyler!','This is incredible','Crying rn lol ❤️','GO TYLER!!!','You are changing lives','Best idea ever','Sending love from Chicago!','Cannot wait to watch!'];
-  // Spread demo donations across the last hour
-  const now=new Date();
-  const dates=DEMO_NAMES.map((_,i)=>{
-    const d=new Date(now.getTime()-i*Math.floor(3600000/DEMO_NAMES.length));
-    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  });
-  feed.innerHTML=DEMO_NAMES.slice(0,10).map((d,i)=>{
-    const amt=fmt(DEMO_AMOUNTS[i]);
-    const msg=comments[i]||'';
-    return '<div class="live-item">'+
-      '<img style="width:38px;height:38px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+d.avatar+'">'+
-      '<div style="flex:1;min-width:0">'+
-        '<div class="live-name">'+d.name+'</div>'+
-        (msg?'<div class="live-msg">"'+msg+'"</div>':'')+
-      '</div>'+
-      '<div style="text-align:right;flex-shrink:0">'+
-        '<div class="live-amt">'+amt+'</div>'+
-        '<div class="live-time">'+dates[i]+'</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+  // Demo donor wall
+  const demoWall=document.getElementById('donor-wall');
+  if(demoWall){
+    const demoNames=DEMO_NAMES.map(d=>d.name).sort((a,b)=>a.localeCompare(b));
+    demoWall.innerHTML=demoNames.map((n,i)=>'<span>'+n+(i<demoNames.length-1?'<span style="color:#ccc;margin:0 0.5rem">&middot;</span>':'')+'</span>').join('');
+  }
+
 
   // Place bike on map in demo mode
   placeMarker('San Francisco');
