@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donor Wall — Tyler's Tandem</title>
+<link rel="icon" type="image/png" href="images/favicon.png"><link rel="apple-touch-icon" href="images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#b51e00;--cream:#f5f0e8;--cream2:#ece6da;--border:#ddd6c8}
+body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-height:100vh}
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav img{height:28px}
+.nav a{font-size:13px;color:var(--red);text-decoration:none;font-weight:500}
+.body{max-width:700px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+h1{font-family:"Syne",sans-serif;font-size:2rem;font-weight:800;color:#111;margin-bottom:0.3rem}
+.sub{font-size:13px;color:#bbb;margin-bottom:2rem}
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:2rem}
+.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;text-align:center}
+.stat-n{font-family:"Syne",sans-serif;font-size:1.4rem;font-weight:800;color:var(--red)}
+.stat-l{font-size:11px;color:#bbb;text-transform:uppercase;letter-spacing:0.07em;margin-top:2px}
+.wall{font-size:15px;color:#111;line-height:2.2;word-break:break-word}
+.loading{color:#ccc;font-size:13px}
+.footer{text-align:center;padding:2rem;font-size:11px;color:#ccc}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem">
+  <a href="/">← Back to campaign</a>
+</div>
+
+<div class="body">
+  <h1>Donor Wall</h1>
+  <p class="sub">Everyone who donated $5 or more — thank you.</p>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="s-total">—</div><div class="stat-l">Total raised</div></div>
+    <div class="stat"><div class="stat-n" id="s-count">—</div><div class="stat-l">Donors on wall</div></div>
+  </div>
+
+  <div class="wall" id="wall"><span class="loading">Loading...</span></div>
+</div>
+
+<div class="footer">Tyler's Tandem — raising money for <a href="https://bringchange2mind.org" target="_blank" style="color:var(--red)">Bring Change 2 Mind</a></div>
+
+<script>
+const CAMPAIGN_ID='653378fc-db12-45ed-8192-dafadf84a642';
+
+function fmt(c){return '$'+(c/100).toLocaleString('en-US',{maximumFractionDigits:0})}
+
+function filterText(str){
+  if(!str)return str;
+  const bad=['fuck','shit','ass','bitch','cunt','dick','cock','pussy','bastard','damn','crap',
+    'piss','fag','nigger','nigga','retard','whore','slut','twat','wanker','bollocks',
+    'bugger','arse','prick','tosser','asshole','arsehole','motherfucker','fucker','bullshit'];
+  let out=str;
+  bad.forEach(w=>{const re=new RegExp('\\b'+w+'\\b','gi');out=out.replace(re,'*'.repeat(w.length));});
+  return out;
+}
+
+function getManualDonations(){try{return JSON.parse(localStorage.getItem('tandem_manual_donations')||'[]');}catch(e){return [];}}
+
+async function load(){
+  const wall=document.getElementById('wall');
+  try{
+    const cid=(()=>{try{return JSON.parse(localStorage.getItem('tandem_settings')||'{}').tiltify_campaign_id||CAMPAIGN_ID;}catch(e){return CAMPAIGN_ID;}})();
+
+    // Sync settings so manual donations are up to date
+    try{
+      const sr=await fetch('/api/settings?key=tandem_manual_donations');
+      const sv=await sr.json();
+      if(sv.value&&Array.isArray(sv.value)&&sv.value.length){
+        localStorage.setItem('tandem_manual_donations',JSON.stringify(sv.value));
+      }
+    }catch(e){}
+
+    const [cr,dr]=await Promise.all([
+      fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid)),
+      fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid+'/donations'))
+    ]);
+    const campaign=(await cr.json()).data;
+    const list=(await dr.json()).data||[];
+    const manuals=getManualDonations();
+
+    const raised=campaign.amount_raised?.value?Math.round(parseFloat(campaign.amount_raised.value)*100):0;
+    const manualCents=manuals.reduce((s,m)=>s+Math.round((parseFloat(m.amount)||0)*100),0);
+    document.getElementById('s-total').textContent=fmt(raised+manualCents);
+
+    const allDonors=[
+      ...list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=5).map(x=>filterText(x.donor_name)||'Anonymous'),
+      ...manuals.filter(m=>(parseFloat(m.amount)||0)>=5).map(m=>filterText(m.name)||'Anonymous')
+    ];
+
+    if(!allDonors.length){
+      wall.innerHTML='<span class="loading">No donors yet — be the first!</span>';
+      document.getElementById('s-count').textContent='0';
+      return;
+    }
+
+    const unique=[...new Set(allDonors.map(n=>n.trim()))].sort((a,b)=>a.localeCompare(b));
+    document.getElementById('s-count').textContent=unique.length;
+    wall.innerHTML=unique.map((n,i)=>'<span>'+n+(i<unique.length-1?'<span style="color:#ccc;margin:0 0.6rem">&middot;</span>':'')+'</span>').join('');
+  }catch(e){
+    wall.innerHTML='<span class="loading">Could not load donors. Try refreshing.</span>';
+    console.error(e);
+  }
+}
+
+load();
+</script>
+</body>
+</html>

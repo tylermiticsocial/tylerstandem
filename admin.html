@@ -145,6 +145,15 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   </div>
 
   <div class="card">
+    <div class="card-head"><h2>Pre-fundraising mode</h2><span id="prefund-status" style="font-size:12px;color:#888"></span></div>
+    <p style="font-size:13px;color:#888;margin-bottom:1.1rem;line-height:1.6">When enabled, the donate buttons change to "Donate (soon)" and are non-functional. Turn this on while promoting the page before the campaign goes live.</p>
+    <div class="btn-row">
+      <button class="btn" id="prefund-on-btn" onclick="setPrefund(true)" style="background:var(--red)">Enable</button>
+      <button class="btn" id="prefund-off-btn" onclick="setPrefund(false)" style="background:#888;display:none">Disable</button>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-head"><h2>Daily videos</h2></div>
     <div class="video-list" id="vlist"><div class="no-vids">No videos yet</div></div>
     <div class="add-area">
@@ -168,7 +177,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
       <div class="field"><label>Avatar URL <span style="font-weight:400;color:#bbb">(optional)</span></label><input id="mn-avatar" placeholder="https://i.imgur.com/..."></div>
       <div class="field"><label>Comment <span style="font-weight:400;color:#bbb">(optional)</span></label><input id="mn-comment" placeholder="e.g. We believe in mental health!"></div>
       <div class="field"><label>Date</label><input id="mn-date" type="date"></div>
-      <div class="btn-row"><button class="btn" onclick="addManualDonation()">Add donation</button><span class="saved" id="sv-manual">✓ Saved</span></div>
+      <div class="btn-row"><button class="btn" onclick="addManualDonation()">Add donation</button><button class="btn" style="background:#888" onclick="clearAllManual()">Clear all</button><span class="saved" id="sv-manual">✓ Saved</span></div>
     </div>
   </div>
 
@@ -304,6 +313,16 @@ async function loadAll(){
   renderManualDonations();
   document.getElementById('mn-date').value=new Date().toISOString().slice(0,10);
   renderLastPostedLabel();
+  // Reflect pre-fundraising state
+  if(d.prefundraising){
+    document.getElementById('prefund-on-btn').style.display='none';
+    document.getElementById('prefund-off-btn').style.display='inline-block';
+    document.getElementById('prefund-status').textContent='✓ ON — donate buttons show "Donate (soon)"';
+  } else {
+    document.getElementById('prefund-on-btn').style.display='inline-block';
+    document.getElementById('prefund-off-btn').style.display='none';
+    document.getElementById('prefund-status').textContent='Off';
+  }
 }
 
 async function loadStats(){
@@ -469,6 +488,38 @@ async function deleteManual(i){
   await saveManualDonations(list);
   renderManualDonations();
 }
+
+async function clearAllManual(){
+  if(!confirm('Delete all manual donations? This cannot be undone.')) return;
+  await saveManualDonations([]);
+  renderManualDonations();
+}
+
+// ── Pre-fundraising mode ──────────────────────────────────────────────────────
+async function setPrefund(on){
+  const d=getSettings();
+  d.prefundraising=on;
+  await saveSettingsLocal(d);
+  const onBtn=document.getElementById('prefund-on-btn');
+  const offBtn=document.getElementById('prefund-off-btn');
+  const status=document.getElementById('prefund-status');
+  if(on){
+    onBtn.style.display='none';offBtn.style.display='inline-block';
+    status.textContent='✓ ON — donate buttons show "Donate (soon)"';
+  } else {
+    onBtn.style.display='inline-block';offBtn.style.display='none';
+    status.textContent='Off';
+  }
+}
+// Reflect current state on load
+(function(){
+  const d=getSettings();
+  if(d.prefundraising){
+    document.getElementById('prefund-on-btn').style.display='none';
+    document.getElementById('prefund-off-btn').style.display='inline-block';
+    document.getElementById('prefund-status').textContent='✓ ON — donate buttons show "Donate (soon)"';
+  }
+})();
 
 // ── $100+ Story list (since last post) ───────────────────────────────────────
 let _100plusList=[];

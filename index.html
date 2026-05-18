@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--red:#b51e00;--dark-red:#7a1400;--cream:#f5f0e8;--cream2:#ece6da;--border:#ddd6c8;--white:#fff}
 body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-height:100vh;overflow-x:hidden}
-.hero-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--white);box-shadow:0 0 0 3px var(--cream2)}
+.hero-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;object-position:center top;border:3px solid var(--white);box-shadow:0 0 0 3px var(--cream2)}
 .donate-btn{display:inline-block;background:var(--red);color:#fff;text-decoration:none;border-radius:999px;padding:0.85rem 2.5rem;font-family:"Syne",sans-serif;font-size:1.1rem;font-weight:800;border:none;cursor:pointer;letter-spacing:0.01em}
 .donate-btn:hover{background:var(--dark-red)}
 .raised-num{font-family:"Syne",sans-serif;font-size:clamp(2.5rem,7vw,4rem);font-weight:800;color:#111;line-height:1;font-variant-numeric:tabular-nums}
@@ -69,17 +69,18 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .footer-cause-text strong{color:#444;font-weight:500;display:block}
 @media(min-width:701px){#lb-load-more{display:none!important}}
 @media(max-width:700px){.lb-extra{display:none}.lb-extra.lb-shown{display:flex}}
+@media(min-width:701px){.lb-grid .lb-card.lb-orphan{grid-column:1/-1;justify-self:center;width:calc(25% - 7.5px)}}
 .map-section{max-width:700px;margin:20px auto 2rem;padding:0 1.5rem;overflow:visible}
 .map-row{display:flex;gap:2rem;align-items:flex-start;justify-content:center}
 #ride-map{position:relative;flex:0 0 auto;width:240px;user-select:none;overflow:visible}
-#ride-map #bike-marker img{width:90px}
+#ride-map #bike-marker img{width:90px!important}
 .map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;z-index:10;position:relative}
 #bike-marker{transform:translate(calc(-100% + 10px),-50%) !important}
 @media(max-width:768px){
   .map-section{padding:0 1rem;margin-bottom:3rem;overflow:visible}
   .map-row{flex-direction:column;gap:0;align-items:center}
   #ride-map{flex:none;width:62%;margin:0 auto;overflow:visible}
-  #ride-map #bike-marker img{width:65px}
+  #ride-map #bike-marker img{width:50px!important}
   .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
   .map-stats>div{flex:1;text-align:center;min-width:0}
@@ -341,6 +342,12 @@ async function loadSettings(){
     if(data.inc_photo_0){document.getElementById('inc-img-0').innerHTML='<img src="'+data.inc_photo_0+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
     if(data.inc_photo_1){document.getElementById('inc-img-1').innerHTML='<img src="'+data.inc_photo_1+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
     if(data.inc_photo_2){document.getElementById('inc-img-2').innerHTML='<img src="'+data.inc_photo_2+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
+    // Pre-fundraising mode — donate buttons become "Donate (soon)"
+    if(data.prefundraising){
+      [document.getElementById('dlink'),document.getElementById('dlink2')].forEach(b=>{
+        if(b){b.textContent='Donate (soon)';b.style.pointerEvents='none';b.style.opacity='0.55';b.removeAttribute('href');}
+      });
+    }
     // Ride map + stats
     const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!==undefined&&v!==null)el.textContent=v;};
     // Skip map/stats in demo mode — loadDemoMode handles those
@@ -545,7 +552,7 @@ async function loadLeaderboard(){
           +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0"></div>'
           +'<div style="flex:1;min-width:0"><div class="lb-name" style="color:#ccc">—</div><div class="lb-amt" style="color:#ddd">—</div></div></div>';
       }
-      const isOrphan=(i===16)&&(top.length<20||top.length%4!==0);
+      const isOrphan=(i===16);
       const amt=e.amount?.value?parseFloat(e.amount.value):0;
       const name=e.name||'Anonymous';
       const lbAvUrl=e.avatar?.src||e.avatar||'';
@@ -607,6 +614,12 @@ const COAST_PATH=[[16.38,14.28],[16.71,14.68],[17.77,18.41],[16.71,22.82],[14.83
 
 const CITY_IDX={'crescent city':0,'trinidad':0,'eureka':1,'fortuna':1,'ferndale':2,'shelter cove':2,'westport':2,'fort bragg':3,'mendocino':3,'bodega bay':4,'jenner':4,'stinson beach':5,'san francisco':5,'pacifica':5,'half moon bay':6,'santa cruz':6,'capitola':7,'aptos':7,'watsonville':7,'monterey':8,'carmel':8,'big sur':9,'cambria':9,'san simeon':10,'morro bay':10,'san luis obispo':10,'pismo beach':11,'guadalupe':11,'santa barbara':12,'carpinteria':12,'ventura':12,'oxnard':13,'malibu':13,'santa monica':14,'los angeles':14,'long beach':14,'huntington beach':15,'newport beach':15,'laguna beach':16,'dana point':16,'san clemente':17,'oceanside':17,'carlsbad':17,'encinitas':18,'del mar':18,'la jolla':19,'san diego':19};
 
+function getCityCoords(cityKey){
+  const idx=CITY_IDX[cityKey];
+  if(idx===undefined) return null;
+  return COAST_PATH[idx];
+}
+
 // Get position along coast path by percentage (0-100)
 function getCoordsByPct(pct){
   const maxI=COAST_PATH.length-1;
@@ -621,14 +634,40 @@ function placeMarkerByPct(pct){
   const coords=getCoordsByPct(pct);
   const marker=document.getElementById('bike-marker');
   if(!coords||!marker) return;
-  // Arrow tip lands 100px left of the red line
-  // 100px / imageWidth * 100 = 8.15% offset
   const mapW=document.getElementById('ride-map').offsetWidth||600;
   const offsetPct=30/mapW*100;
   marker.style.display='block';
   marker.style.left=(coords[0]-offsetPct)+'%';
   marker.style.top=coords[1]+'%';
   marker.style.transform='translate(-100%,-50%)';
+  centerMapForBike();
+}
+
+function centerMapForBike(){
+  if(window.innerWidth<=768) return;
+  const mapRow=document.querySelector('.map-row');
+  const mapEl=document.getElementById('ride-map');
+  const statsEl=document.querySelector('.map-stats');
+  const markerEl=document.getElementById('bike-marker');
+  if(!mapRow||!mapEl||!statsEl||!markerEl) return;
+  if(markerEl.style.display==='none'){mapRow.style.transition='none';mapRow.style.transform='';return;}
+  // Reset transform to measure true positions
+  mapRow.style.transition='none';
+  mapRow.style.transform='';
+  void mapRow.offsetWidth;
+  const mapRect=mapEl.getBoundingClientRect();
+  const statsRect=statsEl.getBoundingClientRect();
+  const markerLeftPct=parseFloat(markerEl.style.left)||0;
+  const tandemW=90;
+  // tandem left = map.left + markerX% of mapW - (tandemW - 10) [CSS translate(-100%+10px)]
+  const tandemLeft=mapRect.left+(markerLeftPct/100)*mapRect.width-(tandemW-10);
+  const statsRight=statsRect.right;
+  const visualCenter=(tandemLeft+statsRight)/2;
+  const shift=window.innerWidth/2-visualCenter;
+  requestAnimationFrame(()=>{
+    mapRow.style.transition='transform 1.2s cubic-bezier(0.4,0,0.2,1)';
+    mapRow.style.transform='translateX('+shift+'px)';
+  });
 }
 
 
@@ -642,6 +681,7 @@ function placeMarker(cityRaw){
   marker.style.left=coords[0]+'%';
   marker.style.top=coords[1]+'%';
   if(cityName) cityName.textContent=cityRaw;
+  centerMapForBike();
   // Wait for map image to load before drawing
   const img=document.getElementById('ca-map-img');
   // no route drawing — line is baked into the image
