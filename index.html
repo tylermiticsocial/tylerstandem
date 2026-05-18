@@ -375,8 +375,8 @@ async function loadVideos(){
     if(placeholder)placeholder.remove();
     container.innerHTML='';
     rows.forEach(r=>{
-      const url=r.c[0].v.trim();
-      const thumb=r.c[1]?.v||'';
+      const url=(r.url||r.c?.[0]?.v||'').trim();
+      const thumb=r.thumb||r.c?.[1]?.v||'';
       const card=document.createElement('a');
       card.href=url;
       card.target='_blank';
