@@ -71,16 +71,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .map-row{display:flex;gap:2rem;align-items:flex-start}
 #ride-map{position:relative;flex:0 0 55%;user-select:none;margin-left:150px}
 .map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-160px;margin-top:50px;z-index:10;position:relative}
-@media(min-width:801px) and (max-width:1100px){
+@media(min-width:769px) and (max-width:1149px){
   .map-section{padding:0 1.5rem}
-  #ride-map{margin-left:0;flex:0 0 50%}
-  .map-stats{margin-left:0}
+  #ride-map{margin-left:0;flex:0 0 55%}
+  .map-stats{margin-left:1.5rem;margin-top:0}
 }
-@media(max-width:800px){
+@media(max-width:768px){
   .map-section{padding:0 1rem 0 0;margin-bottom:3rem}
   .map-row{flex-direction:column;gap:0;align-items:stretch}
-  #ride-map{flex:none;width:75%;margin-left:auto;margin-right:0}
-  #ride-map #bike-marker img{width:75px}
+  #ride-map{flex:none;width:60%;margin-left:auto;margin-right:0}
+  #ride-map #bike-marker img{width:130px}
   .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
   .map-stats>div{flex:1;text-align:center;min-width:0}
@@ -96,11 +96,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 
 <div id="hero-banner" style="padding:3rem 1.5rem 2.5rem;margin-bottom:0"><div style="text-align:center;max-width:700px;margin:0 auto">
-  <div style="margin-bottom:1.25rem">
+  <div style="margin-bottom:0.4rem">
     <div id="hero-photo-wrap" style="width:110px;height:110px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center"><img class="hero-photo" src="https://raw.githubusercontent.com/tylermiticsocial/tylerstandem/main/images/Tylerpfp.png" alt="Tyler" onerror="this.style.display='none'">
     </div>
   </div>
-    <a href="https://instagram.com/tylermitic" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:12px;font-weight:600;color:#888;text-decoration:none;letter-spacing:0.01em">
+    <a href="https://instagram.com/tylermitic" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:0;font-size:12px;font-weight:600;color:#888;text-decoration:none;letter-spacing:0.01em">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#888" stroke="none"/></svg>
       @tylermitic
     </a>
@@ -113,12 +113,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div style="max-width:700px;margin:0 auto;padding:0 1.5rem;text-align:center">
   <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;white-space:nowrap">
-    <span class="raised-num" id="raised">$0</span>
+    <span class="raised-num" id="raised">N/A</span>
     <span class="raised-word">Raised</span>
   </div>
   <div class="prog-bg"><div class="prog-fill" id="pfill"></div></div>
   <div style="display:flex;justify-content:space-between;font-size:12px;color:#bbb;margin-bottom:2rem">
-    <span>$0</span><span id="goal-txt">$0</span>
+    <span>$0</span><span id="goal-txt">N/A</span>
   </div>
 </div>
 
@@ -197,8 +197,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
         <svg style="width:22px;height:22px;stroke:#d0c8bf;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       </div>
       <div style="flex:1;padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">$5,000</span><span style="color:#ddd">—</span><span class="inc-title">Wheel of dares</span></div>
-        <div style="font-size:12px;color:#aaa;line-height:1.55">We spin the front wheel of dares on the bike and must complete the challenge. We'll make sure people know it came from you ;)</div>
+        <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:5px;flex-wrap:wrap"><span class="inc-amount">$5,000</span><span style="color:#ddd">—</span><span class="inc-title">Sponsor a video</span></div>
+        <div style="font-size:12px;color:#aaa;line-height:1.55">We dedicate a full ride video to you — your name in the title, a shoutout at the start, and your story shared with everyone watching.</div>
       </div>
     </div>
   </div>
@@ -409,11 +409,11 @@ async function loadCampaign(){
   try{
     const c=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid()));
     const d=(await c.json()).data;
-    const raised=d.amount_raised?.value?Math.round(parseFloat(d.amount_raised.value)*100):0;
-    const goal=d.goal?.value?Math.round(parseFloat(d.goal.value)*100):0;
-    const p=goal>0?Math.min(100,Math.round(raised/goal*100)):0;
-    animateCount(raised);
-    document.getElementById('goal-txt').textContent=fmt(goal);
+    const raised=d.amount_raised?.value?Math.round(parseFloat(d.amount_raised.value)*100):null;
+    const goal=d.goal?.value?Math.round(parseFloat(d.goal.value)*100):null;
+    const p=goal>0&&raised!=null?Math.min(100,Math.round(raised/goal*100)):0;
+    if(raised!=null)animateCount(raised);else document.getElementById('raised').textContent='N/A';
+    document.getElementById('goal-txt').textContent=goal!=null?fmt(goal):'N/A';
     document.getElementById('pfill').style.width=p+'%';
     if(d.slug&&d.user?.slug){
       const url='https://tiltify.com/@'+d.user.slug+'/'+d.slug;
