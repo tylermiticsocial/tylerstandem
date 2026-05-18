@@ -375,25 +375,24 @@ async function loadVideos(){
     if(placeholder)placeholder.remove();
     container.innerHTML='';
     rows.forEach(r=>{
-      const url=(r.url||r.c?.[0]?.v||'').trim();
+      let url=(r.url||r.c?.[0]?.v||'').trim();
+      if(url&&!/^https?:\/\//i.test(url)) url='https://'+url;
       const thumb=r.thumb||r.c?.[1]?.v||'';
       const card=document.createElement('a');
       card.href=url;
       card.target='_blank';
       card.rel='noopener';
-      card.style.cssText='flex-shrink:0;width:140px;height:200px;border-radius:14px;overflow:hidden;display:block;position:relative;text-decoration:none;background:var(--cream2);border:1px solid var(--border)';
+      card.style.cssText='flex-shrink:0;width:180px;height:180px;border-radius:14px;overflow:hidden;display:block;position:relative;text-decoration:none;background:var(--cream2);border:1px solid var(--border)';
       if(thumb){
         const img=document.createElement('img');
         img.src=thumb;
         img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
         img.onerror=function(){this.style.display='none';};
         const overlay=document.createElement('div');
-        overlay.style.cssText='position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.5) 0%,transparent 50%)';
+        overlay.style.cssText='position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.5) 0%,transparent 50%);opacity:0;transition:opacity 0.2s';
         overlay.innerHTML='<svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.3)"/><polygon points="10,8 16,12 10,16" fill="white"/></svg><div style="position:absolute;top:7px;right:7px;width:24px;height:24px;opacity:0;transition:opacity 0.2s" class="ig-badge"><svg viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="white" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="white"/></svg></div>';
-        overlay.style.transition='opacity 0.2s';
         card.addEventListener('mouseenter',()=>{overlay.style.opacity='1';const b=overlay.querySelector('.ig-badge');if(b)b.style.opacity='1';});
-        card.addEventListener('mouseleave',()=>{overlay.style.opacity='0.6';const b=overlay.querySelector('.ig-badge');if(b)b.style.opacity='0';});
-        overlay.style.opacity='0.6';
+        card.addEventListener('mouseleave',()=>{overlay.style.opacity='0';const b=overlay.querySelector('.ig-badge');if(b)b.style.opacity='0';});
         card.appendChild(img);
         card.appendChild(overlay);
       } else {
