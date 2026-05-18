@@ -72,10 +72,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 #ride-map{position:relative;flex:0 0 55%;user-select:none;margin-left:150px}
 .map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;margin-left:-160px;margin-top:50px;z-index:10;position:relative}
 @media(min-width:769px) and (max-width:1149px){
-  .map-section{padding:0 1.5rem}
+  .map-section{padding:0 1.5rem 0 160px}
   #ride-map{margin-left:0;flex:0 0 55%}
   .map-stats{margin-left:1.5rem;margin-top:0}
 }
+#bike-marker{transform:translate(calc(-100% + 10px),-50%) !important}
 @media(max-width:768px){
   .map-section{padding:0 1rem 0 0;margin-bottom:3rem}
   .map-row{flex-direction:column;gap:0;align-items:stretch}
