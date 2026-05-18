@@ -78,7 +78,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 }
 #bike-marker{transform:translate(calc(-100% + 10px),-50%) !important}
 @media(max-width:768px){
-  .map-section{padding:0 1rem 0 0;margin-bottom:3rem}
+  .map-section{padding:0 1rem 0 0;margin-bottom:3rem;overflow:hidden}
   .map-row{flex-direction:column;gap:0;align-items:stretch}
   #ride-map{flex:none;width:60%;margin-left:auto;margin-right:0}
   #ride-map #bike-marker img{width:130px}
@@ -353,7 +353,7 @@ async function loadSettings(){
       if(cityEl) cityEl.textContent=rawCity||'Starting soon';
       set('stat-days', days?(days+' day'+(days===1?'':'s')):'—');
       set('stat-pct', pct+'%');
-      placeMarkerByPct(Math.min(100,(miles/total)*100));
+      if(miles>0) placeMarkerByPct(Math.min(100,(miles/total)*100));
     }
   }catch(e){console.error('[loadSettings error]',e);}
 }
