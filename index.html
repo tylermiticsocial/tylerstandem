@@ -31,7 +31,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .inc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:stretch}
 .inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
 .inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
-.lb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.lb-grid .lb-card:last-child:nth-child(4n+1){grid-column:1/-1;justify-self:center;width:calc(25% - 8px)}
+.lb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
 .podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
 .podium-avatar{border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
@@ -67,6 +67,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .footer-cause img{height:28px;width:auto}
 .footer-cause-text{font-size:12px;color:#999;line-height:1.4;text-align:left}
 .footer-cause-text strong{color:#444;font-weight:500;display:block}
+@media(min-width:701px){#lb-load-more{display:none!important}}
 @media(max-width:700px){.lb-extra{display:none}.lb-extra.lb-shown{display:flex}}
 .map-section{max-width:700px;margin:20px auto 2rem;padding:0 1.5rem;overflow:visible}
 .map-row{display:flex;gap:2rem;align-items:flex-start;justify-content:center}
@@ -183,7 +184,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
         <div style="font-size:13px;color:#aaa;line-height:1.6">Every donor $5+ gets their name on the donor wall at the bottom of this page.</div>
       </div>
     </div>
-    <div class="inc-card" style="border-color:var(--red)">
+    <div class="inc-card">
       <div style="padding:1.5rem 1.4rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
         <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:8px;flex-wrap:wrap">
           <span class="inc-amount">$100</span><span style="color:#ddd">—</span><span class="inc-title">Name on an Instagram story</span>
