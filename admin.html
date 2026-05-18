@@ -174,13 +174,15 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
 
   <div class="card">
     <div class="card-head">
-      <h2>$100+ Donors — Last 24h</h2>
+      <h2>$100+ Story list</h2>
       <button class="btn" style="padding:5px 12px;font-size:12px" onclick="load100plus()">Refresh</button>
     </div>
-    <p style="font-size:13px;color:#888;margin-bottom:1rem;line-height:1.6">Everyone who donated $100+ in the past 24 hours. Copy and post to your Instagram story.</p>
-    <div id="list-100" style="font-size:13px;color:#555;line-height:2;min-height:2rem"><span style="color:#ccc">Hit refresh to load.</span></div>
-    <div class="btn-row" style="margin-top:0.75rem">
+    <p style="font-size:13px;color:#888;margin-bottom:0.5rem;line-height:1.6">Everyone who donated $100+ since your last post. Hit refresh any time — names accumulate until you mark them posted.</p>
+    <div id="last-posted-label" style="font-size:11px;color:#bbb;margin-bottom:1rem"></div>
+    <div id="list-100" style="font-size:13px;color:#555;line-height:2.2;min-height:2rem"><span style="color:#ccc">Hit refresh to load.</span></div>
+    <div class="btn-row" style="margin-top:1rem;flex-wrap:wrap;gap:8px">
       <button class="btn" style="background:#444" onclick="copy100plus()">Copy list</button>
+      <button class="btn" onclick="markPosted()" style="background:var(--red)">I've posted this list ✓</button>
       <span id="copy-status" style="font-size:12px;color:#2a7a3a;opacity:0;transition:opacity 0.3s">✓ Copied!</span>
     </div>
   </div>
@@ -301,6 +303,7 @@ async function loadAll(){
   renderVideos(JSON.parse(localStorage.getItem('tandem_videos')||'[]'));
   renderManualDonations();
   document.getElementById('mn-date').value=new Date().toISOString().slice(0,10);
+  renderLastPostedLabel();
 }
 
 async function loadStats(){
@@ -467,30 +470,50 @@ async function deleteManual(i){
   renderManualDonations();
 }
 
-// ── $100+ Last 24h ────────────────────────────────────────────────────────────
+// ── $100+ Story list (since last post) ───────────────────────────────────────
 let _100plusList=[];
+
+function getLastPostedAt(){
+  const v=localStorage.getItem('tandem_last_posted_at');
+  return v?parseInt(v):null;
+}
+
+function renderLastPostedLabel(){
+  const t=getLastPostedAt();
+  const el=document.getElementById('last-posted-label');
+  if(!el)return;
+  if(!t){el.textContent='Showing all $100+ donations (no post recorded yet).';return;}
+  const d=new Date(t);
+  const str=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  el.textContent='Showing donations since last post: '+str;
+}
+
 async function load100plus(){
   const el=document.getElementById('list-100');
   el.innerHTML='<span style="color:#bbb">Loading...</span>';
+  renderLastPostedLabel();
   try{
     const r=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+CAMPAIGN_ID+'/donations'));
     const all=(await r.json()).data||[];
-    const cutoff=Date.now()-86400000;
+    const cutoff=getLastPostedAt()||0; // 0 = show everything if never posted
     const manuals=getManualDonations().filter(m=>{
       const t=m.ts?new Date(m.ts).getTime():0;
-      return (parseFloat(m.amount)||0)>=100&&t>=cutoff;
+      return (parseFloat(m.amount)||0)>=100&&t>cutoff;
     });
     const tiltify100=all.filter(x=>{
       const amt=x.amount?.value?parseFloat(x.amount.value):0;
       const ts=x.completed_at||x.created_at||'';
       const t=ts?new Date(ts).getTime():0;
-      return amt>=100&&t>=cutoff;
+      return amt>=100&&t>cutoff;
     });
     _100plusList=[
       ...tiltify100.map(x=>({name:x.donor_name||'Anonymous',amount:parseFloat(x.amount?.value||0)})),
       ...manuals.map(m=>({name:m.name||'Anonymous',amount:parseFloat(m.amount||0)}))
     ].sort((a,b)=>b.amount-a.amount);
-    if(!_100plusList.length){el.innerHTML='<span style="color:#ccc">No $100+ donations in the last 24 hours.</span>';return;}
+    if(!_100plusList.length){
+      el.innerHTML='<span style="color:#ccc">No new $100+ donations since your last post.</span>';
+      return;
+    }
     el.innerHTML=_100plusList.map(x=>'<div><strong>'+x.name+'</strong> — $'+x.amount.toLocaleString()+'</div>').join('');
   }catch(e){el.innerHTML='<span style="color:var(--red)">Error loading. Check Tiltify credentials.</span>';console.error(e);}
 }
@@ -502,6 +525,14 @@ function copy100plus(){
     const s=document.getElementById('copy-status');
     s.style.opacity='1';setTimeout(()=>s.style.opacity='0',2500);
   }).catch(()=>alert('Copy failed — try manually selecting the list.'));
+}
+
+function markPosted(){
+  if(!_100plusList.length){alert('Nothing to mark — list is empty.');return;}
+  localStorage.setItem('tandem_last_posted_at',Date.now().toString());
+  _100plusList=[];
+  document.getElementById('list-100').innerHTML='<span style="color:#ccc">All caught up! Hit refresh after your next donations come in.</span>';
+  renderLastPostedLabel();
 }
 
 function exportSettings(){
