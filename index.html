@@ -545,13 +545,13 @@ async function loadLeaderboard(){
     lb.innerHTML=Array.from({length:17},(_,i)=>{
       const e=top[i+3]||null;
       const num=i+4;
-      const cls='lb-card'+(i>=7?' lb-extra':'');
+      const isOrphan=(i===16);
+      const cls='lb-card'+(i>=7?' lb-extra':'')+(isOrphan?' lb-orphan':'');
       if(!e){
         return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#ddd;flex-shrink:0">'+num+'</div>'
           +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0"></div>'
           +'<div style="flex:1;min-width:0"><div class="lb-name" style="color:#ccc">—</div><div class="lb-amt" style="color:#ddd">—</div></div></div>';
       }
-      const isOrphan=(i===16);
       const amt=e.amount?.value?parseFloat(e.amount.value):0;
       const name=e.name||'Anonymous';
       const lbAvUrl=e.avatar?.src||e.avatar||'';
