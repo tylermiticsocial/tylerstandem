@@ -79,7 +79,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 @media(max-width:768px){
   .map-section{padding:0 1rem;margin-bottom:3rem;overflow:visible}
   .map-row{flex-direction:column;gap:0;align-items:center}
-  #ride-map{flex:none;width:62%;margin:0 auto;overflow:visible;transform:translateX(50px)}
+  #ride-map{flex:none;width:62%;margin:0 auto;overflow:visible}
   #ride-map #bike-marker img{width:68px!important}
   .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
@@ -180,9 +180,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
     <div class="inc-card">
       <div style="padding:1.5rem 1.4rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
         <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:8px;flex-wrap:wrap">
-          <span class="inc-amount">$5</span><span style="color:#ddd">—</span><span class="inc-title">Your name on the digital wall</span>
+          <span class="inc-amount">$5</span><span style="color:#ddd">—</span><span class="inc-title">Your name on the donor wall</span>
         </div>
-        <div style="font-size:13px;color:#aaa;line-height:1.6">Every donor $5+ gets their name on the donor wall at the bottom of this page.</div>
+        <div style="font-size:13px;color:#aaa;line-height:1.6">Every donor $5+ gets their name on the donor wall at the bottom of this page — also at <a href="/donorwall" style="color:var(--red);text-decoration:none;font-weight:500">tylerstandem.com/donorwall</a>.</div>
       </div>
     </div>
     <div class="inc-card">
@@ -382,7 +382,7 @@ async function loadVideos(){
       card.href=url;
       card.target='_blank';
       card.rel='noopener';
-      card.style.cssText='flex-shrink:0;width:180px;height:180px;border-radius:14px;overflow:hidden;display:block;position:relative;text-decoration:none;background:var(--cream2);border:1px solid var(--border)';
+      card.style.cssText='flex-shrink:0;width:207px;height:259px;border-radius:14px;overflow:hidden;display:block;position:relative;text-decoration:none;background:var(--cream2);border:1px solid var(--border)';
       if(thumb){
         const img=document.createElement('img');
         img.src=thumb;
@@ -643,30 +643,60 @@ function placeMarkerByPct(pct){
 }
 
 function centerMapForBike(){
-  if(window.innerWidth<=768) return;
-  const mapRow=document.querySelector('.map-row');
   const mapEl=document.getElementById('ride-map');
-  const statsEl=document.querySelector('.map-stats');
   const markerEl=document.getElementById('bike-marker');
-  if(!mapRow||!mapEl||!statsEl||!markerEl) return;
-  if(markerEl.style.display==='none'){mapRow.style.transition='none';mapRow.style.transform='';return;}
-  // Reset transform to measure true positions
-  mapRow.style.transition='none';
-  mapRow.style.transform='';
-  void mapRow.offsetWidth;
-  const mapRect=mapEl.getBoundingClientRect();
-  const statsRect=statsEl.getBoundingClientRect();
-  const markerLeftPct=parseFloat(markerEl.style.left)||0;
-  const tandemW=90;
-  // tandem left = map.left + markerX% of mapW - (tandemW - 10) [CSS translate(-100%+10px)]
-  const tandemLeft=mapRect.left+(markerLeftPct/100)*mapRect.width-(tandemW-10);
-  const statsRight=statsRect.right;
-  const visualCenter=(tandemLeft+statsRight)/2;
-  const shift=window.innerWidth/2-visualCenter;
-  requestAnimationFrame(()=>{
-    mapRow.style.transition='transform 1.2s cubic-bezier(0.4,0,0.2,1)';
-    mapRow.style.transform='translateX('+shift+'px)';
-  });
+  const isMobile=window.innerWidth<=768;
+
+  if(!mapEl||!markerEl) return;
+
+  if(markerEl.style.display==='none'){
+    // Reset both possible targets
+    const mapRow=document.querySelector('.map-row');
+    if(mapRow){mapRow.style.transition='none';mapRow.style.transform='';}
+    mapEl.style.transition='none';mapEl.style.transform='';
+    return;
+  }
+
+  if(isMobile){
+    // Mobile: vertical layout — shift #ride-map horizontally so (tandem-left, map-right) is centered
+    mapEl.style.transition='none';
+    mapEl.style.transform='translateX(0)';
+    void mapEl.offsetWidth;
+    const mapRect=mapEl.getBoundingClientRect();
+    const markerLeftPct=parseFloat(markerEl.style.left)||0;
+    const tandemW=68;
+    const tandemLeft=mapRect.left+(markerLeftPct/100)*mapRect.width-(tandemW-10);
+    const mapRight=mapRect.right;
+    const visualCenter=(tandemLeft+mapRight)/2;
+    const shift=window.innerWidth/2-visualCenter;
+    // Clamp so map doesn't slide completely off screen
+    const maxShift=mapRect.width*0.35;
+    const clamped=Math.max(-maxShift,Math.min(maxShift,shift));
+    requestAnimationFrame(()=>{
+      mapEl.style.transition='transform 1.2s cubic-bezier(0.4,0,0.2,1)';
+      mapEl.style.transform='translateX('+clamped+'px)';
+    });
+  } else {
+    // Desktop: horizontal layout — shift .map-row so (tandem-left, stats-right) is centered
+    const mapRow=document.querySelector('.map-row');
+    const statsEl=document.querySelector('.map-stats');
+    if(!mapRow||!statsEl) return;
+    mapRow.style.transition='none';
+    mapRow.style.transform='';
+    void mapRow.offsetWidth;
+    const mapRect=mapEl.getBoundingClientRect();
+    const statsRect=statsEl.getBoundingClientRect();
+    const markerLeftPct=parseFloat(markerEl.style.left)||0;
+    const tandemW=90;
+    const tandemLeft=mapRect.left+(markerLeftPct/100)*mapRect.width-(tandemW-10);
+    const statsRight=statsRect.right;
+    const visualCenter=(tandemLeft+statsRight)/2;
+    const shift=window.innerWidth/2-visualCenter;
+    requestAnimationFrame(()=>{
+      mapRow.style.transition='transform 1.2s cubic-bezier(0.4,0,0.2,1)';
+      mapRow.style.transform='translateX('+shift+'px)';
+    });
+  }
 }
 
 
