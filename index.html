@@ -70,17 +70,17 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 @media(min-width:701px){#lb-load-more{display:none!important}}
 @media(max-width:700px){.lb-extra{display:none}.lb-extra.lb-shown{display:flex}}
 @media(min-width:701px){.lb-grid .lb-card.lb-orphan{grid-column:2/4;justify-self:center;width:calc(50% - 5px)}}
-.map-section{max-width:700px;margin:20px auto 2rem;padding:0 1.5rem;overflow:visible}
-.map-row{display:flex;gap:2rem;align-items:flex-start;justify-content:center}
-#ride-map{position:relative;flex:0 0 auto;width:240px;user-select:none;overflow:visible}
-#ride-map #bike-marker img{width:90px!important}
-.map-stats{flex:0 0 200px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;z-index:10;position:relative}
+.map-section{max-width:900px;margin:20px auto 2rem;padding:0 1.5rem;overflow:visible}
+.map-row{display:flex;gap:2.5rem;align-items:flex-start;justify-content:center}
+#ride-map{position:relative;flex:0 0 auto;width:300px;user-select:none;overflow:visible}
+#ride-map #bike-marker img{width:113px!important}
+.map-stats{flex:0 0 240px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem;z-index:10;position:relative}
 #bike-marker{transform:translate(calc(-100% + 10px),-50%) !important}
 @media(max-width:768px){
   .map-section{padding:0 1rem;margin-bottom:3rem;overflow:visible}
   .map-row{flex-direction:column;gap:0;align-items:center}
   #ride-map{flex:none;width:62%;margin:0 auto;overflow:visible}
-  #ride-map #bike-marker img{width:68px!important}
+  #ride-map #bike-marker img{width:85px!important}
   .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
   .map-stats>div{flex:1;text-align:center;min-width:0}
@@ -664,7 +664,7 @@ function centerMapForBike(){
     void mapEl.offsetWidth;
     const mapRect=mapEl.getBoundingClientRect();
     const markerLeftPct=parseFloat(markerEl.style.left)||0;
-    const tandemW=68;
+    const tandemW=85;
     const tandemLeft=mapRect.left+(markerLeftPct/100)*mapRect.width-(tandemW-10);
     const mapRight=mapRect.right;
     const visualCenter=(tandemLeft+mapRight)/2;
@@ -687,7 +687,7 @@ function centerMapForBike(){
     const mapRect=mapEl.getBoundingClientRect();
     const statsRect=statsEl.getBoundingClientRect();
     const markerLeftPct=parseFloat(markerEl.style.left)||0;
-    const tandemW=90;
+    const tandemW=113;
     const tandemLeft=mapRect.left+(markerLeftPct/100)*mapRect.width-(tandemW-10);
     const statsRight=statsRect.right;
     const visualCenter=(tandemLeft+statsRight)/2;
