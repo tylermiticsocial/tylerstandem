@@ -81,7 +81,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   .map-row{flex-direction:column;gap:0;align-items:center}
   #ride-map{flex:none;width:62%;margin:0 auto;overflow:visible}
   #ride-map #bike-marker img{width:85px!important}
-  .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;padding-left:1rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
+  .map-stats{flex:none;width:100%;margin-left:0;margin-top:1.25rem;padding-top:1.25rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
   .map-stats>div[style*="height:1px"]{display:none}
   .map-stats>div{flex:1;text-align:center;min-width:0}
   #stat-city,#stat-days{font-size:0.75rem!important}
@@ -182,7 +182,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
         <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:8px;flex-wrap:wrap">
           <span class="inc-amount">$5</span><span style="color:#ddd">—</span><span class="inc-title">Your name on the donor wall</span>
         </div>
-        <div style="font-size:13px;color:#aaa;line-height:1.6">Get your name on the <a href="/donorwall" style="color:var(--red);text-decoration:none;font-weight:500">donor wall</a> for every $5+ donation.</div>
+        <div style="font-size:13px;color:#aaa;line-height:1.6">Donate $5+ and your name is permanently added to the <a href="/donorwall" style="color:var(--red);text-decoration:none;font-weight:500">donor wall</a> — one spot per person, forever.</div>
       </div>
     </div>
     <div class="inc-card">
@@ -594,13 +594,23 @@ async function loadDonorWall(){
   try{
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
     const manuals=getManualDonations();
-    const allDonors=[
-      ...list.filter(x=>{const a=x.amount?.value?parseFloat(x.amount.value):0;return a>=5;}).map(x=>filterText(x.donor_name)||'Anonymous'),
-      ...manuals.filter(m=>(parseFloat(m.amount)||0)>=5).map(m=>filterText(m.name)||'Anonymous')
-    ];
-    if(!allDonors.length){wall.innerHTML='<span style="color:#ccc;font-size:13px">No donors yet — be the first!</span>';return;}
-    const unique=[...new Set(allDonors.map(n=>n.trim()))].sort((a,b)=>a.localeCompare(b));
-    wall.innerHTML=unique.map((n,i)=>'<span>'+n+(i<unique.length-1?'<span style="color:#ccc;margin:0 0.5rem">&middot;</span>':'')+'</span>').join('');
+    // Deduplicate by Tiltify donor ID (so multiple donations from same account = one spot)
+    // Fall back to name dedup for donors without an ID or manual entries
+    const seenIds=new Set();
+    const uniqueNames=[];
+    list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=5).forEach(x=>{
+      const id=x.donor?.id||null;
+      const name=(filterText(x.donor_name)||'Anonymous').trim();
+      if(id){if(!seenIds.has(id)){seenIds.add(id);uniqueNames.push(name);}}
+      else{if(!uniqueNames.includes(name))uniqueNames.push(name);}
+    });
+    manuals.filter(m=>(parseFloat(m.amount)||0)>=5).forEach(m=>{
+      const name=(filterText(m.name)||'Anonymous').trim();
+      if(!uniqueNames.includes(name))uniqueNames.push(name);
+    });
+    if(!uniqueNames.length){wall.innerHTML='<span style="color:#ccc;font-size:13px">No donors yet — be the first!</span>';return;}
+    uniqueNames.sort((a,b)=>a.localeCompare(b));
+    wall.innerHTML=uniqueNames.map((n,i)=>'<span>'+n+(i<uniqueNames.length-1?'<span style="color:#ccc;margin:0 0.5rem">&middot;</span>':'')+'</span>').join('');
   }catch(e){wall.innerHTML='<span style="color:#ccc;font-size:13px">Could not load donors.</span>';console.error('Donor wall error',e);}
 }
 
@@ -716,7 +726,7 @@ function placeMarker(cityRaw){
   // no route drawing — line is baked into the image
 }
 
-// Redraw on resize
+window.addEventListener('resize',centerMapForBike);
 
 // ── END RIDE MAP ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // ── DEMO MODE ────────────────────────────────────────────────────────────────
