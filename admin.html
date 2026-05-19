@@ -383,6 +383,7 @@ function delVideo(i){
   const vids=JSON.parse(localStorage.getItem('tandem_videos')||'[]');
   vids.splice(i,1);
   localStorage.setItem('tandem_videos',JSON.stringify(vids));
+  fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'tandem_videos',value:vids})}).catch(()=>{});
   renderVideos(vids);
   showVStatus('Removed.','ok');
 }

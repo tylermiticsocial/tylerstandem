@@ -286,7 +286,7 @@ function genAvatar(size){
 
 function av(url,name,size){
   var n=name.replace(/'/g,'');
-  return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(size*2))+'" onerror="this.src=genAvatar(\'' +n+ '\','+size*2+')">';
+  return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(size*2))+'" onerror="this.src=genAvatar('+size*2+')">';
 }
 
 // Settings from Edge Config (cached in localStorage)
@@ -339,9 +339,6 @@ async function loadSettings(){
         },100);
       }
     }
-    if(data.inc_photo_0){document.getElementById('inc-img-0').innerHTML='<img src="'+data.inc_photo_0+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
-    if(data.inc_photo_1){document.getElementById('inc-img-1').innerHTML='<img src="'+data.inc_photo_1+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
-    if(data.inc_photo_2){document.getElementById('inc-img-2').innerHTML='<img src="'+data.inc_photo_2+'" style="width:100%;height:100%;min-height:140px;object-fit:cover">';}
     // Pre-fundraising mode — donate buttons become "Donate (soon)"
     if(data.prefundraising){
       [document.getElementById('dlink'),document.getElementById('dlink2')].forEach(b=>{
@@ -556,7 +553,7 @@ async function loadLeaderboard(){
       const name=e.name||'Anonymous';
       const lbAvUrl=e.avatar?.src||e.avatar||'';
       const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'">':'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);flex-shrink:0"></div>';
-      return'<div class="'+cls+(isOrphan?' lb-orphan':'')+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
+      return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
     }).join('');
 
     const btn=document.getElementById('lb-load-more');
@@ -726,7 +723,8 @@ function placeMarker(cityRaw){
   // no route drawing — line is baked into the image
 }
 
-window.addEventListener('resize',centerMapForBike);
+let _resizeTimer;
+window.addEventListener('resize',()=>{clearTimeout(_resizeTimer);_resizeTimer=setTimeout(centerMapForBike,150);});
 
 // ── END RIDE MAP ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // ── DEMO MODE ────────────────────────────────────────────────────────────────
@@ -867,15 +865,17 @@ if(localStorage.getItem('tandem_demo')==='1'){
       _fakeDemoRaised+=donor.amt;
       animateTo(_fakeDemoRaised);
       document.getElementById('pfill').style.width=Math.min(100,(_fakeDemoRaised/10000000)*100)+'%';
-      // Add to feed
+      // Add to feed (element may not exist if live feed section is hidden)
       const feed=document.getElementById('live-feed');
-      const el=document.createElement('div');
-      el.className='live-item live-item-new';
-      const now=new Date();
-      const t=now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-      el.innerHTML=av(donor.avatar,donor.name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+donor.name+' <span class="new-badge">New</span></div>'+(donor.comment?'<div class="live-msg">"'+donor.comment+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+fmt(donor.amt)+'</div><div class="live-time">'+t+'</div></div>';
-      feed.insertBefore(el,feed.firstChild);
-      while(feed.children.length>10){const last=feed.lastChild;last.classList.add('live-item-out');setTimeout(()=>last.remove(),300);}
+      if(feed){
+        const el=document.createElement('div');
+        el.className='live-item live-item-new';
+        const now=new Date();
+        const t=now.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+        el.innerHTML=av(donor.avatar,donor.name,38)+'<div style="flex:1;min-width:0"><div class="live-name">'+donor.name+' <span class="new-badge">New</span></div>'+(donor.comment?'<div class="live-msg">"'+donor.comment+'"</div>':'')+' </div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+fmt(donor.amt)+'</div><div class="live-time">'+t+'</div></div>';
+        feed.insertBefore(el,feed.firstChild);
+        while(feed.children.length>10){const last=feed.lastChild;last.classList.add('live-item-out');setTimeout(()=>last.remove(),300);}
+      }
       const track=document.getElementById('ticker-track');
       if(track){const span=document.createElement('span');span.className='t-item';span.innerHTML='<span style="font-size:14px;font-weight:500;color:#333">'+donor.name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+fmt(donor.amt)+'</span><div class="t-sep"></div>';track.prepend(span);}
     },8000);
