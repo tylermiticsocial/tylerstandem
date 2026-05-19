@@ -107,7 +107,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <img src="https://github.com/tylermiticsocial/tylerstandem/blob/main/images/TANDEMTEXT.png?raw=true" alt="Tyler's Tandem" style="width:100%;max-width:100%;height:auto;margin:0 auto 0.5rem;display:block">
   <p id="logline" style="font-size:14px;color:#999;max-width:400px;margin:0 auto 1.5rem;line-height:1.6">One bike. Two seats. 1,000 miles of strangers. All for mental health.</p>
   <div style="margin-bottom:2rem">
-    <a class="donate-btn" id="dlink" href="https://donate.tiltify.com/653378fc-db12-45ed-8192-dafadf84a642/details" target="_blank">Donate</a>
+    <a class="donate-btn" id="dlink" href="https://donate.tiltify.com/a38d24a4-1a00-4e37-bbee-aa844df2f670/details" target="_blank">Donate</a>
   </div>
 </div></div>
 
@@ -203,7 +203,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
     </div>
   </div>
   <div style="text-align:center;margin-top:1.5rem">
-    <a class="donate-btn" id="dlink2" href="https://donate.tiltify.com/653378fc-db12-45ed-8192-dafadf84a642/details" target="_blank">Donate</a>
+    <a class="donate-btn" id="dlink2" href="https://donate.tiltify.com/a38d24a4-1a00-4e37-bbee-aa844df2f670/details" target="_blank">Donate</a>
   </div>
 </div>
 
@@ -320,7 +320,7 @@ async function loadSettings(){
     console.log('[Settings loaded from localStorage]', data);
     if(data.hero_photo){document.getElementById('hero-photo-wrap').innerHTML='<img class="hero-photo" src="'+data.hero_photo+'" alt="Tyler" onerror="this.style.display=\'none\'">';}
     // ride-photo-wrap replaced by map
-    if(data.logline){document.getElementById('logline').textContent=data.logline;}
+    if(data.logline){document.getElementById('logline').innerHTML=data.logline.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
     if(data.tiltify_campaign_id){window._campaignId=data.tiltify_campaign_id;}
     if(data.tiltify_token){window._token=data.tiltify_token;}
     const bannerText=data.banner||'';
@@ -422,12 +422,6 @@ async function loadCampaign(){
     if(raised!=null)animateCount(raised);else document.getElementById('raised').textContent='N/A';
     document.getElementById('goal-txt').textContent=goal!=null?fmt(goal):'N/A';
     document.getElementById('pfill').style.width=p+'%';
-    if(d.slug&&d.user?.slug){
-      const url='https://tiltify.com/@'+d.user.slug+'/'+d.slug;
-      document.getElementById('dlink').href=url;
-      const dlink2=document.getElementById('dlink2');
-      if(dlink2)dlink2.href=url;
-    }
   }catch(e){console.error('Campaign error',e);}
 }
 
