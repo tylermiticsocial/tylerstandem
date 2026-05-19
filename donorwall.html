@@ -90,20 +90,29 @@ async function load(){
     const manualCents=manuals.reduce((s,m)=>s+Math.round((parseFloat(m.amount)||0)*100),0);
     document.getElementById('s-total').textContent=fmt(raised+manualCents);
 
-    const allDonors=[
-      ...list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=5).map(x=>filterText(x.donor_name)||'Anonymous'),
-      ...manuals.filter(m=>(parseFloat(m.amount)||0)>=5).map(m=>filterText(m.name)||'Anonymous')
-    ];
+    // Deduplicate by Tiltify donor ID — one spot per person regardless of donation count
+    const seenIds=new Set();
+    const uniqueNames=[];
+    list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=5).forEach(x=>{
+      const id=x.donor?.id||null;
+      const name=(filterText(x.donor_name)||'Anonymous').trim();
+      if(id){if(!seenIds.has(id)){seenIds.add(id);uniqueNames.push(name);}}
+      else{if(!uniqueNames.includes(name))uniqueNames.push(name);}
+    });
+    manuals.filter(m=>(parseFloat(m.amount)||0)>=5).forEach(m=>{
+      const name=(filterText(m.name)||'Anonymous').trim();
+      if(!uniqueNames.includes(name))uniqueNames.push(name);
+    });
 
-    if(!allDonors.length){
+    if(!uniqueNames.length){
       wall.innerHTML='<span class="loading">No donors yet — be the first!</span>';
       document.getElementById('s-count').textContent='0';
       return;
     }
 
-    const unique=[...new Set(allDonors.map(n=>n.trim()))].sort((a,b)=>a.localeCompare(b));
-    document.getElementById('s-count').textContent=unique.length;
-    wall.innerHTML=unique.map((n,i)=>'<span>'+n+(i<unique.length-1?'<span style="color:#ccc;margin:0 0.6rem">&middot;</span>':'')+'</span>').join('');
+    uniqueNames.sort((a,b)=>a.localeCompare(b));
+    document.getElementById('s-count').textContent=uniqueNames.length;
+    wall.innerHTML=uniqueNames.map((n,i)=>'<span>'+n+(i<uniqueNames.length-1?'<span style="color:#ccc;margin:0 0.6rem">&middot;</span>':'')+'</span>').join('');
   }catch(e){
     wall.innerHTML='<span class="loading">Could not load donors. Try refreshing.</span>';
     console.error(e);
