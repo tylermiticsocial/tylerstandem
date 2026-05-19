@@ -9,6 +9,18 @@ export default async function handler(req, res) {
   const VERCEL_TOKEN = process.env.VERCEL_TOKEN || '';
 
   if (req.method === 'GET') {
+    const key = req.query.key;
+    if (key) {
+      try {
+        const r = await fetch(`https://edge-config.vercel.com/${ecId}/item/${encodeURIComponent(key)}`, {
+          headers: { Authorization: `Bearer ${ecToken}` }
+        });
+        const value = r.ok ? await r.json() : null;
+        return res.status(200).json({ value });
+      } catch(e) {
+        return res.status(200).json({ value: null, error: e.message });
+      }
+    }
     try {
       const [sr, vr] = await Promise.all([
         fetch(`https://edge-config.vercel.com/${ecId}/item/tandem_settings`, {
