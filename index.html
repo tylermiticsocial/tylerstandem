@@ -163,7 +163,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
   <div style="font-family:Syne,sans-serif;font-size:1.6rem;font-weight:800;color:#111;text-align:center;margin-bottom:0.25rem">Leaderboard</div>
-  <div style="font-size:13px;color:#bbb;text-align:center;margin-bottom:1.5rem">Top donors powering the ride</div>
+  <div style="font-size:13px;color:#bbb;text-align:center;margin-bottom:0.5rem">Top donors powering the ride</div>
+  <div style="font-size:12px;color:#bbb;text-align:center;margin-bottom:1.5rem">Want your photo to show? Create a Tiltify account when you donate and edit it through there.</div>
   <div id="lb-podium" style="display:none;margin-bottom:1.5rem"></div>
   <div class="lb-grid" id="lb">
     <div style="grid-column:span 4;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">Leaderboard loads here</div>
@@ -282,6 +283,14 @@ function genAvatar(size){
   x.arc(size/2,size*0.85,size*0.32,Math.PI,0);
   x.fill();
   return c.toDataURL();
+}
+
+function filterAvatar(url){
+  if(!url) return '';
+  // Hide Tiltify's generic system avatar (not user-uploaded)
+  if(/tiltify\.com/i.test(url) && !/\/uploads\//i.test(url)) return '';
+  if(/default/i.test(url)) return '';
+  return url;
 }
 
 function av(url,name,size){
@@ -489,14 +498,21 @@ function emptyLbCard(num){
 
 async function loadLeaderboard(){
   try{
-    const raw=await tiltify('/api/public/campaigns/'+cid()+'/donor_leaderboard');
+    const raw=await tiltify('/api/public/campaigns/'+cid()+'/donations');
+    // Normalize individual donations (unbundled — each donation is its own entry)
+    const donations=(raw||[]).map(x=>({
+      name:filterText(x.donor_name)||'Anonymous',
+      amount:x.amount,
+      avatar:x.donor?.avatar,
+      donor_comment:x.donor_comment||''
+    }));
     const manuals=getManualDonations().map(m=>({
       name:filterText(m.name)||'Anonymous',
       amount:{value:(parseFloat(m.amount)||0).toString()},
       avatar:{src:m.avatar||''},
       donor_comment:m.comment||''
     }));
-    const combined=[...(raw||[]),...manuals].sort((a,b)=>parseFloat(b.amount?.value||0)-parseFloat(a.amount?.value||0));
+    const combined=[...donations,...manuals].sort((a,b)=>parseFloat(b.amount?.value||0)-parseFloat(a.amount?.value||0));
     const top=combined.slice(0,20);
     const lb=document.getElementById('lb');
     const podiumEl=document.getElementById('lb-podium');
@@ -514,8 +530,8 @@ async function loadLeaderboard(){
         const e=p.data;
         const name=e.name||'Anonymous';
         const amt=e.amount?.value?parseFloat(e.amount.value):0;
-        const comment=e.donor_comment||e.comment||donorCommentMap[(e.name||'').toLowerCase().trim()]||'';
-        const avatarUrl=e.avatar?.src||e.avatar||'';
+        const comment=e.donor_comment||donorCommentMap[(e.name||'').toLowerCase().trim()]||'';
+        const avatarUrl=filterAvatar(e.avatar?.src||e.avatar||'');
         const sz=p.size;
         const av=avatarUrl
           ?'<img src="'+avatarUrl+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;border:4px solid '+p.color+';box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;margin:0 auto" onerror="this.style.display=\'none\'">'
@@ -545,9 +561,11 @@ async function loadLeaderboard(){
       }
       const amt=e.amount?.value?parseFloat(e.amount.value):0;
       const name=e.name||'Anonymous';
-      const lbAvUrl=e.avatar?.src||e.avatar||'';
+      const comment=e.donor_comment||donorCommentMap[(e.name||'').toLowerCase().trim()]||'';
+      const lbAvUrl=filterAvatar(e.avatar?.src||e.avatar||'');
       const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'">':'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);flex-shrink:0"></div>';
-      return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div></div></div>';
+      const commentHtml=comment?'<div style="font-size:10px;color:#999;font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&ldquo;'+comment+'&rdquo;</div>':'';
+      return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div>'+commentHtml+'</div></div>';
     }).join('');
 
     const btn=document.getElementById('lb-load-more');
@@ -826,10 +844,11 @@ function loadDemoMode(){
   lb.innerHTML=DEMO_NAMES.slice(3).map((d,i)=>{
     const amt=fmt(DEMO_AMOUNTS[i+3]);
     const isOrphan=(i===DEMO_NAMES.slice(3).length-1)&&(DEMO_NAMES.slice(3).length%4!==0);
+    const commentHtml=d.comment?'<div style="font-size:10px;color:#999;font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&ldquo;'+d.comment+'&rdquo;</div>':'';
     return'<div class="lb-card'+(isOrphan?' lb-orphan':'')+'">'+
       '<div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+(i+4)+'</div>'+
       '<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+d.avatar+'">'+
-      '<div style="flex:1;min-width:0"><div class="lb-name">'+d.name+'</div><div class="lb-amt">'+amt+'</div></div>'+
+      '<div style="flex:1;min-width:0"><div class="lb-name">'+d.name+'</div><div class="lb-amt">'+amt+'</div>'+commentHtml+'</div>'+
     '</div>';
   }).join('');
 }
