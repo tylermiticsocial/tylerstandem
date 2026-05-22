@@ -419,6 +419,23 @@ async function tiltify(path){
   return (await r.json()).data||[];
 }
 
+// Fetches all pages of a paginated Tiltify endpoint and returns combined data
+async function tiltifyAll(path){
+  const all=[];
+  let after=null;
+  const sep=path.includes('?')?'&':'?';
+  for(let i=0;i<20;i++){// max 20 pages (500 results) as a safety cap
+    const url=path+(after?sep+'after='+encodeURIComponent(after):'');
+    const r=await fetch('/api/tiltify?path='+encodeURIComponent(url));
+    const json=await r.json();
+    const page=json.data||[];
+    all.push(...page);
+    after=json.metadata?.after||json.pagination?.after||null;
+    if(!after||!page.length) break;
+  }
+  return all;
+}
+
 async function loadCampaign(){
   try{
     const c=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid()));
@@ -498,7 +515,7 @@ function emptyLbCard(num){
 
 async function loadLeaderboard(){
   try{
-    const raw=await tiltify('/api/public/campaigns/'+cid()+'/donations');
+    const raw=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
     // Normalize individual donations (unbundled — each donation is its own entry)
     const donations=(raw||[]).map(x=>({
       name:filterText(x.donor_name)||'Anonymous',
