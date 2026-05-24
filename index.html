@@ -174,6 +174,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   </div>
 </div>
 
+<div id="live-feed-section" style="display:none;max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
+  <div class="section-label" style="margin-bottom:0.75rem">Recent donations</div>
+  <div id="live-feed" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-right:2px"></div>
+</div>
+
 
 <div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
   <div class="section-label">Donation incentives</div>
@@ -466,6 +471,7 @@ function filterText(str){
 }
 
 let donorCommentMap={};
+let _lastLbHash='';
 async function loadDonations(){
   try{
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
@@ -493,6 +499,26 @@ async function loadDonations(){
     track.innerHTML=html+html;
     setTimeout(()=>{track.style.animationDuration=Math.max(25,track.scrollWidth/2/80)+'s';},100);
     list.forEach(x=>{if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
+    // Live donations feed — sorted newest first
+    const feedSection=document.getElementById('live-feed-section');
+    const feedEl=document.getElementById('live-feed');
+    if(feedSection&&feedEl){
+      const sorted=[...list].sort((a,b)=>new Date(b.completed_at||b.created_at||0)-new Date(a.completed_at||a.created_at||0));
+      if(sorted.length){
+        feedSection.style.display='block';
+        feedEl.innerHTML=sorted.map(x=>{
+          const name=filterText(x.donor_name)||'Anonymous';
+          const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
+          const comment=filterText(x.donor_comment||'');
+          const avUrl=filterAvatar(x.donor?.avatar?.src||x.donor?.avatar||'');
+          const ts=x.completed_at||x.created_at||'';
+          const dt=ts?new Date(ts):null;
+          const t=dt?(dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})):'';
+          const avHtml=avUrl?'<img style="width:38px;height:38px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+avUrl+'">':'';
+          return'<div class="live-item">'+avHtml+'<div style="flex:1;min-width:0"><div class="live-name">'+name+'</div>'+(comment?'<div class="live-msg">"'+comment+'"</div>':'')+'</div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+'</div></div>';
+        }).join('');
+      }
+    }
   }catch(e){console.error('Donations error',e);}
 }
 
@@ -531,17 +557,24 @@ async function loadLeaderboard(){
     }));
     const combined=[...donations,...manuals].sort((a,b)=>parseFloat(b.amount?.value||0)-parseFloat(a.amount?.value||0));
     const top=combined.slice(0,20);
+
+    // Skip full re-render if data hasn't changed
+    const lbHash=top.map(e=>(e.name||'')+'|'+(e.amount?.value||0)+'|'+(e.donor_comment||'')).join(',');
+    if(lbHash===_lastLbHash)return;
+    _lastLbHash=lbHash;
+
     const lb=document.getElementById('lb');
     const podiumEl=document.getElementById('lb-podium');
 
     // Always show podium with ? placeholders for empty spots
     podiumEl.style.display='block';
+    const mob=window.innerWidth<=520;
     const slots=[
-      {data:top[1]||null,rank:2,color:'#777',height:'120px',size:110,fontSize:'1rem'},
-      {data:top[0]||null,rank:1,color:'#b51e00',height:'160px',size:140,fontSize:'1.2rem'},
-      {data:top[2]||null,rank:3,color:'#8c5a2a',height:'90px',size:90,fontSize:'0.9rem'},
+      {data:top[1]||null,rank:2,color:'#777',height:mob?'70px':'120px',size:mob?65:110,fontSize:mob?'0.85rem':'1rem'},
+      {data:top[0]||null,rank:1,color:'#b51e00',height:mob?'95px':'160px',size:mob?82:140,fontSize:mob?'1rem':'1.2rem'},
+      {data:top[2]||null,rank:3,color:'#8c5a2a',height:mob?'52px':'90px',size:mob?52:90,fontSize:mob?'0.75rem':'0.9rem'},
     ];
-    podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:16px;padding:0 1rem">'
+    podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:'+(mob?'8px':'16px')+';padding:0 '+(mob?'0.25rem':'1rem')+'">'
       +slots.map(p=>{
         if(!p.data) return emptyPodiumSlot(p.rank,p.color,p.height,p.size,p.fontSize);
         const e=p.data;
@@ -618,7 +651,7 @@ async function loadDonorWall(){
   const wall=document.getElementById('donor-wall');
   if(!wall)return;
   try{
-    const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
+    const list=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
     const manuals=getManualDonations();
     // Deduplicate by Tiltify donor ID (so multiple donations from same account = one spot)
     // Fall back to name dedup for donors without an ID or manual entries
