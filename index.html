@@ -41,7 +41,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .podium-rank{font-family:Syne,sans-serif;font-weight:800;color:#fff;opacity:0.9}
 @media(max-width:700px){.lb-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:420px){.lb-grid{grid-template-columns:1fr}}
-.lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:center;gap:10px}
+.lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:10px}
 .lb-rank{font-family:"Syne",sans-serif;font-size:1rem;font-weight:800;color:#ccc;flex-shrink:0;width:20px;text-align:center}
 .lb-rank.gold{color:#c8a400}.lb-rank.silver{color:#888}.lb-rank.bronze{color:#a0622a}
 .lb-name{font-size:13px;font-weight:500;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -614,8 +614,8 @@ async function loadLeaderboard(){
       const comment=e.donor_comment||donorCommentMap[(e.name||'').toLowerCase().trim()]||'';
       const lbAvUrl=filterAvatar(e.avatar?.src||e.avatar||'');
       const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'">':'';
-      const commentHtml=comment?'<div style="font-size:10px;color:#999;font-style:italic;margin-top:1px;word-break:break-word">&ldquo;'+comment+'&rdquo;</div>':'';
-      return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div>'+commentHtml+'</div></div>';
+      const commentHtml=comment?'<div style="font-size:10px;color:#999;font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&ldquo;'+comment+'&rdquo;</div>':'';
+      return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0;padding-top:2px">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div>'+commentHtml+'</div></div>';
     }).join('');
 
     const btn=document.getElementById('lb-load-more');
