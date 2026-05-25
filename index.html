@@ -31,7 +31,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .inc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:stretch}
 .inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
 .inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
-.lb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
 .podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
 .podium-avatar{border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
@@ -39,9 +39,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .podium-amt{font-family:Syne,sans-serif;font-weight:800;color:var(--red);text-align:center}
 .podium-block{width:100%;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center}
 .podium-rank{font-family:Syne,sans-serif;font-weight:800;color:#fff;opacity:0.9}
-@media(max-width:700px){.lb-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.lb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.lb-grid{grid-template-columns:1fr}}
-.lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:10px}
+.lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:10px;min-width:0;overflow:hidden}
 .lb-rank{font-family:"Syne",sans-serif;font-size:1rem;font-weight:800;color:#ccc;flex-shrink:0;width:20px;text-align:center}
 .lb-rank.gold{color:#c8a400}.lb-rank.silver{color:#888}.lb-rank.bronze{color:#a0622a}
 .lb-name{font-size:13px;font-weight:500;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
