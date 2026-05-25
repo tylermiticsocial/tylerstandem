@@ -31,7 +31,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .inc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:stretch}
 .inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
 .inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
-.lb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.lb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
 .podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
 .podium-avatar{border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
@@ -69,7 +69,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .footer-cause-text strong{color:#444;font-weight:500;display:block}
 @media(min-width:701px){#lb-load-more{display:none!important}}
 @media(max-width:700px){.lb-extra{display:none}.lb-extra.lb-shown{display:flex}}
-@media(min-width:701px){.lb-grid .lb-card.lb-orphan{grid-column:2/4;justify-self:center;width:calc(50% - 5px)}}
+@media(min-width:701px){.lb-grid .lb-card.lb-orphan{grid-column:2/3;justify-self:stretch}}
 .map-section{max-width:900px;margin:20px auto 2rem;padding:0 1.5rem;overflow:visible}
 .map-row{display:flex;gap:2.5rem;align-items:flex-start;justify-content:center}
 #ride-map{position:relative;flex:0 0 auto;width:300px;user-select:none;overflow:visible}
@@ -609,7 +609,7 @@ async function loadLeaderboard(){
       const e=top[i+3]||null;
       const num=i+4;
       const isOrphan=(i===16);
-      const cls='lb-card'+(i>=7?' lb-extra':'')+(isOrphan?' lb-orphan':'');
+      const cls='lb-card'+(i>=6?' lb-extra':'')+(isOrphan?' lb-orphan':'');
       if(!e){
         return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#ddd;flex-shrink:0">'+num+'</div>'
           +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0"></div>'
