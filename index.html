@@ -472,10 +472,17 @@ function filterText(str){
 
 let donorCommentMap={};
 let _lastLbHash='';
+let _lastDonationsHash='';
 async function loadDonations(){
   try{
     const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
     const manuals=getManualDonations();
+    // Skip rebuild if nothing changed
+    const donationsHash=list.map(x=>(x.donor_name||'')+'|'+(x.amount?.value||0)).join(',')+'|'+manuals.length;
+    const changed=donationsHash!==_lastDonationsHash;
+    _lastDonationsHash=donationsHash;
+    list.forEach(x=>{if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
+    if(!changed)return;
     // Build ticker items from both sources
     const tickerItems=[
       ...list.map(x=>({
@@ -498,7 +505,6 @@ async function loadDonations(){
     }).join('');
     track.innerHTML=html+html;
     setTimeout(()=>{track.style.animationDuration=Math.max(25,track.scrollWidth/2/80)+'s';},100);
-    list.forEach(x=>{if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
     // Live donations feed — sorted newest first
     const feedSection=document.getElementById('live-feed-section');
     const feedEl=document.getElementById('live-feed');
@@ -956,7 +962,7 @@ fetchSettingsFromServer().then(()=>{
 }).catch(()=>{
   loadSettings().then(()=>{refresh();loadVideos();});
 });
-  setInterval(refresh,10000);
+  setInterval(refresh,60000);
 }
 </script>
 </body>
