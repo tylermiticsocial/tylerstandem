@@ -154,7 +154,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
     </div>
 
   </div>
-  <div style="font-size:12px;color:#bbb;text-align:center;margin-top:0.75rem">📍 Map updates every morning at 10am. Instagram post content is delayed by ~36 hours.</div>
+  <div style="font-size:12px;color:#bbb;text-align:center;margin-top:0.75rem">📍 Map is updated around 10am daily. Instagram content is delayed by ~36 hours.</div>
 </div>
 
 
@@ -568,11 +568,11 @@ async function loadLeaderboard(){
 
     // Always show podium with ? placeholders for empty spots
     podiumEl.style.display='block';
-    const mob=window.innerWidth<=520;
+    const mob=window.innerWidth<=700;
     const slots=[
-      {data:top[1]||null,rank:2,color:'#777',height:mob?'70px':'120px',size:mob?65:110,fontSize:mob?'0.85rem':'1rem'},
-      {data:top[0]||null,rank:1,color:'#b51e00',height:mob?'95px':'160px',size:mob?82:140,fontSize:mob?'1rem':'1.2rem'},
-      {data:top[2]||null,rank:3,color:'#8c5a2a',height:mob?'52px':'90px',size:mob?52:90,fontSize:mob?'0.75rem':'0.9rem'},
+      {data:top[1]||null,rank:2,color:'#777',height:mob?'50px':'65px',size:mob?56:75,fontSize:mob?'0.85rem':'1rem'},
+      {data:top[0]||null,rank:1,color:'#b51e00',height:mob?'68px':'90px',size:mob?72:95,fontSize:mob?'1rem':'1.2rem'},
+      {data:top[2]||null,rank:3,color:'#8c5a2a',height:mob?'38px':'48px',size:mob?45:60,fontSize:mob?'0.75rem':'0.9rem'},
     ];
     podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:'+(mob?'8px':'16px')+';padding:0 '+(mob?'0.25rem':'1rem')+'">'
       +slots.map(p=>{
@@ -586,14 +586,14 @@ async function loadLeaderboard(){
         const av=avatarUrl
           ?'<img src="'+avatarUrl+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;border:4px solid '+p.color+';box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;margin:0 auto" onerror="this.style.display=\'none\'">'
           :'';
-        const commentHtml=comment?'<div style="font-size:11px;color:#999;font-style:italic;margin-top:5px;text-align:center;max-width:100%;word-break:break-word">&ldquo;'+comment+'&rdquo;</div>':'';
+        const commentHtml=comment?'<div style="font-size:11px;color:#999;font-style:italic;margin-top:4px;text-align:center;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
         return'<div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">'
           +av
-          +'<div style="font-size:'+(p.rank===1?'15px':'13px')+';font-weight:700;color:#111;margin-top:10px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'
+          +'<div style="font-size:'+(p.rank===1?'15px':'13px')+';font-weight:700;color:#111;margin-top:8px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'
           +'<div style="font-family:Syne,sans-serif;font-size:'+p.fontSize+';font-weight:800;color:var(--red)">'+fmt(Math.round(amt*100))+'</div>'
           +commentHtml
-          +'<div style="width:100%;background:'+p.color+';border-radius:10px 10px 0 0;height:'+p.height+';display:flex;align-items:center;justify-content:center;margin-top:10px">'
-          +'<span style="font-family:Syne,sans-serif;font-size:'+(p.rank===1?'2.8rem':'2rem')+';font-weight:900;color:rgba(255,255,255,0.85)">#'+p.rank+'</span>'
+          +'<div style="width:100%;background:'+p.color+';border-radius:10px 10px 0 0;height:'+p.height+';display:flex;align-items:center;justify-content:center;margin-top:8px">'
+          +'<span style="font-family:Syne,sans-serif;font-size:'+(p.rank===1?'2rem':'1.5rem')+';font-weight:900;color:rgba(255,255,255,0.85)">#'+p.rank+'</span>'
           +'</div></div>';
       }).join('')
       +'</div>';
