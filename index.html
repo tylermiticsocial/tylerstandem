@@ -56,6 +56,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .live-name{font-size:12px;font-weight:500;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .live-msg{font-size:11px;color:#aaa;font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(min-width:701px){.live-msg,.live-time{display:none}}
+.feed-wrap{position:relative;max-height:300px;overflow:hidden}
+.feed-wrap.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+@media(hover:hover){.feed-wrap:hover{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}.feed-wrap:hover .feed-overlay{display:none}}
+.feed-overlay{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,var(--cream));display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;cursor:pointer;font-size:12px;font-weight:600;color:#aaa;letter-spacing:0.03em;user-select:none}
 .live-amt{font-family:"Syne",sans-serif;font-size:13px;font-weight:800;color:var(--red)}
 .live-time{font-size:10px;color:#ccc;margin-top:1px;text-align:right}
 .new-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
@@ -175,7 +179,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div id="live-feed-section" style="display:none;max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
   <div class="section-label" style="margin-bottom:0.75rem">Recent donations</div>
-  <div id="live-feed" style="display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin"></div>
+  <div class="feed-wrap" id="feed-wrap">
+    <div id="live-feed" style="display:flex;flex-direction:column;gap:6px"></div>
+    <div class="feed-overlay" id="feed-overlay" onclick="document.getElementById('feed-wrap').classList.add('active');document.getElementById('feed-overlay').style.display='none'">Scroll for more ↓</div>
+  </div>
 </div>
 
 
