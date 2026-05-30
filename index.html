@@ -54,6 +54,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .live-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--white);border:1px solid var(--border);border-radius:10px}
 .live-name{font-size:12px;font-weight:500;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .live-msg{font-size:11px;color:#aaa;font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:701px){.live-msg,.live-time{display:none}}
 .live-amt{font-family:"Syne",sans-serif;font-size:13px;font-weight:800;color:var(--red)}
 .live-time{font-size:10px;color:#ccc;margin-top:1px;text-align:right}
 .new-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
@@ -471,12 +472,12 @@ function filterText(str){
 let donorCommentMap={};
 let _lastLbHash='';
 let _lastDonationsHash='';
-async function loadDonations(){
+async function loadDonations(allDons){
   try{
-    const list=await tiltify('/api/public/campaigns/'+cid()+'/donations');
+    const list=allDons||await tiltify('/api/public/campaigns/'+cid()+'/donations');
     const manuals=getManualDonations();
     // Skip rebuild if nothing changed
-    const donationsHash=list.map(x=>(x.donor_name||'')+'|'+(x.amount?.value||0)).join(',')+'|'+manuals.length;
+    const donationsHash=list.slice(0,25).map(x=>(x.donor_name||'')+'|'+(x.amount?.value||0)).join(',')+'|'+manuals.length;
     const changed=donationsHash!==_lastDonationsHash;
     _lastDonationsHash=donationsHash;
     list.forEach(x=>{if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
@@ -507,7 +508,7 @@ async function loadDonations(){
     const feedSection=document.getElementById('live-feed-section');
     const feedEl=document.getElementById('live-feed');
     if(feedSection&&feedEl){
-      const allDonations=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+      const allDonations=list;
       const feedManuals=getManualDonations();
       const tiltifyFeed=allDonations.map(x=>({
         name:filterText(x.donor_name)||'Anonymous',
@@ -559,9 +560,9 @@ function emptyLbCard(num){
     +'<div style="flex:1;min-width:0"><div class="lb-name" style="color:#ccc">—</div><div class="lb-amt" style="color:#ddd">—</div></div></div>';
 }
 
-async function loadLeaderboard(){
+async function loadLeaderboard(allDons){
   try{
-    const raw=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+    const raw=allDons||await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
     // Normalize individual donations (unbundled — each donation is its own entry)
     const donations=(raw||[]).map(x=>({
       name:filterText(x.donor_name)||'Anonymous',
@@ -666,11 +667,11 @@ function animateTo(target,fromOverride){
 
 // banner handled in loadSettings
 
-async function loadDonorWall(){
+async function loadDonorWall(allDons){
   const wall=document.getElementById('donor-wall');
   if(!wall)return;
   try{
-    const list=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+    const list=allDons||await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
     const manuals=getManualDonations();
     // Deduplicate by Tiltify donor ID (so multiple donations from same account = one spot)
     // Fall back to name dedup for donors without an ID or manual entries
@@ -699,11 +700,11 @@ async function loadDonorWall(){
   }catch(e){wall.innerHTML='<span style="color:#ccc;font-size:13px">Could not load donors.</span>';console.error('Donor wall error',e);}
 }
 
-async function loadStoryNames(){
+async function loadStoryNames(allDons){
   const el=document.getElementById('story-names');
   if(!el)return;
   try{
-    const list=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+    const list=allDons||await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
     const manuals=getManualDonations();
     const seenIds=new Set();
     const names=[];
@@ -723,7 +724,10 @@ async function loadStoryNames(){
   }catch(e){el.innerHTML='';console.error('Story names error',e);}
 }
 
-async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard(),loadDonorWall(),loadStoryNames()]);}
+async function refresh(){
+  const allDons=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+  await Promise.all([loadCampaign(),loadDonations(allDons),loadLeaderboard(allDons),loadDonorWall(allDons),loadStoryNames(allDons)]);
+}
 
 
 
