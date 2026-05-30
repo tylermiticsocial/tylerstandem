@@ -53,7 +53,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 @keyframes bannerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .live-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--white);border:1px solid var(--border);border-radius:10px}
 .live-name{font-size:12px;font-weight:500;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.live-msg{font-size:11px;color:#aaa;font-style:italic;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-msg{font-size:11px;color:#aaa;font-style:italic;margin-top:1px;line-height:1.5}
 @media(min-width:701px){.live-time{display:none}}
 .feed-wrap{position:relative;max-height:300px;overflow:hidden}
 .feed-wrap.active{overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
@@ -173,7 +173,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div class="lb-grid" id="lb">
     <div style="grid-column:span 3;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">Leaderboard loads here</div>
   </div>
-  <button class="lb-see-more" id="lb-see-more" onclick="var g=document.getElementById('lb');var b=this;g.classList.toggle('lb-expanded');b.textContent=g.classList.contains('lb-expanded')?'Show Less':'Load More'">Load More</button>
+  <button class="lb-see-more" id="lb-see-more" onclick="var extras=document.querySelectorAll('#lb .lb-mobile-extra');var showing=extras[0]&&extras[0].style.display!=='none';extras.forEach(function(c){c.style.display=showing?'none':'flex'});this.textContent=showing?'Load More':'Show Less'">Load More</button>
 </div>
 
 <div id="live-feed-section" style="display:none;max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
@@ -591,9 +591,7 @@ async function loadLeaderboard(allDons){
     _lastLbHash=lbHash;
 
     const lb=document.getElementById('lb');
-    lb.classList.remove('lb-expanded');
     const smBtn=document.getElementById('lb-see-more');
-    if(smBtn)smBtn.textContent='See More';
     const podiumEl=document.getElementById('lb-podium');
 
     // Always show podium with ? placeholders for empty spots
@@ -617,7 +615,7 @@ async function loadLeaderboard(allDons){
           ?'<img src="'+avatarUrl+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;border:4px solid '+p.color+';box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;margin:0 auto" onerror="this.style.display=\'none\'">'
           :'';
         const commentHtml=comment?'<div style="font-size:11px;color:#999;font-style:italic;margin-top:4px;text-align:center;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
-        return'<div style="flex:1;max-width:200px;display:flex;flex-direction:column;align-items:center">'
+        return'<div style="flex:1;min-width:0;max-width:200px;display:flex;flex-direction:column;align-items:center;overflow:hidden">'
           +av
           +'<div style="font-size:'+(p.rank===1?'15px':'13px')+';font-weight:700;color:#111;margin-top:8px;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+name+'</div>'
           +'<div style="font-family:Syne,sans-serif;font-size:'+p.fontSize+';font-weight:800;color:var(--red)">'+fmt(Math.round(amt*100))+'</div>'
@@ -633,6 +631,7 @@ async function loadLeaderboard(allDons){
       const e=top[i+3]||null;
       const num=i+4;
       const cls='lb-card'+(i>=7?' lb-mobile-extra':'');
+      // lb-mobile-extra display controlled by JS below after render
       if(!e){
         return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#ddd;flex-shrink:0">'+num+'</div>'
           +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0"></div>'
@@ -646,6 +645,11 @@ async function loadLeaderboard(allDons){
       const commentHtml=comment?'<div style="font-size:10px;color:#999;font-style:italic;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
       return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0;padding-top:2px">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div>'+commentHtml+'</div></div>';
     }).join('');
+
+    // JS-driven mobile hide: more reliable than CSS media query alone
+    const isMob=window.innerWidth<=700;
+    lb.querySelectorAll('.lb-mobile-extra').forEach(c=>c.style.display=isMob?'none':'');
+    if(smBtn){smBtn.style.display=isMob?'block':'none';smBtn.textContent='Load More';}
   }catch(e){console.error('Leaderboard error',e);}
 }
 
