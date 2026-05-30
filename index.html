@@ -650,6 +650,18 @@ async function loadLeaderboard(allDons){
     const isMob=window.innerWidth<=700;
     lb.querySelectorAll('.lb-mobile-extra').forEach(c=>c.style.display=isMob?'none':'');
     if(smBtn){smBtn.style.display=isMob?'block':'none';smBtn.textContent='Load More';}
+
+    // Center any partial last row on desktop by wrapping in a flex container
+    if(!isMob){
+      const all=[...lb.children];
+      const rem=all.length%3;
+      if(rem>0){
+        const wrap=document.createElement('div');
+        wrap.style.cssText='grid-column:1/-1;display:flex;justify-content:center;gap:8px';
+        all.slice(-rem).forEach(c=>{c.style.cssText+='width:calc(33.33% - 6px);flex-shrink:0;box-sizing:border-box';wrap.appendChild(c);});
+        lb.appendChild(wrap);
+      }
+    }
   }catch(e){console.error('Leaderboard error',e);}
 }
 
