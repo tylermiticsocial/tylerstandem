@@ -173,7 +173,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div id="live-feed-section" style="display:none;max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
   <div class="section-label" style="margin-bottom:0.75rem">Recent donations</div>
-  <div id="live-feed" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-right:2px"></div>
+  <div id="live-feed" style="display:flex;flex-direction:column;gap:6px"></div>
 </div>
 
 
@@ -507,19 +507,35 @@ async function loadDonations(){
     const feedSection=document.getElementById('live-feed-section');
     const feedEl=document.getElementById('live-feed');
     if(feedSection&&feedEl){
-      const sorted=[...list].sort((a,b)=>new Date(b.completed_at||b.created_at||0)-new Date(a.completed_at||a.created_at||0));
-      if(sorted.length){
+      const allDonations=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+      const feedManuals=getManualDonations();
+      const tiltifyFeed=allDonations.map(x=>({
+        name:filterText(x.donor_name)||'Anonymous',
+        amt:x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0',
+        comment:filterText(x.donor_comment||''),
+        avUrl:filterAvatar(x.donor?.avatar?.src||x.donor?.avatar||''),
+        ts:x.completed_at||x.created_at||''
+      }));
+      const manualFeed=feedManuals.map(m=>({
+        name:filterText(m.name)||'Anonymous',
+        amt:fmt(Math.round((parseFloat(m.amount)||0)*100)),
+        comment:filterText(m.comment||''),
+        avUrl:filterAvatar(m.avatar||''),
+        ts:''
+      }));
+      const allFeed=[...tiltifyFeed,...manualFeed].sort((a,b)=>{
+        if(!a.ts&&!b.ts)return 0;
+        if(!a.ts)return 1;
+        if(!b.ts)return -1;
+        return new Date(b.ts)-new Date(a.ts);
+      });
+      if(allFeed.length){
         feedSection.style.display='block';
-        feedEl.innerHTML=sorted.map(x=>{
-          const name=filterText(x.donor_name)||'Anonymous';
-          const amt=x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0';
-          const comment=filterText(x.donor_comment||'');
-          const avUrl=filterAvatar(x.donor?.avatar?.src||x.donor?.avatar||'');
-          const ts=x.completed_at||x.created_at||'';
-          const dt=ts?new Date(ts):null;
+        feedEl.innerHTML=allFeed.map(x=>{
+          const dt=x.ts?new Date(x.ts):null;
           const t=dt?(dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})):'';
-          const avHtml=avUrl?'<img style="width:28px;height:28px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+avUrl+'">':'';
-          return'<div class="live-item">'+avHtml+'<div style="flex:1;min-width:0"><div class="live-name">'+name+'</div>'+(comment?'<div class="live-msg">"'+comment+'"</div>':'')+'</div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+'</div></div>';
+          const avHtml=x.avUrl?'<img style="width:28px;height:28px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+x.avUrl+'">':'';
+          return'<div class="live-item">'+avHtml+'<div style="flex:1;min-width:0"><div class="live-name">'+x.name+'</div>'+(x.comment?'<div class="live-msg">"'+x.comment+'"</div>':'')+'</div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+x.amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+'</div></div>';
         }).join('');
       }
     }
