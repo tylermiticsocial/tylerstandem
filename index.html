@@ -646,8 +646,8 @@ async function loadLeaderboard(allDons){
       return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0;padding-top:2px">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div>'+commentHtml+'</div></div>';
     }).join('');
 
-    // JS-driven mobile hide: more reliable than CSS media query alone
-    const isMob=window.innerWidth<=700;
+    // Show only top 10 on mobile/tablet (podium=3 + grid=7), Load More reveals 11-20
+    const isMob=window.innerWidth<1024;
     lb.querySelectorAll('.lb-mobile-extra').forEach(c=>c.style.display=isMob?'none':'');
     if(smBtn){smBtn.style.display=isMob?'block':'none';smBtn.textContent='Load More';}
 
