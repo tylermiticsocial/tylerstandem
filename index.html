@@ -31,7 +31,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .inc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:stretch}
 .inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
 .inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
-.lb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+.lb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
 .podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
 .podium-avatar{border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
@@ -39,8 +39,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .podium-amt{font-family:Syne,sans-serif;font-weight:800;color:var(--red);text-align:center}
 .podium-block{width:100%;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center}
 .podium-rank{font-family:Syne,sans-serif;font-weight:800;color:#fff;opacity:0.9}
-@media(max-width:480px){.lb-grid{grid-template-columns:1fr}}
-.lb-grid .lb-card.lb-single{grid-column:1/-1;justify-self:center;width:calc(50% - 4px)}
+@media(max-width:700px){.lb-grid{grid-template-columns:1fr}.lb-mobile-extra{display:none}.lb-grid.lb-expanded .lb-mobile-extra{display:flex}}
+.lb-see-more{display:none;width:100%;margin-top:8px;padding:10px 0;background:var(--white);border:1px solid var(--border);border-radius:12px;font-family:"Syne",sans-serif;font-size:13px;font-weight:800;color:var(--red);cursor:pointer;text-align:center}
+@media(max-width:700px){.lb-see-more{display:block}}
+.lb-card:last-child:nth-child(3n+1){grid-column:1/-1;max-width:calc(33.33% - 6px)}
 .lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:10px;min-width:0;overflow:hidden;box-sizing:border-box}
 .lb-rank{font-family:"Syne",sans-serif;font-size:1rem;font-weight:800;color:#ccc;flex-shrink:0;width:20px;text-align:center}
 .lb-rank.gold{color:#c8a400}.lb-rank.silver{color:#888}.lb-rank.bronze{color:#a0622a}
@@ -109,7 +111,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div></div>
 
 <div style="max-width:700px;margin:0 auto;padding:0 1.5rem;text-align:center">
-  <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;white-space:nowrap">
+  <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;flex-wrap:wrap">
     <span class="raised-num" id="raised">N/A</span>
     <span class="raised-word">Raised</span>
   </div>
@@ -164,8 +166,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
   <div style="font-size:13px;color:#bbb;text-align:center;margin-bottom:1.5rem">Top donors powering the ride</div>
   <div id="lb-podium" style="display:none;margin-bottom:1.5rem"></div>
   <div class="lb-grid" id="lb">
-    <div style="grid-column:span 2;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">Leaderboard loads here</div>
+    <div style="grid-column:span 3;text-align:center;color:#ccc;padding:2rem 0;font-size:13px">Leaderboard loads here</div>
   </div>
+  <button class="lb-see-more" id="lb-see-more" onclick="var g=document.getElementById('lb');var b=this;g.classList.toggle('lb-expanded');b.textContent=g.classList.contains('lb-expanded')?'Show Less':'Load More'">Load More</button>
 </div>
 
 <div id="live-feed-section" style="display:none;max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
@@ -191,6 +194,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
           <span class="inc-amount">$100</span><span style="color:#ddd">—</span><span class="inc-title">Name on an Instagram story</span>
         </div>
         <div style="font-size:13px;color:#aaa;line-height:1.6">Your name is featured in a thank-you story post alongside other recent $100+ donors.</div>
+        <div id="story-names" style="margin-top:10px;font-size:12px;color:#888;line-height:1.7;word-break:break-word"></div>
       </div>
     </div>
     <div class="inc-card">
@@ -564,15 +568,18 @@ async function loadLeaderboard(){
     _lastLbHash=lbHash;
 
     const lb=document.getElementById('lb');
+    lb.classList.remove('lb-expanded');
+    const smBtn=document.getElementById('lb-see-more');
+    if(smBtn)smBtn.textContent='See More';
     const podiumEl=document.getElementById('lb-podium');
 
     // Always show podium with ? placeholders for empty spots
     podiumEl.style.display='block';
     const mob=window.innerWidth<=700;
     const slots=[
-      {data:top[1]||null,rank:2,color:'#777',height:mob?'50px':'65px',size:mob?56:75,fontSize:mob?'0.85rem':'1rem'},
-      {data:top[0]||null,rank:1,color:'#b51e00',height:mob?'68px':'90px',size:mob?72:95,fontSize:mob?'1rem':'1.2rem'},
-      {data:top[2]||null,rank:3,color:'#8c5a2a',height:mob?'38px':'48px',size:mob?45:60,fontSize:mob?'0.75rem':'0.9rem'},
+      {data:top[1]||null,rank:2,color:'#777',height:mob?'44px':'65px',size:mob?48:75,fontSize:mob?'0.8rem':'1rem'},
+      {data:top[0]||null,rank:1,color:'#b51e00',height:mob?'56px':'90px',size:mob?60:95,fontSize:mob?'0.9rem':'1.2rem'},
+      {data:top[2]||null,rank:3,color:'#8c5a2a',height:mob?'32px':'48px',size:mob?40:60,fontSize:mob?'0.75rem':'0.9rem'},
     ];
     podiumEl.innerHTML='<div style="display:flex;align-items:flex-end;justify-content:center;gap:'+(mob?'8px':'16px')+';padding:0 '+(mob?'0.25rem':'1rem')+'">'
       +slots.map(p=>{
@@ -599,10 +606,10 @@ async function loadLeaderboard(){
       +'</div>';
 
     // Show spots 4-20
-    lb.innerHTML=Array.from({length:17},(_,i)=>{
+    lb.innerHTML=Array.from({length:18},(_,i)=>{
       const e=top[i+3]||null;
       const num=i+4;
-      const cls='lb-card'+(i===16?' lb-single':'');
+      const cls='lb-card'+(i>=7?' lb-mobile-extra':'');
       if(!e){
         return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#ddd;flex-shrink:0">'+num+'</div>'
           +'<div style="width:36px;height:36px;border-radius:50%;background:var(--cream2);border:2px dashed var(--border);flex-shrink:0"></div>'
@@ -652,24 +659,55 @@ async function loadDonorWall(){
     // Deduplicate by Tiltify donor ID (so multiple donations from same account = one spot)
     // Fall back to name dedup for donors without an ID or manual entries
     const seenIds=new Set();
-    const uniqueNames=[];
+    const donors=[];// [{name, ts}]
     list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=5).forEach(x=>{
       const id=x.donor?.id||null;
       const name=(filterText(x.donor_name)||'Anonymous').trim();
-      if(id){if(!seenIds.has(id)){seenIds.add(id);uniqueNames.push(name);}}
-      else{if(!uniqueNames.includes(name))uniqueNames.push(name);}
+      const ts=x.completed_at||x.created_at||'';
+      if(id){if(!seenIds.has(id)){seenIds.add(id);donors.push({name,ts});}}
+      else{if(!donors.find(d=>d.name===name))donors.push({name,ts});}
     });
     manuals.filter(m=>(parseFloat(m.amount)||0)>=5).forEach(m=>{
       const name=(filterText(m.name)||'Anonymous').trim();
-      if(!uniqueNames.includes(name))uniqueNames.push(name);
+      if(!donors.find(d=>d.name===name))donors.push({name,ts:''});
     });
-    if(!uniqueNames.length){wall.innerHTML='<span style="color:#ccc;font-size:13px">No donors yet — be the first!</span>';return;}
-    uniqueNames.sort((a,b)=>a.localeCompare(b));
-    wall.innerHTML=uniqueNames.map((n,i)=>'<span>'+n+(i<uniqueNames.length-1?'<span style="color:#ccc;margin:0 0.5rem">&middot;</span>':'')+'</span>').join('');
+    if(!donors.length){wall.innerHTML='<span style="color:#ccc;font-size:13px">No donors yet — be the first!</span>';return;}
+    donors.sort((a,b)=>{
+      if(!a.ts&&!b.ts) return 0;
+      if(!a.ts) return 1;
+      if(!b.ts) return -1;
+      return new Date(b.ts)-new Date(a.ts);
+    });
+    const names=donors.map(d=>d.name);
+    wall.innerHTML=names.map((n,i)=>'<span>'+n+(i<names.length-1?'<span style="color:#ccc;margin:0 0.5rem">&middot;</span>':'')+'</span>').join('');
   }catch(e){wall.innerHTML='<span style="color:#ccc;font-size:13px">Could not load donors.</span>';console.error('Donor wall error',e);}
 }
 
-async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard(),loadDonorWall()]);}
+async function loadStoryNames(){
+  const el=document.getElementById('story-names');
+  if(!el)return;
+  try{
+    const list=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+    const manuals=getManualDonations();
+    const seenIds=new Set();
+    const names=[];
+    list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=100).forEach(x=>{
+      const id=x.donor?.id||null;
+      const name=(filterText(x.donor_name)||'Anonymous').trim();
+      if(id){if(!seenIds.has(id)){seenIds.add(id);names.push(name);}}
+      else{if(!names.includes(name))names.push(name);}
+    });
+    manuals.filter(m=>(parseFloat(m.amount)||0)>=100).forEach(m=>{
+      const name=(filterText(m.name)||'Anonymous').trim();
+      if(!names.includes(name))names.push(name);
+    });
+    if(!names.length){el.innerHTML='';return;}
+    names.sort((a,b)=>a.localeCompare(b));
+    el.innerHTML='<span style="font-weight:600;color:#bbb;letter-spacing:0.05em;font-size:11px;text-transform:uppercase">$100+ donors</span><br>'+names.join('<span style="color:#ddd;margin:0 4px">&middot;</span>');
+  }catch(e){el.innerHTML='';console.error('Story names error',e);}
+}
+
+async function refresh(){await Promise.all([loadCampaign(),loadDonations(),loadLeaderboard(),loadDonorWall(),loadStoryNames()]);}
 
 
 
