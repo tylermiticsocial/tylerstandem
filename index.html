@@ -42,8 +42,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 @media(max-width:700px){.lb-grid{grid-template-columns:1fr}.lb-mobile-extra{display:none}.lb-grid.lb-expanded .lb-mobile-extra{display:flex}}
 .lb-see-more{display:none;width:100%;margin-top:8px;padding:10px 0;background:var(--white);border:1px solid var(--border);border-radius:12px;font-family:"Syne",sans-serif;font-size:13px;font-weight:800;color:var(--red);cursor:pointer;text-align:center}
 @media(max-width:700px){.lb-see-more{display:block}}
-.lb-card:last-child:nth-child(3n+1){grid-column:2}
-.lb-card:nth-last-child(2):nth-child(3n+1){grid-column-start:2}
+@media(min-width:701px){.lb-card:last-child:nth-child(3n+1){grid-column:2}.lb-card:nth-last-child(2):nth-child(3n+1){grid-column-start:2}}
 .lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:10px;min-width:0;overflow:hidden;box-sizing:border-box}
 .lb-rank{font-family:"Syne",sans-serif;font-size:1rem;font-weight:800;color:#ccc;flex-shrink:0;width:20px;text-align:center}
 .lb-rank.gold{color:#c8a400}.lb-rank.silver{color:#888}.lb-rank.bronze{color:#a0622a}
