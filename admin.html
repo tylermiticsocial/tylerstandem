@@ -522,6 +522,20 @@ async function setPrefund(on){
   }
 })();
 
+async function tiltifyAll(path){
+  const all=[];let after=null;const sep=path.includes('?')?'&':'?';
+  for(let i=0;i<20;i++){
+    const url=path+(after?sep+'after='+encodeURIComponent(after):'');
+    const r=await fetch('/api/tiltify?path='+encodeURIComponent(url));
+    const json=await r.json();
+    const page=json.data||[];
+    all.push(...page);
+    after=json.metadata?.after||json.pagination?.after||null;
+    if(!after||!page.length)break;
+  }
+  return all;
+}
+
 // ── $100+ Story list (since last post) ───────────────────────────────────────
 let _100plusList=[];
 
@@ -545,8 +559,7 @@ async function load100plus(){
   el.innerHTML='<span style="color:#bbb">Loading...</span>';
   renderLastPostedLabel();
   try{
-    const r=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+CAMPAIGN_ID+'/donations'));
-    const all=(await r.json()).data||[];
+    const all=await tiltifyAll('/api/public/campaigns/'+CAMPAIGN_ID+'/donations');
     const cutoff=getLastPostedAt()||0; // 0 = show everything if never posted
     const manuals=getManualDonations().filter(m=>{
       const t=m.ts?new Date(m.ts).getTime():0;
