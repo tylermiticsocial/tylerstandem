@@ -42,7 +42,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 @media(max-width:700px){.lb-grid{grid-template-columns:1fr}.lb-mobile-extra{display:none}.lb-grid.lb-expanded .lb-mobile-extra{display:flex}}
 .lb-see-more{display:none;width:100%;margin-top:8px;padding:10px 0;background:var(--white);border:1px solid var(--border);border-radius:12px;font-family:"Syne",sans-serif;font-size:13px;font-weight:800;color:var(--red);cursor:pointer;text-align:center}
 @media(max-width:700px){.lb-see-more{display:block}}
-.lb-card:last-child:nth-child(3n+1){grid-column:1/-1;max-width:calc(33.33% - 6px)}
+.lb-card:last-child:nth-child(3n+1){grid-column:2}
+.lb-card:nth-last-child(2):nth-child(3n+1){grid-column-start:2}
 .lb-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:10px;min-width:0;overflow:hidden;box-sizing:border-box}
 .lb-rank{font-family:"Syne",sans-serif;font-size:1rem;font-weight:800;color:#ccc;flex-shrink:0;width:20px;text-align:center}
 .lb-rank.gold{color:#c8a400}.lb-rank.silver{color:#888}.lb-rank.bronze{color:#a0622a}
@@ -577,7 +578,7 @@ async function loadLeaderboard(allDons){
       donor_comment:m.comment||''
     }));
     const combined=[...donations,...manuals].sort((a,b)=>parseFloat(b.amount?.value||0)-parseFloat(a.amount?.value||0));
-    const top=combined;
+    const top=combined.slice(0,20);
 
     // Skip full re-render if data hasn't changed
     const lbHash=top.map(e=>(e.name||'')+'|'+(e.amount?.value||0)+'|'+(e.donor_comment||'')).join(',');
@@ -622,9 +623,8 @@ async function loadLeaderboard(allDons){
       }).join('')
       +'</div>';
 
-    // Show spots 4+ — count rounded up to multiple of 3 to avoid orphan cards
-    const gridCount=Math.max(18,Math.ceil(Math.max(0,top.length-3)/3)*3);
-    lb.innerHTML=Array.from({length:gridCount},(_,i)=>{
+    // Show spots 4-20 (17 items; CSS centers the last partial row)
+    lb.innerHTML=Array.from({length:17},(_,i)=>{
       const e=top[i+3]||null;
       const num=i+4;
       const cls='lb-card'+(i>=7?' lb-mobile-extra':'');
