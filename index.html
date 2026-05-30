@@ -577,7 +577,7 @@ async function loadLeaderboard(allDons){
       donor_comment:m.comment||''
     }));
     const combined=[...donations,...manuals].sort((a,b)=>parseFloat(b.amount?.value||0)-parseFloat(a.amount?.value||0));
-    const top=combined.slice(0,20);
+    const top=combined;
 
     // Skip full re-render if data hasn't changed
     const lbHash=top.map(e=>(e.name||'')+'|'+(e.amount?.value||0)+'|'+(e.donor_comment||'')).join(',');
@@ -622,8 +622,9 @@ async function loadLeaderboard(allDons){
       }).join('')
       +'</div>';
 
-    // Show spots 4-20
-    lb.innerHTML=Array.from({length:18},(_,i)=>{
+    // Show spots 4+ — count rounded up to multiple of 3 to avoid orphan cards
+    const gridCount=Math.max(18,Math.ceil(Math.max(0,top.length-3)/3)*3);
+    lb.innerHTML=Array.from({length:gridCount},(_,i)=>{
       const e=top[i+3]||null;
       const num=i+4;
       const cls='lb-card'+(i>=7?' lb-mobile-extra':'');
