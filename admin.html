@@ -199,12 +199,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   <div class="card">
     <div class="card-head">
       <h2>All $100+ Donors</h2>
-      <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
+      <button class="btn" id="btn-100" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
     </div>
     <p style="font-size:13px;color:#888;margin-bottom:0.75rem;line-height:1.6">Every donor who gave $100 or more — all time. Sorted by amount.</p>
-    <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:0.75rem;outline:none;background:var(--bg)">
-    <div id="all-100-count" style="font-size:11px;color:#bbb;margin-bottom:0.5rem"></div>
-    <div id="all-100-list" style="font-size:13px;color:#555;line-height:2.2;min-height:2rem"><span style="color:#ccc">Hit refresh to load.</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
+      <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--cream)">
+      <span id="all-100-count" style="font-size:12px;color:#bbb;white-space:nowrap"></span>
+    </div>
+    <div id="all-100-list" style="font-size:13px;color:#555;line-height:1.8;min-height:2rem;max-height:400px;overflow-y:auto"><span style="color:#ccc">Hit refresh to load.</span></div>
   </div>
 
   <div class="card" style="border:2px dashed var(--border)">
