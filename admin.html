@@ -196,6 +196,17 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
     </div>
   </div>
 
+  <div class="card">
+    <div class="card-head">
+      <h2>All $100+ Donors</h2>
+      <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
+    </div>
+    <p style="font-size:13px;color:#888;margin-bottom:0.75rem;line-height:1.6">Every donor who gave $100 or more — all time. Sorted by amount.</p>
+    <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:0.75rem;outline:none;background:var(--bg)">
+    <div id="all-100-count" style="font-size:11px;color:#bbb;margin-bottom:0.5rem"></div>
+    <div id="all-100-list" style="font-size:13px;color:#555;line-height:2.2;min-height:2rem"><span style="color:#ccc">Hit refresh to load.</span></div>
+  </div>
+
   <div class="card" style="border:2px dashed var(--border)">
     <div class="card-head">
       <h2>🎭 Demo Mode</h2>
@@ -590,6 +601,53 @@ function copy100plus(){
     const s=document.getElementById('copy-status');
     s.style.opacity='1';setTimeout(()=>s.style.opacity='0',2500);
   }).catch(()=>alert('Copy failed — try manually selecting the list.'));
+}
+
+// ── All $100+ donors (all time) ──────────────────────────────────────────────
+let _all100List=[];
+
+async function loadAll100(){
+  const el=document.getElementById('all-100-list');
+  const countEl=document.getElementById('all-100-count');
+  el.innerHTML='<span style="color:#bbb">Loading…</span>';
+  if(countEl)countEl.textContent='';
+  try{
+    const all=await tiltifyAll('/api/public/campaigns/'+CAMPAIGN_ID+'/donations');
+    const manuals=getManualDonations().filter(m=>(parseFloat(m.amount)||0)>=100);
+    const tiltify100=all.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=100);
+    const seenIds=new Set();
+    _all100List=[];
+    tiltify100.forEach(x=>{
+      const id=x.donor?.id||null;
+      const name=(x.donor_name||'Anonymous').trim();
+      const amount=parseFloat(x.amount.value);
+      if(id){if(!seenIds.has(id)){seenIds.add(id);_all100List.push({name,amount});}}
+      else{if(!_all100List.find(d=>d.name===name))_all100List.push({name,amount});}
+    });
+    manuals.forEach(m=>{
+      const name=(m.name||'Anonymous').trim();
+      if(!_all100List.find(d=>d.name===name))_all100List.push({name,amount:parseFloat(m.amount)});
+    });
+    _all100List.sort((a,b)=>b.amount-a.amount);
+    renderAll100(_all100List);
+  }catch(e){el.innerHTML='<span style="color:var(--red)">Error loading.</span>';console.error(e);}
+}
+
+function renderAll100(list){
+  const el=document.getElementById('all-100-list');
+  const countEl=document.getElementById('all-100-count');
+  if(countEl)countEl.textContent=list.length+' donor'+(list.length===1?'':'s');
+  if(!list.length){el.innerHTML='<span style="color:#ccc">No $100+ donors yet.</span>';return;}
+  el.innerHTML=list.map((x,i)=>'<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border)">'
+    +'<span><span style="color:#bbb;font-size:11px;margin-right:8px">#'+(i+1)+'</span>'+x.name+'</span>'
+    +'<span style="font-family:Syne,sans-serif;font-weight:800;color:var(--red)">$'+x.amount.toLocaleString()+'</span>'
+    +'</div>').join('');
+}
+
+function filterAll100(){
+  const q=(document.getElementById('search-100').value||'').toLowerCase().trim();
+  if(!q){renderAll100(_all100List);return;}
+  renderAll100(_all100List.filter(x=>x.name.toLowerCase().includes(q)));
 }
 
 function markPosted(){
