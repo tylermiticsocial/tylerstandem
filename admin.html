@@ -322,6 +322,7 @@ async function loadAll(){
     if(v){const img=document.getElementById(pmap[k]);if(img){img.src=v;img.style.display='block';img.onerror=function(){this.style.display='none'};}}
   });
   loadStats();
+  loadAll100();
   renderVideos(JSON.parse(localStorage.getItem('tandem_videos')||'[]'));
   renderManualDonations();
   document.getElementById('mn-date').value=new Date().toISOString().slice(0,10);
