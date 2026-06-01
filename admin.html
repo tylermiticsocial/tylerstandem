@@ -199,7 +199,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   <div class="card">
     <div class="card-head">
       <h2>All $100+ Donors</h2>
-      <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadStats()">Refresh</button>
+      <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
     </div>
     <p style="font-size:13px;color:#888;margin-bottom:0.75rem;line-height:1.6">Every donor who gave $100 or more — all time. Sorted by amount.</p>
     <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:0.75rem;outline:none;background:var(--bg)">
@@ -615,30 +615,41 @@ let _all100List=[];
 async function loadAll100(){
   const el=document.getElementById('all-100-list');
   const countEl=document.getElementById('all-100-count');
-  el.innerHTML='<span style="color:#bbb">Loading…</span>';
+  el.innerHTML='<span style="color:#bbb">Loading page 1…</span>';
   if(countEl)countEl.textContent='';
-  try{
-    // Exact same fetch as loadStats line 347 — confirmed working
-    const dr=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations"));
-    const json=await dr.json();
-    console.log('Tiltify donations raw response:', json);
-    const donations=json.data||[];
-    if(donations.length>0) console.log('First donation sample:', JSON.stringify(donations[0]));
-    if(countEl)countEl.textContent='Fetched '+donations.length+' donations from Tiltify';
-    if(!donations.length){
-      el.innerHTML='<span style="color:var(--red)">Raw API response: '+JSON.stringify(json).slice(0,300)+'</span>';
+  const allDonations=[];
+  let cursor=null;
+  let page=0;
+  // Fetch every page of donations manually — no helper function
+  while(page<25){
+    page++;
+    const url='/api/public/campaigns/'+CAMPAIGN_ID+'/donations'+(cursor?'?after='+encodeURIComponent(cursor):'');
+    el.innerHTML='<span style="color:#bbb">Loading page '+page+'…</span>';
+    let json;
+    try{
+      const r=await fetch('/api/tiltify?path='+encodeURIComponent(url));
+      json=await r.json();
+    }catch(e){
+      el.innerHTML='<span style="color:var(--red)">Fetch error on page '+page+': '+e.message+'</span>';
       return;
     }
-    _all100List=[
-      ...donations
-        .filter(x=>parseFloat(x.amount?.value||0)>=100)
-        .map(x=>({name:(x.donor_name||'Anonymous').trim(),amount:parseFloat(x.amount.value)})),
-      ...getManualDonations()
-        .filter(m=>(parseFloat(m.amount)||0)>=100)
-        .map(m=>({name:(m.name||'Anonymous').trim(),amount:parseFloat(m.amount)}))
-    ].sort((a,b)=>b.amount-a.amount);
-    renderAll100(_all100List);
-  }catch(e){el.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';console.error(e);}
+    if(json.error){
+      el.innerHTML='<span style="color:var(--red)">API error page '+page+': '+JSON.stringify(json.error)+'</span>';
+      return;
+    }
+    const rows=json.data||[];
+    allDonations.push(...rows);
+    cursor=json.metadata?.after||json.pagination?.after||null;
+    if(!cursor||!rows.length) break;
+  }
+  if(countEl)countEl.textContent='Fetched '+allDonations.length+' total donations';
+  _all100List=[
+    ...allDonations.filter(x=>parseFloat(x.amount?.value||0)>=100)
+      .map(x=>({name:(x.donor_name||'Anonymous').trim(),amount:parseFloat(x.amount.value)})),
+    ...getManualDonations().filter(m=>(parseFloat(m.amount)||0)>=100)
+      .map(m=>({name:(m.name||'Anonymous').trim(),amount:parseFloat(m.amount)}))
+  ].sort((a,b)=>b.amount-a.amount);
+  renderAll100(_all100List);
 }
 
 function renderAll100(list){
