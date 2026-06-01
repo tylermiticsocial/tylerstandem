@@ -612,35 +612,19 @@ async function loadAll100(){
   el.innerHTML='<span style="color:#bbb">Loading…</span>';
   if(countEl)countEl.textContent='';
   try{
-    // Use same fetch pattern as load100plus — confirmed working
-    const r=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations?count=100"));
-    const json=await r.json();
-    if(!json.data){el.innerHTML='<span style="color:var(--red)">API error: '+JSON.stringify(json).slice(0,200)+'</span>';return;}
-    // Fetch all pages
-    let allDonations=[...json.data];
-    let after=json.metadata?.after||json.pagination?.after||null;
-    let page=1;
-    while(after&&page<20){
-      const pr=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations?count=100&after="+after));
-      const pj=await pr.json();
-      const pd=pj.data||[];
-      allDonations=[...allDonations,...pd];
-      after=pj.metadata?.after||pj.pagination?.after||null;
-      if(!pd.length)break;
-      page++;
-    }
-    if(countEl)countEl.textContent='Fetched '+allDonations.length+' total donations';
-    // Filter $100+, sort by amount descending
-    _all100List=allDonations
-      .filter(x=>parseFloat(x.amount?.value||0)>=100)
-      .sort((a,b)=>parseFloat(b.amount.value)-parseFloat(a.amount.value))
-      .map(x=>({name:(x.donor_name||'Anonymous').trim(),amount:parseFloat(x.amount.value)}));
-    // Add manual donations not already in list
-    getManualDonations().filter(m=>(parseFloat(m.amount)||0)>=100).forEach(m=>{
-      const name=(m.name||'Anonymous').trim();
-      if(!_all100List.find(d=>d.name===name))_all100List.push({name,amount:parseFloat(m.amount)});
-    });
-    _all100List.sort((a,b)=>b.amount-a.amount);
+    // Exact same fetch as loadStats line 347 — confirmed working
+    const dr=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations"));
+    const json=await dr.json();
+    const donations=json.data||[];
+    if(countEl)countEl.textContent='Loaded '+donations.length+' donations';
+    _all100List=[
+      ...donations
+        .filter(x=>parseFloat(x.amount?.value||0)>=100)
+        .map(x=>({name:(x.donor_name||'Anonymous').trim(),amount:parseFloat(x.amount.value)})),
+      ...getManualDonations()
+        .filter(m=>(parseFloat(m.amount)||0)>=100)
+        .map(m=>({name:(m.name||'Anonymous').trim(),amount:parseFloat(m.amount)}))
+    ].sort((a,b)=>b.amount-a.amount);
     renderAll100(_all100List);
   }catch(e){el.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';console.error(e);}
 }
