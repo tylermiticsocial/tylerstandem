@@ -199,7 +199,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
   <div class="card">
     <div class="card-head">
       <h2>All $100+ Donors</h2>
-      <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
+      <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadStats()">Refresh</button>
     </div>
     <p style="font-size:13px;color:#888;margin-bottom:0.75rem;line-height:1.6">Every donor who gave $100 or more — all time. Sorted by amount.</p>
     <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:0.75rem;outline:none;background:var(--bg)">
@@ -347,6 +347,12 @@ async function loadStats(){
     const dr=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations"));
     const donations=(await dr.json()).data||[];
     document.getElementById("s-donations").textContent=donations.length;
+    // Populate $100+ list using this same confirmed-working data
+    _all100List=[
+      ...donations.filter(x=>parseFloat(x.amount?.value||0)>=100).map(x=>({name:(x.donor_name||'Anonymous').trim(),amount:parseFloat(x.amount.value)})),
+      ...getManualDonations().filter(m=>(parseFloat(m.amount)||0)>=100).map(m=>({name:(m.name||'Anonymous').trim(),amount:parseFloat(m.amount)}))
+    ].sort((a,b)=>b.amount-a.amount);
+    renderAll100(_all100List);
   }catch(e){
     document.getElementById("s-raised").textContent="—";
     document.getElementById("s-donations").textContent="—";
