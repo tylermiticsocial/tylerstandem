@@ -612,7 +612,16 @@ async function loadAll100(){
   el.innerHTML='<span style="color:#bbb">Loading…</span>';
   if(countEl)countEl.textContent='';
   try{
+    // Test single page first to verify API is reachable
+    const testR=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+CAMPAIGN_ID+'/donations'));
+    const testJson=await testR.json();
+    if(!testJson.data){
+      el.innerHTML='<span style="color:var(--red)">API error: '+JSON.stringify(testJson).slice(0,200)+'</span>';
+      return;
+    }
+    if(countEl)countEl.textContent='Fetching all pages…';
     const all=await tiltifyAll('/api/public/campaigns/'+CAMPAIGN_ID+'/donations');
+    if(countEl)countEl.textContent='Fetched '+all.length+' total donations from Tiltify…';
     const manuals=getManualDonations().filter(m=>(parseFloat(m.amount)||0)>=100);
     const tiltify100=all.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=100);
     const seenIds=new Set();
@@ -630,7 +639,7 @@ async function loadAll100(){
     });
     _all100List.sort((a,b)=>b.amount-a.amount);
     renderAll100(_all100List);
-  }catch(e){el.innerHTML='<span style="color:var(--red)">Error loading.</span>';console.error(e);}
+  }catch(e){el.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';console.error(e);}
 }
 
 function renderAll100(list){
