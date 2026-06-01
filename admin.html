@@ -615,8 +615,14 @@ async function loadAll100(){
     // Exact same fetch as loadStats line 347 — confirmed working
     const dr=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations"));
     const json=await dr.json();
+    console.log('Tiltify donations raw response:', json);
     const donations=json.data||[];
-    if(countEl)countEl.textContent='Loaded '+donations.length+' donations';
+    if(donations.length>0) console.log('First donation sample:', JSON.stringify(donations[0]));
+    if(countEl)countEl.textContent='Fetched '+donations.length+' donations from Tiltify';
+    if(!donations.length){
+      el.innerHTML='<span style="color:var(--red)">Raw API response: '+JSON.stringify(json).slice(0,300)+'</span>';
+      return;
+    }
     _all100List=[
       ...donations
         .filter(x=>parseFloat(x.amount?.value||0)>=100)
