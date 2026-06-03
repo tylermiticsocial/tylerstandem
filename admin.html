@@ -198,27 +198,14 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
 
   <div class="card">
     <div class="card-head">
-      <h2>All $100+ Donors</h2>
-      <button class="btn" id="btn-100" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
-    </div>
-    <p style="font-size:13px;color:#888;margin-bottom:0.75rem;line-height:1.6">Every donor who gave $100 or more — all time. Sorted by amount.</p>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem">
-      <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--cream)">
-      <span id="all-100-count" style="font-size:12px;color:#bbb;white-space:nowrap"></span>
-    </div>
-    <div id="all-100-list" style="font-size:13px;color:#555;line-height:1.8;min-height:2rem;max-height:400px;overflow-y:auto"><span style="color:#ccc">Hit refresh to load.</span></div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <h2>All Donors</h2>
+      <h2>$100+ Donors</h2>
       <div style="display:flex;align-items:center;gap:8px">
-        <span id="all-donors-count" style="font-size:12px;color:#bbb"></span>
-        <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadAllDonors()">Refresh</button>
+        <span id="all-100-count" style="font-size:12px;color:#bbb"></span>
+        <button class="btn" style="padding:5px 12px;font-size:12px" onclick="loadAll100()">Refresh</button>
       </div>
     </div>
-    <input id="search-donors" type="text" placeholder="Search by name…" oninput="filterAllDonors()" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--cream);margin-bottom:0.75rem">
-    <div id="all-donors-list" style="font-size:13px;color:#555;line-height:1.8;min-height:2rem"><span style="color:#ccc">Loading…</span></div>
+    <input id="search-100" type="text" placeholder="Search by name…" oninput="filterAll100()" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--cream);margin-bottom:0.75rem">
+    <div id="all-100-list" style="font-size:13px;color:#555;line-height:1.8;min-height:2rem"><span style="color:#ccc">Loading…</span></div>
   </div>
 
   <div class="card" style="border:2px dashed var(--border)">
@@ -335,7 +322,6 @@ async function loadAll(){
   });
   loadStats();
   loadAll100();
-  loadAllDonors();
   renderVideos(JSON.parse(localStorage.getItem('tandem_videos')||'[]'));
   renderManualDonations();
   document.getElementById('mn-date').value=new Date().toISOString().slice(0,10);
@@ -363,12 +349,6 @@ async function loadStats(){
     const dr=await fetch("/api/tiltify?path="+encodeURIComponent("/api/public/campaigns/"+CAMPAIGN_ID+"/donations"));
     const donations=(await dr.json()).data||[];
     document.getElementById("s-donations").textContent=donations.length;
-    // Populate $100+ list using this same confirmed-working data
-    _all100List=[
-      ...donations.filter(x=>parseFloat(x.amount?.value||0)>=100).map(x=>({name:(x.donor_name||'Anonymous').trim(),amount:parseFloat(x.amount.value)})),
-      ...getManualDonations().filter(m=>(parseFloat(m.amount)||0)>=100).map(m=>({name:(m.name||'Anonymous').trim(),amount:parseFloat(m.amount)}))
-    ].sort((a,b)=>b.amount-a.amount);
-    renderAll100(_all100List);
   }catch(e){
     document.getElementById("s-raised").textContent="—";
     document.getElementById("s-donations").textContent="—";
@@ -677,59 +657,6 @@ function renderAll100(list){
     +'<span><span style="color:#bbb;font-size:11px;margin-right:8px">#'+(i+1)+'</span>'+x.name+'</span>'
     +'<span style="font-family:Syne,sans-serif;font-weight:800;color:var(--red)">$'+x.amount.toLocaleString()+'</span>'
     +'</div>').join('');
-}
-
-// ── All Donors list ──────────────────────────────────────────────────────────
-let _allDonorsList=[];
-
-async function loadAllDonors(){
-  const el=document.getElementById('all-donors-list');
-  const countEl=document.getElementById('all-donors-count');
-  el.innerHTML='<span style="color:#bbb">Loading…</span>';
-  if(countEl) countEl.textContent='';
-  try{
-    const tiltify=await tiltifyAll('/api/public/campaigns/'+CAMPAIGN_ID+'/donations');
-    const manual=getManualDonations();
-    _allDonorsList=[
-      ...tiltify.map(x=>({
-        name:(x.donor_name||'Anonymous').trim(),
-        amount:parseFloat(x.amount?.value||0),
-        comment:x.donor_comment||'',
-        date:x.completed_at||x.created_at||''
-      })),
-      ...manual.map(m=>({
-        name:(m.name||'Anonymous').trim(),
-        amount:parseFloat(m.amount||0),
-        comment:m.comment||'',
-        date:m.ts||m.date||''
-      }))
-    ].sort((a,b)=>b.amount-a.amount);
-    renderAllDonors(_allDonorsList);
-  }catch(e){
-    el.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';
-  }
-}
-
-function renderAllDonors(list){
-  const el=document.getElementById('all-donors-list');
-  const countEl=document.getElementById('all-donors-count');
-  if(countEl) countEl.textContent=list.length+' donor'+(list.length===1?'':'s');
-  if(!list.length){el.innerHTML='<span style="color:#ccc">No donations yet.</span>';return;}
-  el.innerHTML=list.map((x,i)=>{
-    const dateStr=x.date?new Date(x.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-    return '<div style="display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid var(--border)">'
-      +'<span style="color:#bbb;font-size:11px;width:28px;flex-shrink:0">#'+(i+1)+'</span>'
-      +'<span style="flex:1;min-width:0"><span style="font-weight:500">'+x.name+'</span>'+(x.comment?' <span style="color:#bbb;font-style:italic;font-size:12px">— "'+x.comment+'"</span>':'')+'</span>'
-      +(dateStr?'<span style="font-size:11px;color:#bbb;flex-shrink:0">'+dateStr+'</span>':'')
-      +'<span style="font-family:Syne,sans-serif;font-weight:800;color:var(--red);flex-shrink:0;margin-left:8px">$'+x.amount.toLocaleString()+'</span>'
-      +'</div>';
-  }).join('');
-}
-
-function filterAllDonors(){
-  const q=(document.getElementById('search-donors').value||'').toLowerCase().trim();
-  if(!q){renderAllDonors(_allDonorsList);return;}
-  renderAllDonors(_allDonorsList.filter(x=>x.name.toLowerCase().includes(q)));
 }
 
 function filterAll100(){

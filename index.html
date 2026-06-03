@@ -464,6 +464,9 @@ async function loadCampaign(){
 
 function filterText(str){
   if(!str)return str;
+  // Strip Tiltify's default placeholder comments
+  if(/^great\s+project[!.]?$/i.test(str.trim()))return '';
+  if(/^i\s+love\s+this\s+project[!.]?$/i.test(str.trim()))return '';
   const bad=['fuck','shit','ass','bitch','cunt','dick','cock','pussy','bastard','damn','crap',
     'piss','fag','nigger','nigga','retard','whore','slut','twat','wanker','bollocks',
     'bugger','arse','prick','tosser','asshole','arsehole','motherfucker','fucker','bullshit'];
