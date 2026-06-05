@@ -629,8 +629,9 @@ async function loadAll100(){
       el.innerHTML='<span style="color:var(--red)">Fetch error on page '+page+': '+e.message+'</span>';
       return;
     }
-    if(json.error){
-      el.innerHTML='<span style="color:var(--red)">API error page '+page+': '+JSON.stringify(json.error)+'</span>';
+    if(json.error||json.errors||!json.data){
+      const msg=json.error||(json.errors&&json.errors[0]?.message)||JSON.stringify(json);
+      el.innerHTML='<span style="color:var(--red)">API error page '+page+': '+msg+'</span>';
       return;
     }
     const rows=json.data||[];

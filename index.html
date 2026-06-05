@@ -117,7 +117,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div style="max-width:700px;margin:0 auto;padding:0 1.5rem;text-align:center">
   <div style="display:flex;align-items:baseline;justify-content:center;gap:0.4rem;margin-bottom:0.9rem;flex-wrap:wrap">
-    <span class="raised-num" id="raised">N/A</span>
+    <span class="raised-num" id="raised">—</span>
     <span class="raised-word">Raised</span>
   </div>
   <div class="prog-bg"><div class="prog-fill" id="pfill"></div></div>
@@ -446,19 +446,27 @@ async function tiltifyAll(path){
   return all;
 }
 
-async function loadCampaign(){
+async function loadCampaign(_retry){
   try{
     const c=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid()));
-    const d=(await c.json()).data;
+    const json=await c.json();
+    const d=json.data;
+    if(!d){
+      if(!_retry){setTimeout(()=>loadCampaign(true),4000);}
+      return;
+    }
     const tiltifyRaised=d.amount_raised?.value?Math.round(parseFloat(d.amount_raised.value)*100):null;
     const manualCents=getManualDonations().reduce((s,m)=>s+Math.round((parseFloat(m.amount)||0)*100),0);
     const raised=tiltifyRaised!=null?tiltifyRaised+manualCents:null;
     const goal=d.goal?.value?Math.round(parseFloat(d.goal.value)*100):null;
     const p=goal>0&&raised!=null?Math.min(100,Math.round(raised/goal*100)):0;
-    if(raised!=null)animateCount(raised);else document.getElementById('raised').textContent='N/A';
-    document.getElementById('goal-txt').textContent=goal!=null?fmt(goal):'N/A';
+    if(raised!=null)animateCount(raised);
+    if(goal!=null)document.getElementById('goal-txt').textContent=fmt(goal);
     document.getElementById('pfill').style.width=p+'%';
-  }catch(e){console.error('Campaign error',e);}
+  }catch(e){
+    console.error('Campaign error',e);
+    if(!_retry){setTimeout(()=>loadCampaign(true),4000);}
+  }
 }
 
 
