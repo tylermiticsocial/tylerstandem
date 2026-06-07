@@ -758,7 +758,7 @@ async function loadStoryNames(allDons){
 }
 
 async function refresh(){
-  const allDons=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
+  const allDons=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations?limit=100');
   await Promise.all([loadCampaign(),loadDonations(allDons),loadLeaderboard(allDons),loadDonorWall(allDons),loadStoryNames(allDons)]);
 }
 
