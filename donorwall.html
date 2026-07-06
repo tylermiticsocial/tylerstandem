@@ -59,7 +59,8 @@ function filterText(str){
     'bugger','arse','prick','tosser','asshole','arsehole','motherfucker','fucker','bullshit'];
   let out=str;
   bad.forEach(w=>{const re=new RegExp('\\b'+w+'\\b','gi');out=out.replace(re,'*'.repeat(w.length));});
-  return out;
+  // Names go into innerHTML — escape donor-supplied text
+  return String(out).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function getManualDonations(){try{return JSON.parse(localStorage.getItem('tandem_manual_donations')||'[]');}catch(e){return [];}}

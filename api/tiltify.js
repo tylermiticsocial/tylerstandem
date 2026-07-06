@@ -34,6 +34,7 @@ export default async function handler(req, res) {
 
   const path = req.query.path;
   if (!path) return res.status(400).json({ error: 'Missing path parameter' });
+  if (!path.startsWith('/api/public/')) return res.status(400).json({ error: 'Only public API paths allowed' });
 
   try {
     const token = await getToken();
@@ -41,6 +42,10 @@ export default async function handler(req, res) {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await upstream.json();
+    if (upstream.ok) {
+      // Cache at Vercel's edge so concurrent/repeat visitors don't each hit Tiltify
+      res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=120');
+    }
     res.status(upstream.status).json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });

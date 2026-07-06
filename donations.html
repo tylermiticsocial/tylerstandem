@@ -73,7 +73,8 @@ function filterText(str){
     const re=new RegExp('\\b'+w+'\\b','gi');
     out=out.replace(re,'*'.repeat(w.length));
   });
-  return out;
+  // Names/comments go into innerHTML — escape donor-supplied text
+  return String(out).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function timeAgo(ts){

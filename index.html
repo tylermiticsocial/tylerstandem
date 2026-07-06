@@ -6,6 +6,7 @@
 <title>Tyler's Tandem</title>
 <link rel="icon" type="image/png" href="images/favicon.png"><link rel="apple-touch-icon" href="images/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -187,9 +188,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
-    <div class="section-label" style="margin-bottom:0">Follow live on Instagram</div>
-    <a href="https://instagram.com/tylermitic" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">@tylermitic →</a>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:4px 14px">
+    <div class="section-label" style="margin-bottom:0">Follow along live</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="https://instagram.com/tylermitic" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">Instagram →</a>
+      <a href="https://www.facebook.com/profile.php?id=61578924603879&amp;mibextid=wwXIfr" target="_blank" style="font-size:12px;color:var(--red);text-decoration:none;font-weight:500;border-bottom:1px solid var(--red)">Facebook →</a>
+    </div>
   </div>
   <div style="position:relative">
     <div id="ig-scroll" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none">
@@ -265,6 +269,8 @@ function genAvatar(size){
 
 function filterAvatar(url){
   if(!url) return '';
+  // URLs are interpolated into src="..." — drop anything that could escape the attribute
+  if(/["'<>\s]/.test(url)) return '';
   // Hide Tiltify's generic system avatar (not user-uploaded)
   if(/tiltify\.com/i.test(url) && !/\/uploads\//i.test(url)) return '';
   if(/default/i.test(url)) return '';
@@ -272,7 +278,6 @@ function filterAvatar(url){
 }
 
 function av(url,name,size){
-  var n=name.replace(/'/g,'');
   return '<img style="width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+(url||genAvatar(size*2))+'" onerror="this.src=genAvatar('+size*2+')">';
 }
 
@@ -285,7 +290,10 @@ async function fetchSettingsFromServer(){
   try{
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),5000);
-    const r=await fetch('/api/settings',{signal:controller.signal});
+    const [r,manualR]=await Promise.all([
+      fetch('/api/settings',{signal:controller.signal}),
+      fetch('/api/settings?key=tandem_manual_donations',{signal:controller.signal})
+    ]);
     clearTimeout(timeout);
     const {settings,videos}=await r.json();
     if(settings&&Object.keys(settings).length){
@@ -294,7 +302,7 @@ async function fetchSettingsFromServer(){
     if(videos&&videos.length){
       localStorage.setItem('tandem_videos',JSON.stringify(videos));
     }
-    const manual=(await (await fetch('/api/settings?key=tandem_manual_donations')).json()).value;
+    const manual=(await manualR.json()).value;
     if(manual&&Array.isArray(manual)&&manual.length){
       localStorage.setItem('tandem_manual_donations',JSON.stringify(manual));
     }
@@ -370,6 +378,8 @@ async function loadVideos(){
       if(thumb){
         const img=document.createElement('img');
         img.src=thumb;
+        img.loading='lazy';
+        img.decoding='async';
         img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
         img.onerror=function(){this.style.display='none';};
         const overlay=document.createElement('div');
@@ -414,6 +424,20 @@ async function tiltifyAll(path){
   return all;
 }
 
+// Last known raised/goal, shown instantly on load. Total only ever goes up,
+// so the cached number is always a safe starting point.
+function showCachedRaised(){
+  try{
+    const c=JSON.parse(localStorage.getItem('tandem_raised_cache')||'null');
+    if(!c||typeof c.raised!=='number')return;
+    animateCount(c.raised);
+    if(c.goal){
+      document.getElementById('goal-txt').textContent=fmt(c.goal);
+      document.getElementById('pfill').style.width=Math.min(100,Math.round(c.raised/c.goal*100))+'%';
+    }
+  }catch(e){}
+}
+
 async function loadCampaign(_retry){
   try{
     const c=await fetch('/api/tiltify?path='+encodeURIComponent('/api/public/campaigns/'+cid()));
@@ -428,7 +452,10 @@ async function loadCampaign(_retry){
     const raised=tiltifyRaised!=null?tiltifyRaised+manualCents:null;
     const goal=d.goal?.value?Math.round(parseFloat(d.goal.value)*100):null;
     const p=goal>0&&raised!=null?Math.min(100,Math.round(raised/goal*100)):0;
-    if(raised!=null)animateCount(raised);
+    if(raised!=null){
+      animateTo(raised);// continues from the cached value instead of restarting at $0
+      try{localStorage.setItem('tandem_raised_cache',JSON.stringify({raised,goal,ts:Date.now()}));}catch(e){}
+    }
     if(goal!=null)document.getElementById('goal-txt').textContent=fmt(goal);
     document.getElementById('pfill').style.width=p+'%';
   }catch(e){
@@ -437,6 +464,8 @@ async function loadCampaign(_retry){
   }
 }
 
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 function filterText(str){
   if(!str)return str;
@@ -451,10 +480,11 @@ function filterText(str){
     const re=new RegExp('\\b'+w+'\\b','gi');
     out=out.replace(re,'*'.repeat(w.length));
   });
-  return out;
+  // Donor-supplied text goes into innerHTML everywhere — escape it here so
+  // every render path is covered
+  return esc(out);
 }
 
-let donorCommentMap={};
 let _lastLbHash='';
 let _lastDonationsHash='';
 async function loadDonations(allDons){
@@ -465,26 +495,26 @@ async function loadDonations(allDons){
     const donationsHash=list.slice(0,25).map(x=>(x.donor_name||'')+'|'+(x.amount?.value||0)).join(',')+'|'+manuals.length;
     const changed=donationsHash!==_lastDonationsHash;
     _lastDonationsHash=donationsHash;
-    list.forEach(x=>{if(x.donor_comment){const k=(x.donor_name||'').toLowerCase().trim();if(k)donorCommentMap[k]=x.donor_comment;}});
     if(!changed)return;
-    // Build ticker items from both sources
+    // Build ticker items from both sources — capped: the track is duplicated and
+    // animates forever, so hundreds of nodes get expensive on mobile
     const tickerItems=[
       ...list.map(x=>({
         name:filterText(x.donor_name)||'Anonymous',
         amt:x.amount?.value?fmt(Math.round(parseFloat(x.amount.value)*100)):'$0',
-        avatar:x.donor?.avatar?.src||x.donor?.avatar||''
+        avatar:filterAvatar(x.donor?.avatar?.src||x.donor?.avatar||'')
       })),
       ...manuals.map(m=>({
         name:filterText(m.name)||'Anonymous',
         amt:fmt(Math.round((parseFloat(m.amount)||0)*100)),
-        avatar:m.avatar||''
+        avatar:filterAvatar(m.avatar||'')
       }))
-    ];
+    ].slice(0,30);
     if(!tickerItems.length)return;
     document.getElementById('ticker-section').style.display='block';
     const track=document.getElementById('ticker-track');
     const html=tickerItems.map(x=>{
-      const avHtml=x.avatar?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+x.avatar+'">':'';
+      const avHtml=x.avatar?'<img loading="lazy" decoding="async" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+x.avatar+'">':'';
       return '<div class="t-item">'+avHtml+'<span style="font-size:14px;font-weight:500;color:#333">'+x.name+'</span><span style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--red)">'+x.amt+'</span><div class="t-sep"></div></div>';
     }).join('');
     track.innerHTML=html+html;
@@ -517,10 +547,10 @@ async function loadDonations(allDons){
       });
       if(allFeed.length){
         feedSection.style.display='block';
-        feedEl.innerHTML=allFeed.map(x=>{
+        feedEl.innerHTML=allFeed.slice(0,50).map(x=>{
           const dt=x.ts?new Date(x.ts):null;
           const t=dt?(dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})):'';
-          const avHtml=x.avUrl?'<img style="width:28px;height:28px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+x.avUrl+'">':'';
+          const avHtml=x.avUrl?'<img loading="lazy" decoding="async" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+x.avUrl+'">':'';
           return'<div class="live-item">'+avHtml+'<div style="flex:1;min-width:0"><div class="live-name">'+x.name+'</div>'+(x.comment?'<div class="live-msg">"'+x.comment+'"</div>':'')+'</div><div style="text-align:right;flex-shrink:0"><div class="live-amt">'+x.amt+'</div>'+(t?'<div class="live-time">'+t+'</div>':'')+'</div></div>';
         }).join('');
       }
@@ -620,7 +650,7 @@ async function loadLeaderboard(allDons){
       const name=e.name||'Anonymous';
       const comment=e.donor_comment||'';
       const lbAvUrl=filterAvatar(e.avatar?.src||e.avatar||'');
-      const lbAv=lbAvUrl?'<img style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'" onerror="this.style.display=\'none\'">':'';
+      const lbAv=lbAvUrl?'<img loading="lazy" decoding="async" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid var(--cream2)" src="'+lbAvUrl+'" onerror="this.style.display=\'none\'">':'';
       const commentHtml=comment?'<div style="font-size:10px;color:#999;font-style:italic;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">&ldquo;'+comment+'&rdquo;</div>':'';
       return'<div class="'+cls+'"><div style="font-family:Syne,sans-serif;font-size:1rem;font-weight:800;width:24px;text-align:center;color:#aaa;flex-shrink:0;padding-top:2px">'+num+'</div>'+lbAv+'<div style="flex:1;min-width:0"><div class="lb-name">'+name+'</div><div class="lb-amt">'+fmt(Math.round(amt*100))+'</div>'+commentHtml+'</div></div>';
     }).join('');
@@ -644,12 +674,14 @@ async function loadLeaderboard(allDons){
   }catch(e){console.error('Leaderboard error',e);}
 }
 
-function showDonationToast(amt){}
 let _raisedCurrent=0,_raisedRaf=null;
 function animateCount(target){animateTo(target,0);}
 function animateTo(target,fromOverride){
   const el=document.getElementById('raised');
   if(_raisedRaf)cancelAnimationFrame(_raisedRaf);
+  // rAF doesn't fire in hidden tabs — set the value directly so background
+  // tabs show the right number the moment they're focused
+  if(document.hidden){_raisedRaf=null;_raisedCurrent=target;el.textContent=fmt(target);return;}
   const startVal=fromOverride!==undefined?fromOverride:_raisedCurrent;
   if(startVal===target){el.textContent=fmt(target);return;}
   const duration=target===0?0:Math.min(1800,Math.max(600,Math.abs(target-startVal)/100));
@@ -701,9 +733,16 @@ async function loadDonorWall(allDons){
   }catch(e){wall.innerHTML='<span style="color:#ccc;font-size:13px">Could not load donors.</span>';console.error('Donor wall error',e);}
 }
 
+let _refreshing=false;
 async function refresh(){
-  const allDons=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations?limit=100');
-  await Promise.all([loadCampaign(),loadDonations(allDons),loadLeaderboard(allDons),loadDonorWall(allDons)]);
+  if(_refreshing||document.hidden)return;// skip hidden tabs; visibilitychange refreshes on return
+  _refreshing=true;
+  try{
+    const campP=loadCampaign();// don't make the raised number wait for the donations pages
+    const allDons=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations?limit=100');
+    await Promise.all([campP,loadDonations(allDons),loadLeaderboard(allDons),loadDonorWall(allDons)]);
+  }catch(e){console.error('Refresh error',e);}
+  finally{_refreshing=false;}
 }
 
 
@@ -980,13 +1019,21 @@ if(localStorage.getItem('tandem_demo')==='1'){
   loadSettings().then(()=>{loadVideos();loadDemoMode();setTimeout(startFakeRefresh,2000);});
 });
 } else {
-  // Fetch from Edge Config first, then load everything
-fetchSettingsFromServer().then(()=>{
-  loadSettings().then(()=>{refresh();loadVideos();});
-}).catch(()=>{
-  loadSettings().then(()=>{refresh();loadVideos();});
-});
+  // Render instantly from cached settings + cached raised total, then sync live data
+  showCachedRaised();
+  loadSettings();
+  refresh();
+  loadVideos();
+  fetchSettingsFromServer().then(()=>{
+    const prevCid=cid();
+    const prevManual=localStorage.getItem('tandem_manual_donations');
+    loadSettings();
+    loadVideos();
+    // Only re-hit Tiltify if the synced settings changed what we'd fetch/compute
+    if(cid()!==prevCid||localStorage.getItem('tandem_manual_donations')!==prevManual)refresh();
+  }).catch(()=>{});
   setInterval(refresh,60000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 }
 </script>
 </body>
