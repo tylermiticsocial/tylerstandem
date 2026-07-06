@@ -28,9 +28,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 .t-item{display:inline-flex;align-items:center;gap:9px;padding:0 2rem}
 .t-sep{width:4px;height:4px;border-radius:50%;background:var(--border);flex-shrink:0}
 .section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#bbb;margin-bottom:0.75rem;text-align:center}
-.inc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:stretch}
-.inc-amount{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red);white-space:nowrap;flex-shrink:0}
-.inc-title{font-family:"Syne",sans-serif;font-size:1.05rem;font-weight:800;color:var(--red)}
 .lb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;padding:0 1rem}
 .podium-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:200px}
@@ -185,37 +182,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 </div>
 
 
-<div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem">
-  <div class="section-label">Donation incentives</div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div class="inc-card">
-      <div style="padding:1.5rem 1.4rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:8px;flex-wrap:wrap">
-          <span class="inc-amount">$5</span><span style="color:#ddd">—</span><span class="inc-title">Your name on the donor wall</span>
-        </div>
-        <div style="font-size:13px;color:#aaa;line-height:1.6">Donate $5+ and your name is permanently added to the <a href="/donorwall" style="color:var(--red);text-decoration:none;font-weight:500">donor wall</a> — one spot per person, forever.</div>
-      </div>
-    </div>
-    <div class="inc-card">
-      <div style="padding:1.5rem 1.4rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:8px;flex-wrap:wrap">
-          <span class="inc-amount">$100</span><span style="color:#ddd">—</span><span class="inc-title">Name on an Instagram story</span>
-        </div>
-        <div style="font-size:13px;color:#aaa;line-height:1.6">Your name is featured in a thank-you story post alongside other recent $100+ donors.</div>
-      </div>
-    </div>
-    <div class="inc-card">
-      <div style="padding:1.5rem 1.4rem;display:flex;flex-direction:column;justify-content:center;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:8px;flex-wrap:wrap">
-          <span class="inc-amount">?</span><span style="color:#ddd">—</span><span class="inc-title">Sponsor a video</span>
-        </div>
-        <div style="font-size:13px;color:#aaa;line-height:1.6">Interested in sponsoring an episode? Email <a href="mailto:hi@tylerstandem.com" style="color:var(--red);text-decoration:none;font-weight:500">hi@tylerstandem.com</a> and let's work something out.</div>
-      </div>
-    </div>
-  </div>
-  <div style="text-align:center;margin-top:1.5rem">
-    <a class="donate-btn" id="dlink2" href="https://donate.tiltify.com/a38d24a4-1a00-4e37-bbee-aa844df2f670/details" target="_blank">Donate</a>
-  </div>
+<div style="max-width:700px;margin:0 auto 2rem;padding:0 1.5rem;text-align:center">
+  <a class="donate-btn" id="dlink2" href="https://donate.tiltify.com/a38d24a4-1a00-4e37-bbee-aa844df2f670/details" target="_blank">Donate</a>
 </div>
 
 <div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
@@ -265,8 +233,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-hei
 
 <div id="donor-wall-section" style="max-width:700px;margin:0 auto;padding:2rem 1.5rem 3rem">
   <div class="section-label">Donor wall</div>
-  <p style="font-size:12px;color:#bbb;margin-bottom:1.25rem">Everyone who donated $5 or more — thank you.</p>
-  <div id="donor-wall" style="font-size:14px;color:#111;line-height:2;word-break:break-word">
+  <p style="font-size:13px;color:#888;margin-bottom:1.25rem">Everyone who's donated $5 or more here — thank you!</p>
+  <div id="donor-wall" style="font-size:18px;font-weight:500;color:#111;line-height:2;word-break:break-word">
     <span style="color:#ccc;font-size:13px">Loading...</span>
   </div>
 </div>
@@ -733,33 +701,9 @@ async function loadDonorWall(allDons){
   }catch(e){wall.innerHTML='<span style="color:#ccc;font-size:13px">Could not load donors.</span>';console.error('Donor wall error',e);}
 }
 
-async function loadStoryNames(allDons){
-  const el=document.getElementById('story-names');
-  if(!el)return;
-  try{
-    const list=allDons||await tiltifyAll('/api/public/campaigns/'+cid()+'/donations');
-    const manuals=getManualDonations();
-    const seenIds=new Set();
-    const names=[];
-    list.filter(x=>(x.amount?.value?parseFloat(x.amount.value):0)>=100).forEach(x=>{
-      const id=x.donor?.id||null;
-      const name=(filterText(x.donor_name)||'Anonymous').trim();
-      if(id){if(!seenIds.has(id)){seenIds.add(id);names.push(name);}}
-      else{if(!names.includes(name))names.push(name);}
-    });
-    manuals.filter(m=>(parseFloat(m.amount)||0)>=100).forEach(m=>{
-      const name=(filterText(m.name)||'Anonymous').trim();
-      if(!names.includes(name))names.push(name);
-    });
-    if(!names.length){el.innerHTML='';return;}
-    names.sort((a,b)=>a.localeCompare(b));
-    el.innerHTML='<span style="font-weight:600;color:#bbb;letter-spacing:0.05em;font-size:11px;text-transform:uppercase">$100+ donors</span><br>'+names.join('<span style="color:#ddd;margin:0 4px">&middot;</span>');
-  }catch(e){el.innerHTML='';console.error('Story names error',e);}
-}
-
 async function refresh(){
   const allDons=await tiltifyAll('/api/public/campaigns/'+cid()+'/donations?limit=100');
-  await Promise.all([loadCampaign(),loadDonations(allDons),loadLeaderboard(allDons),loadDonorWall(allDons),loadStoryNames(allDons)]);
+  await Promise.all([loadCampaign(),loadDonations(allDons),loadLeaderboard(allDons),loadDonorWall(allDons)]);
 }
 
 
