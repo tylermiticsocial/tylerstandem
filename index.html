@@ -360,7 +360,8 @@ async function loadSettings(){
 
 async function loadVideos(){
   try{
-    const rows=getSiteVideos();
+    // Pinned videos always lead the carousel; sort is stable so the rest keep their order
+    const rows=getSiteVideos().slice().sort((a,b)=>(b&&b.pinned?1:0)-(a&&a.pinned?1:0));
     const container=document.getElementById('ig-scroll');
     const placeholder=document.getElementById('ig-placeholder');
     if(!rows.length)return;

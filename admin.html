@@ -59,6 +59,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh}
 .v-url{flex:1;font-size:12px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0 2px}
 .v-del:hover{color:var(--red)}
+.v-pin{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;filter:grayscale(1);opacity:0.45}
+.v-pin:hover{opacity:0.8}
+.v-pin.active{filter:none;opacity:1}
+.v-row.pinned{outline:1.5px solid var(--red);outline-offset:-1.5px}
 .no-vids{font-size:13px;color:#ccc;padding:0.25rem 0}
 .add-area{display:flex;flex-direction:column;gap:8px}
 .add-row{display:flex;gap:8px}
@@ -355,14 +359,29 @@ async function loadStats(){
   }
 }
 
+function sortPinnedFirst(vids){vids.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));return vids;}
+
 function renderVideos(vids){
   const list=document.getElementById("vlist");
   if(!vids.length){list.innerHTML='<div class="no-vids">No videos yet</div>';list._vids=[];return;}
   list.innerHTML=vids.map((v,i)=>{
     const th=v.thumb?'<img src="'+v.thumb+'" class="v-thumb">':'<div class="v-thumb"></div>';
-    return'<div class="v-row">'+th+'<span class="v-url">'+v.url+'</span><button class="v-del" onclick="delVideo('+i+')" title="Remove">×</button></div>';
+    const pinTitle=v.pinned?'Pinned first — click to unpin':'Pin to front of carousel';
+    return'<div class="v-row'+(v.pinned?' pinned':'')+'">'+th+'<span class="v-url">'+v.url+'</span><button class="v-pin'+(v.pinned?' active':'')+'" onclick="togglePin('+i+')" title="'+pinTitle+'">📌</button><button class="v-del" onclick="delVideo('+i+')" title="Remove">×</button></div>';
   }).join("");
   list._vids=vids;
+}
+
+function togglePin(i){
+  const vids=JSON.parse(localStorage.getItem('tandem_videos')||'[]');
+  if(!vids[i])return;
+  const nowPinned=!vids[i].pinned;
+  vids[i].pinned=nowPinned;
+  sortPinnedFirst(vids);
+  localStorage.setItem('tandem_videos',JSON.stringify(vids));
+  fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'tandem_videos',value:vids})}).catch(()=>{});
+  renderVideos(vids);
+  showVStatus(nowPinned?'Pinned to front of carousel.':'Unpinned.','ok');
 }
 
 function save(section){
@@ -384,6 +403,7 @@ function addVideo(){
   if(!url){return;}
   const vids=JSON.parse(localStorage.getItem('tandem_videos')||'[]');
   vids.unshift({url,thumb});
+  sortPinnedFirst(vids);// keep any pinned video ahead of the newly added one
   localStorage.setItem('tandem_videos',JSON.stringify(vids));
   fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'tandem_videos',value:vids})}).catch(()=>{});
   document.getElementById('v-url').value='';
