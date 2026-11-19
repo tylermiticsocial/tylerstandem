@@ -294,7 +294,8 @@ m-579 -563 c0 -13 -43 -6 -47 8 -2 7 6 10 22 7 14 -3 25 -10 25 -15z m2414
 17 -50 22 0 15 30 21 45 8 18 -15 88 -4 82 13 -2 6 -19 19 -38 30 -41 22 -69
 53 -69 77 0 30 -35 51 -92 55 -38 3 -61 0 -76 -11z"/>
 </g>
-<path id="s2route" class="route-line" d="M545,24 C580,130 645,250 660,360 C668,430 662,480 645,508 C600,513 560,513 540,516 C480,590 430,670 395,730 C355,810 318,885 285,956"/>
+<!-- Route traces the real length-of-NZ cycle line: Northland peninsula → Auckland → Wellington, Cook Strait ferry, then SH1 down the South Island's EAST coast (Kaikoura · Christchurch · Dunedin) to Bluff -->
+<path id="s2route" class="route-line" d="M545,22 C550.2,36.7 570.8,96.5 582,126 C593.2,155.5 613.0,202.2 624,230 C635.0,257.8 651.2,296.8 660,322 C668.8,347.2 678.9,387.6 686,408 C693.1,428.4 705.0,453.3 710,466 C715.0,478.8 727.2,491.6 721,498 C714.8,504.4 681.2,507.7 666,511 C650.8,514.3 612.0,507.5 614,521 C616.0,534.5 672.9,581.8 680,606 C687.1,630.2 678.2,670.2 664,692 C649.8,713.8 603.2,738.5 580,760 C556.8,781.5 531.2,819.9 500,844 C468.8,868.1 390.7,911.9 360,930 C329.3,948.1 293.9,966.0 283,972"/>
 <circle id="m-start" cx="545" cy="10" r="22" fill="var(--gold)" stroke="#fff" stroke-width="7"/>
 <circle id="m-end" cx="279" cy="972" r="22" fill="var(--gold-dark)" stroke="#fff" stroke-width="7"/>
 <text id="t-start" x="576" y="36" font-family="Syne,sans-serif" font-size="44" font-weight="800" fill="#6b5a2a">Cape Reinga</text>
@@ -369,6 +370,15 @@ m-579 -563 c0 -13 -43 -6 -47 8 -2 7 6 10 22 7 14 -3 25 -10 25 -15z m2414
 <script>
 document.getElementById('yr').textContent=new Date().getFullYear();
 
+// Only allow http/https URLs through to href/src (block javascript:, data:, etc.)
+function safeS2Url(u){
+  u=(u||'').toString().trim();
+  if(!u)return '';
+  if(!/^https?:\/\//i.test(u))u='https://'+u;
+  try{const parsed=new URL(u);return (parsed.protocol==='http:'||parsed.protocol==='https:')?parsed.href:'';}
+  catch(e){return '';}
+}
+
 // ── Instagram carousel (Season Two) ──
 function getS2Videos(){try{return JSON.parse(localStorage.getItem('tandem_s2_videos')||'[]');}catch(e){return [];}}
 function loadS2Videos(){
@@ -380,9 +390,8 @@ function loadS2Videos(){
     if(placeholder)placeholder.remove();
     container.innerHTML='';
     rows.forEach(r=>{
-      let url=(r.url||'').trim();
-      if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
-      const thumb=r.thumb||'';
+      const url=safeS2Url(r.url);
+      const thumb=safeS2Url(r.thumb);
       const pinned=!!(r&&r.pinned);
       const card=document.createElement('a');
       card.href=url;card.target='_blank';card.rel='noopener';
@@ -421,8 +430,46 @@ function placeS2Marker(pct){
   marker.setAttribute('transform','translate('+pt.x+','+pt.y+')');
 }
 
+// ── Ride stats (% finished / current town / days) ──
+function applyS2Settings(s){
+  if(!s||typeof s!=='object')return;
+  const pct=Math.max(0,Math.min(100,Math.round(parseFloat(s.pct)||0)));
+  const town=(s.town||'').toString().trim();
+  const days=parseInt(s.days)||0;
+  const pctEl=document.getElementById('stat-pct');
+  const cityEl=document.getElementById('stat-city');
+  const daysEl=document.getElementById('stat-days');
+  if(pctEl)pctEl.textContent=pct+'%';
+  if(cityEl)cityEl.textContent=town||'Starting soon';
+  if(daysEl)daysEl.textContent=days?(days+' day'+(days===1?'':'s')):'—';
+  placeS2Marker(pct);
+}
+function getS2Settings(){try{return JSON.parse(localStorage.getItem('tandem_s2_settings')||'{}');}catch(e){return {};}}
+
+// ── Pull the latest settings + videos from the shared store ──
+async function loadS2FromServer(){
+  try{
+    const [sr,vr]=await Promise.all([
+      fetch('/api/settings?key=tandem_s2_settings'),
+      fetch('/api/settings?key=tandem_s2_videos')
+    ]);
+    const settings=sr.ok?((await sr.json()).value):null;
+    const videos=vr.ok?((await vr.json()).value):null;
+    if(settings&&typeof settings==='object'){
+      try{localStorage.setItem('tandem_s2_settings',JSON.stringify(settings));}catch(e){}
+      applyS2Settings(settings);
+    }
+    if(Array.isArray(videos)){
+      try{localStorage.setItem('tandem_s2_videos',JSON.stringify(videos));}catch(e){}
+      loadS2Videos();
+    }
+  }catch(e){console.error('S2 server load error',e);}
+}
+
+// Instant paint from cache, then refresh from the server.
+applyS2Settings(getS2Settings());
 loadS2Videos();
-placeS2Marker(0);
+loadS2FromServer();
 </script>
 </body>
 </html>
