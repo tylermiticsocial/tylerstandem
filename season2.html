@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Tyler's Tandem — Season Two</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c6962f;--gold-dark:#9b721c;--gold-soft:#e8d49a;--cream:#f7f2e8;--cream2:#efe8d8;--border:#e0d7c2;--white:#fff}
+body{font-family:"DM Sans",sans-serif;background:var(--cream);color:#111;min-height:100vh;overflow-x:hidden}
+img{max-width:100%}
+.hero-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;object-position:center center;border:3px solid var(--white);box-shadow:0 0 0 3px var(--gold-soft)}
+.donate-btn{display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:#2e2200;text-decoration:none;border-radius:999px;padding:0.85rem 2.3rem;font-family:"Syne",sans-serif;font-size:1.1rem;font-weight:800;border:none;cursor:pointer;letter-spacing:0.01em;transition:background .15s ease,transform .15s ease}
+.donate-btn:hover{background:var(--gold-dark);color:#fff;transform:translateY(-1px)}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#b9ae95;margin-bottom:0.75rem;text-align:center}
+
+/* gold handwritten wordmark (red PNG recolored via alpha mask) */
+.wordmark{width:100%;max-width:560px;aspect-ratio:1097/93;margin:0 auto 0.5rem;background:linear-gradient(180deg,var(--gold),var(--gold-dark));-webkit-mask:url(images/TANDEMTEXT.png) center/contain no-repeat;mask:url(images/TANDEMTEXT.png) center/contain no-repeat}
+
+/* season chip */
+.season-chip{display:inline-block;font-family:"Syne",sans-serif;font-size:11px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-dark);background:rgba(198,150,47,0.12);border:1px solid rgba(198,150,47,0.3);border-radius:999px;padding:5px 14px;margin-bottom:1.25rem}
+
+/* map */
+.map-section{max-width:900px;margin:10px auto 2rem;padding:0 1.5rem;overflow:visible}
+.map-row{display:flex;gap:2.5rem;align-items:center;justify-content:center}
+#ride-map{position:relative;flex:0 0 auto;width:270px;user-select:none}
+.map-stats{flex:0 0 240px;display:flex;flex-direction:column;gap:1.25rem;padding-top:1rem}
+.route-line{fill:none;stroke:var(--gold);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:1 8}
+.island{fill:rgba(198,150,47,0.09);stroke:rgba(155,114,28,0.35);stroke-width:1.4;stroke-linejoin:round}
+@media(max-width:768px){
+  .map-section{padding:0 1rem;margin-bottom:2rem}
+  .map-row{flex-direction:column;gap:0;align-items:center}
+  #ride-map{flex:none;width:58%;max-width:230px;margin:0 auto}
+  .map-stats{flex:none;width:100%;margin-top:1.25rem;padding-top:1.25rem;flex-direction:row;justify-content:space-around;gap:0;border-top:1px solid var(--border)}
+  .map-stats>div[style*="height:1px"]{display:none}
+  .map-stats>div{flex:1;text-align:center;min-width:0}
+  #stat-city,#stat-days{font-size:0.75rem!important}
+  #stat-pct{font-size:1.4rem!important}
+}
+
+/* instagram carousel */
+#ig-scroll::-webkit-scrollbar{display:none}
+
+/* social */
+.social-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:1.25rem}
+.social{display:flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:0.9rem 1.4rem;text-decoration:none;transition:border-color .15s ease,transform .15s ease}
+.social:hover{border-color:var(--gold);transform:translateY(-2px)}
+.social .ic{width:32px;height:32px;flex-shrink:0;border-radius:9px;background:rgba(198,150,47,0.12);display:flex;align-items:center;justify-content:center}
+.social .ic svg{width:17px;height:17px;stroke:var(--gold-dark);fill:none;stroke-width:2}
+.social .a{font-family:"Syne",sans-serif;font-weight:800;font-size:0.9rem;color:#111;display:block}
+.social .b{font-size:12px;color:#a59a80;display:block;margin-top:1px}
+
+/* footer */
+.footer{text-align:center;padding:3rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:12px;border-top:1px solid var(--border);margin-top:1rem}
+.foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:0.5rem}
+.foot-links a{font-size:12px;color:#a59a80;text-decoration:none}
+.foot-links a:hover{color:var(--gold-dark)}
+
+/* preview badge */
+.preview-badge{position:fixed;bottom:14px;right:14px;z-index:999;display:flex;align-items:center;gap:7px;background:#1b1812;color:var(--gold-soft);font-size:11px;font-weight:700;letter-spacing:0.05em;padding:7px 13px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,0.25)}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div style="padding:3rem 1.5rem 2rem"><div style="text-align:center;max-width:700px;margin:0 auto">
+  <div style="margin-bottom:0.4rem">
+    <img class="hero-photo" src="images/Tylerpfp.JPG" alt="Tyler" onerror="this.style.display='none'">
+  </div>
+  <a href="https://instagram.com/tylermitic" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:0.3rem;font-size:12px;font-weight:600;color:#9a8f76;text-decoration:none;letter-spacing:0.01em">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#9a8f76" stroke="none"/></svg>
+    @tylermitic
+  </a>
+  <div class="wordmark" role="img" aria-label="Tyler's Tandem"></div>
+  <div class="season-chip">Season Two · New Zealand</div>
+  <p style="font-size:14px;color:#9a8f76;max-width:420px;margin:0 auto 1.5rem;line-height:1.6">One bike. Two seats. The length of New Zealand — and whoever climbs on to fill the back seat. All for mental health.</p>
+  <div>
+    <a class="donate-btn" href="https://instagram.com/tylermitic" target="_blank" rel="noopener">Follow the journey</a>
+  </div>
+</div></div>
+
+<!-- MAP -->
+<div class="map-section">
+  <div class="map-row">
+    <div id="ride-map">
+      <svg viewBox="0 0 300 500" width="100%" style="display:block;overflow:visible">
+        <!-- North Island: thin Northland peninsula (Cape Reinga at top), Coromandel spike,
+             East Cape point, Hawke Bay, Taranaki bump out west, Wellington at the south -->
+        <path class="island" d="M174,40 C181,46 184,58 185,70 C187,90 190,108 197,122 C205,116 213,106 215,97 C217,107 215,119 210,128 C223,135 240,141 251,153 C257,160 255,168 247,170 C237,173 229,182 231,195 C233,208 227,223 216,235 C208,244 201,251 195,253 C189,250 186,241 185,232 C182,221 179,213 172,208 C160,211 149,212 143,205 C151,199 161,200 167,197 C172,188 173,176 175,163 C177,146 172,133 174,119 C171,101 167,84 166,69 C165,57 168,46 174,40 Z"/>
+        <!-- South Island: elongated NE-SW, Canterbury bulge east, Fiordland SW, taper to Bluff -->
+        <path class="island" d="M184,268 C191,284 194,301 192,318 C190,338 186,357 178,374 C167,392 153,410 140,426 C128,440 118,450 112,454 C107,451 103,445 102,437 C101,419 107,401 111,383 C115,361 121,341 127,321 C133,301 141,283 155,274 C165,268 176,265 184,268 Z"/>
+        <!-- Stewart Island (small, below Bluff) -->
+        <path class="island" d="M103,470 C98,468 95,472 98,477 C101,481 108,480 110,475 C110,471 107,469 103,470 Z"/>
+        <!-- Route -->
+        <path id="s2route" class="route-line" d="M176,44 C181,72 192,104 196,124 C201,160 199,205 193,248 L183,276 C175,312 162,352 151,388 C141,416 127,440 114,455"/>
+        <!-- Start / Finish markers -->
+        <circle cx="176" cy="44" r="5.5" fill="var(--gold)" stroke="#fff" stroke-width="2"/>
+        <circle cx="114" cy="455" r="5.5" fill="var(--gold-dark)" stroke="#fff" stroke-width="2"/>
+        <text x="190" y="42" font-family="Syne,sans-serif" font-size="12" font-weight="800" fill="#6b5a2a">Cape Reinga</text>
+        <text x="126" y="461" font-family="Syne,sans-serif" font-size="12" font-weight="800" fill="#6b5a2a">Bluff</text>
+        <!-- Bike marker (positioned along route by JS) -->
+        <g id="bike-marker" style="transition:transform 1s cubic-bezier(.4,0,.2,1)">
+          <circle r="11" fill="var(--gold)" stroke="#fff" stroke-width="2.5"/>
+          <g stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(-7,-4) scale(0.58)">
+            <circle cx="4" cy="14" r="4"/><circle cx="20" cy="14" r="4"/><path d="M4 14 L11 14 L15 6 L22 6 M11 14 L18 14"/><path d="M12 6 l4 0"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="map-stats">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:2px">% Finished</div>
+        <div id="stat-pct" style="font-family:Syne,sans-serif;font-size:clamp(1.7rem,5vw,2.8rem);font-weight:800;color:var(--gold-dark);line-height:1;font-variant-numeric:tabular-nums">0%</div>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#b9ae95;margin-bottom:2px">Currently in</div>
+        <div id="stat-city" style="font-family:Syne,sans-serif;font-size:1.1rem;font-weight:800;color:#111;line-height:1.1">Starting soon</div>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b9ae95;margin-bottom:2px">Days on bike</div>
+        <div id="stat-days" style="font-family:Syne,sans-serif;font-size:1.1rem;font-weight:800;color:#111">—</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:#b9ae95;text-align:center;margin-top:1rem">📍 Cape Reinga to Bluff · the length of Aotearoa</div>
+</div>
+
+<!-- INSTAGRAM -->
+<div style="max-width:900px;margin:0 auto 2rem;padding:0 1.5rem">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:4px 14px">
+    <div class="section-label" style="margin-bottom:0">Follow along live</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <a href="https://instagram.com/tylermitic" target="_blank" rel="noopener" style="font-size:12px;color:var(--gold-dark);text-decoration:none;font-weight:600;border-bottom:1px solid var(--gold-dark)">Instagram →</a>
+      <a href="https://www.facebook.com/profile.php?id=61578924603879&amp;mibextid=wwXIfr" target="_blank" rel="noopener" style="font-size:12px;color:var(--gold-dark);text-decoration:none;font-weight:600;border-bottom:1px solid var(--gold-dark)">Facebook →</a>
+    </div>
+  </div>
+  <div style="position:relative">
+    <div id="ig-scroll" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+      <div id="ig-placeholder" style="width:210px;height:252px;background:var(--cream2);border:1px dashed var(--border);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex-shrink:0">
+        <svg style="width:26px;height:26px;stroke:#c7bca2;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#c7bca2" stroke="none"/></svg>
+        <span style="font-size:11px;color:#b9ae95;text-align:center;padding:0 12px">Daily videos land here once the ride begins</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:0.02em">Tyler's Tandem <span style="color:var(--gold-dark)">· Season Two</span></div>
+  <p style="font-size:14px;color:#8c8068;line-height:1.7;text-align:center;max-width:460px">
+    A tandem bike, an open back seat, and the length of New Zealand — riding to keep the conversation about mental health moving.
+  </p>
+  <div style="font-size:14px;color:#8c8068;text-align:center;margin-top:0.25rem">
+    Questions? <a href="mailto:hi@tylerstandem.com" style="color:var(--gold-dark);font-weight:500;text-decoration:underline">hi@tylerstandem.com</a>
+  </div>
+  <div class="foot-links">
+    <a href="/seasonone">Season One</a>
+    <a href="/privacy">Privacy Notice</a>
+    <a href="/terms">Terms of Use</a>
+    <a href="/disclaimer">Disclaimer</a>
+  </div>
+  <div style="font-size:11px;color:#c3b79d;margin-top:0.75rem;text-align:center">&copy; <span id="yr">2026</span> Tyler's Tandem · New Zealand</div>
+</div>
+
+<div class="preview-badge">🔒 Private preview · Season Two</div>
+
+<script>
+document.getElementById('yr').textContent=new Date().getFullYear();
+
+// ── Instagram carousel (Season Two) ──
+function getS2Videos(){try{return JSON.parse(localStorage.getItem('tandem_s2_videos')||'[]');}catch(e){return [];}}
+function loadS2Videos(){
+  try{
+    const rows=getS2Videos().slice().sort((a,b)=>(b&&b.pinned?1:0)-(a&&a.pinned?1:0));
+    const container=document.getElementById('ig-scroll');
+    const placeholder=document.getElementById('ig-placeholder');
+    if(!rows.length)return;
+    if(placeholder)placeholder.remove();
+    container.innerHTML='';
+    rows.forEach(r=>{
+      let url=(r.url||'').trim();
+      if(url&&!/^https?:\/\//i.test(url))url='https://'+url;
+      const thumb=r.thumb||'';
+      const pinned=!!(r&&r.pinned);
+      const card=document.createElement('a');
+      card.href=url;card.target='_blank';card.rel='noopener';
+      card.style.cssText='flex-shrink:0;width:207px;height:259px;border-radius:14px;overflow:hidden;display:block;position:relative;text-decoration:none;background:var(--cream2);border:1px solid var(--border)';
+      if(pinned){card.style.border='1.5px solid var(--gold)';card.style.boxShadow='0 0 0 3px rgba(198,150,47,0.15)';}
+      if(thumb){
+        const img=document.createElement('img');
+        img.src=thumb;img.loading='lazy';img.decoding='async';
+        img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+        img.onerror=function(){this.style.display='none';};
+        card.appendChild(img);
+      }else{
+        const inner=document.createElement('div');
+        inner.style.cssText='width:100%;height:100%;display:flex;align-items:center;justify-content:center';
+        inner.innerHTML='<svg style="width:28px;height:28px;stroke:#c7bca2;fill:none;stroke-width:1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.5" fill="#c7bca2" stroke="none"/></svg>';
+        card.appendChild(inner);
+      }
+      if(pinned){
+        const badge=document.createElement('div');
+        badge.style.cssText='position:absolute;top:8px;left:8px;z-index:3;display:flex;align-items:center;gap:3px;background:var(--gold);color:#2e2200;font-size:10px;font-weight:700;letter-spacing:0.02em;padding:3px 9px 3px 6px;border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,0.25)';
+        badge.innerHTML='<svg viewBox="0 0 24 24" width="11" height="11" fill="#2e2200" style="flex-shrink:0"><path d="M14.6 2.6a1 1 0 0 0-1.7.7v.3L8.5 8H5.4a1 1 0 0 0-.7 1.7l3.3 3.3-4.6 4.6a1 1 0 0 0 1.4 1.4l4.6-4.6 3.3 3.3a1 1 0 0 0 1.7-.7v-3.1l4.4-4.4h.3a1 1 0 0 0 .7-1.7z"/></svg>The Beginning';
+        card.appendChild(badge);
+      }
+      container.appendChild(card);
+    });
+  }catch(e){console.error('S2 videos error',e);}
+}
+
+// ── Bike marker along the route (by % finished) ──
+function placeS2Marker(pct){
+  const path=document.getElementById('s2route');
+  const marker=document.getElementById('bike-marker');
+  if(!path||!marker)return;
+  const p=Math.max(0,Math.min(100,pct||0));
+  const pt=path.getPointAtLength(path.getTotalLength()*(p/100));
+  marker.setAttribute('transform','translate('+pt.x+','+pt.y+')');
+}
+
+loadS2Videos();
+placeS2Marker(0);
+</script>
+</body>
+</html>
