@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Season Two Admin — Tyler's Tandem</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c6962f;--gold-dark:#9b721c;--cream:#f7f2e8;--cream2:#efe8d8;--border:#e0d7c2}
+body{font-family:"DM Sans",sans-serif;background:var(--cream);min-height:100vh;color:#111}
+
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+.login-box{background:#fff;border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+.login-box .mk{width:200px;max-width:100%;aspect-ratio:1097/93;margin:0 auto 1rem;background:linear-gradient(180deg,var(--gold),var(--gold-dark));-webkit-mask:url(images/TANDEMTEXT.png) center/contain no-repeat;mask:url(images/TANDEMTEXT.png) center/contain no-repeat}
+.login-box h1{font-family:Syne,sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:0.4rem}
+.login-box .chip{display:inline-block;font-family:Syne,sans-serif;font-size:10px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark);background:rgba(198,150,47,0.12);border:1px solid rgba(198,150,47,0.3);border-radius:999px;padding:4px 12px;margin-bottom:1.25rem}
+.login-box input{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:"DM Sans",sans-serif;outline:none;margin-bottom:1rem;background:var(--cream)}
+.login-box input:focus{border-color:var(--gold)}
+.err{color:#b51e00;font-size:13px;margin-top:0.5rem;min-height:1.2em}
+
+#app{display:none;max-width:720px;margin:0 auto;padding:2rem 1.5rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;padding-bottom:1rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.topbar .mk{height:28px;width:120px;background:linear-gradient(180deg,var(--gold),var(--gold-dark));-webkit-mask:url(images/TANDEMTEXT.png) left center/contain no-repeat;mask:url(images/TANDEMTEXT.png) left center/contain no-repeat}
+.topbar-links{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.topbar-links a,.topbar-links label{font-size:13px;color:var(--gold-dark);text-decoration:none;font-weight:500;cursor:pointer}
+.topbar-links a:hover{color:#6b4e10}
+.season-tag{font-family:Syne,sans-serif;font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-dark)}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1.25rem}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;gap:10px;flex-wrap:wrap}
+.card-head h2{font-family:Syne,sans-serif;font-size:0.95rem;font-weight:800;color:#111}
+
+.field{margin-bottom:0.9rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:600;color:#999;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em}
+.field input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:"DM Sans",sans-serif;outline:none;background:var(--cream)}
+.field input:focus{border-color:var(--gold);background:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:11px;color:#b9ae95;margin-top:3px;line-height:1.6}
+
+.range-row{display:flex;align-items:center;gap:14px}
+.range-row input[type=range]{flex:1;accent-color:var(--gold)}
+.pct-badge{font-family:Syne,sans-serif;font-size:1.5rem;font-weight:800;color:var(--gold-dark);min-width:72px;text-align:right;font-variant-numeric:tabular-nums}
+
+.btn{background:var(--gold);color:#2e2200;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif}
+.btn:hover{background:var(--gold-dark);color:#fff}
+.btn.grey{background:#8c8068;color:#fff}
+.btn.grey:hover{background:#6f6451}
+.btn-row{display:flex;align-items:center;gap:10px;margin-top:0.9rem;flex-wrap:wrap}
+.saved{font-size:12px;color:#2a7a3a;opacity:0;transition:opacity 0.3s}
+
+.video-list{display:flex;flex-direction:column;gap:8px;margin-bottom:0.9rem}
+.v-row{display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:8px;padding:8px 11px}
+.v-row.pinned{outline:1.5px solid var(--gold);outline-offset:-1.5px}
+.v-thumb{width:42px;height:42px;object-fit:cover;border-radius:6px;flex-shrink:0;background:var(--cream2)}
+.v-url{flex:1;font-size:12px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v-pin{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;filter:grayscale(1);opacity:0.45}
+.v-pin:hover{opacity:0.8}
+.v-pin.active{filter:none;opacity:1}
+.v-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0 2px}
+.v-del:hover{color:#b51e00}
+.no-vids{font-size:13px;color:#c3b79d;padding:0.25rem 0}
+.add-area{display:flex;flex-direction:column;gap:8px}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:"DM Sans",sans-serif;outline:none;background:var(--cream)}
+.add-row input:focus{border-color:var(--gold);background:#fff}
+.status{font-size:12px;padding:6px 12px;border-radius:8px;margin-top:6px;display:none}
+.status.ok{background:#edfaf1;color:#1a7a3a;display:block}
+.status.err{background:#fef0f0;color:#b51e00;display:block}
+.sync-note{font-size:11px;color:#b9ae95;margin-top:0.5rem}
+@media(max-width:500px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-box">
+    <div class="mk" role="img" aria-label="Tyler's Tandem"></div>
+    <div class="chip">Season Two · New Zealand</div>
+    <h1>Admin Panel</h1>
+    <input type="password" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn" style="width:100%" onclick="login()">Sign in</button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="mk" role="img" aria-label="Tyler's Tandem"></div>
+      <span class="season-tag">Season Two</span>
+    </div>
+    <div class="topbar-links">
+      <a href="#" onclick="exportS2();return false;">⬇ Export</a>
+      <label>⬆ Import<input type="file" accept=".json" style="display:none" onchange="importS2(this)"></label>
+      <a href="/season2" target="_blank">View site</a>
+      <a href="https://instagram.com/tylermitic" target="_blank">Instagram</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>🚲 Ride progress</h2><span id="sv-ride" class="saved">✓ Saved</span></div>
+    <div class="field">
+      <label>Current town <span style="font-weight:400;color:#b9ae95">(the "Currently in" stat)</span></label>
+      <input id="f-town" placeholder="e.g. Kerikeri">
+      <div class="hint">North Island: Kaitaia · Kerikeri · Whangārei · Auckland · Hamilton · Taupō · Palmerston North · Wellington &nbsp;·&nbsp; South Island: Picton · Nelson · Kaikōura · Christchurch · Timaru · Dunedin · Invercargill · Bluff</div>
+    </div>
+    <div class="field">
+      <label>% Finished <span style="font-weight:400;color:#b9ae95">(moves the bike down the map)</span></label>
+      <div class="range-row">
+        <input id="f-pct" type="range" min="0" max="100" step="1" value="0" oninput="syncPct()">
+        <span class="pct-badge" id="pct-badge">0%</span>
+      </div>
+      <div class="hint">0% = Cape Reinga · 100% = Bluff</div>
+    </div>
+    <div class="field" style="max-width:220px">
+      <label>Days on bike</label>
+      <input id="f-days" type="number" min="0" placeholder="0">
+    </div>
+    <div class="btn-row"><button class="btn" onclick="saveRide()">Save ride stats</button></div>
+    <div class="sync-note">Saved to the shared site store — updates for every visitor within a few seconds.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>📸 Instagram videos</h2></div>
+    <div class="video-list" id="vlist"><div class="no-vids">No videos yet</div></div>
+    <div class="add-area">
+      <input id="v-url" placeholder="Instagram URL — https://www.instagram.com/reel/...">
+      <div class="add-row">
+        <input id="v-thumb" placeholder="Thumbnail URL — https://i.imgur.com/...">
+        <button class="btn" onclick="addVideo()">Add</button>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:8px">📌 Pin one video to lock it to the front of the carousel with a gold "The Beginning" badge. Use imgur.com for direct thumbnail image URLs.</div>
+    <div id="vstatus" class="status"></div>
+  </div>
+</div>
+
+<script>
+const PWD="yourmother";
+const SETTINGS_KEY="tandem_s2_settings";
+const VIDEOS_KEY="tandem_s2_videos";
+
+function login(){
+  if(document.getElementById("pw").value===PWD){
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
+    loadAll();
+  } else {
+    document.getElementById("err").textContent="Wrong password. Try again.";
+  }
+}
+
+// ── storage helpers ───────────────────────────────────────────────
+function getSettings(){try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');}catch(e){return {};}}
+function getVideos(){try{return JSON.parse(localStorage.getItem(VIDEOS_KEY)||'[]');}catch(e){return [];}}
+
+async function fetchKey(key){
+  try{
+    const r=await fetch('/api/settings?key='+encodeURIComponent(key));
+    if(!r.ok)return null;
+    return (await r.json()).value;
+  }catch(e){return null;}
+}
+async function saveKey(key,value){
+  try{
+    const r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value})});
+    return r.ok;
+  }catch(e){return false;}
+}
+
+async function loadAll(){
+  // Pull latest from the shared store, falling back to cache
+  const [settings,videos]=await Promise.all([fetchKey(SETTINGS_KEY),fetchKey(VIDEOS_KEY)]);
+  if(settings&&typeof settings==='object')localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+  if(Array.isArray(videos))localStorage.setItem(VIDEOS_KEY,JSON.stringify(videos));
+
+  const d=getSettings();
+  document.getElementById('f-town').value=d.town||'';
+  document.getElementById('f-days').value=(d.days!==undefined&&d.days!=='')?d.days:'';
+  const pct=Math.max(0,Math.min(100,Math.round(parseFloat(d.pct)||0)));
+  document.getElementById('f-pct').value=pct;
+  syncPct();
+  renderVideos(getVideos());
+}
+
+function syncPct(){
+  document.getElementById('pct-badge').textContent=document.getElementById('f-pct').value+'%';
+}
+
+async function saveRide(){
+  const d=getSettings();
+  d.town=document.getElementById('f-town').value.trim();
+  d.pct=Math.max(0,Math.min(100,Math.round(parseFloat(document.getElementById('f-pct').value)||0)));
+  d.days=parseInt(document.getElementById('f-days').value)||0;
+  localStorage.setItem(SETTINGS_KEY,JSON.stringify(d));
+  const ok=await saveKey(SETTINGS_KEY,d);
+  const el=document.getElementById('sv-ride');
+  el.textContent=ok?'✓ Saved':'✓ Saved locally (sync failed)';
+  el.style.color=ok?'#2a7a3a':'#b51e00';
+  el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2800);
+}
+
+// ── videos ────────────────────────────────────────────────────────
+function sortPinnedFirst(vids){vids.sort((a,b)=>(b&&b.pinned?1:0)-(a&&a.pinned?1:0));return vids;}
+
+function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function renderVideos(vids){
+  const list=document.getElementById("vlist");
+  if(!vids.length){list.innerHTML='<div class="no-vids">No videos yet</div>';return;}
+  list.innerHTML=vids.map((v,i)=>{
+    const th=v.thumb?'<img src="'+esc(v.thumb)+'" class="v-thumb" onerror="this.style.visibility=\'hidden\'">':'<div class="v-thumb"></div>';
+    const pinTitle=v.pinned?'Pinned first — click to unpin':'Pin to front of carousel';
+    return '<div class="v-row'+(v.pinned?' pinned':'')+'">'+th+'<span class="v-url">'+esc(v.url)+'</span><button class="v-pin'+(v.pinned?' active':'')+'" onclick="togglePin('+i+')" title="'+pinTitle+'">📌</button><button class="v-del" onclick="delVideo('+i+')" title="Remove">×</button></div>';
+  }).join("");
+}
+
+async function persistVideos(vids){
+  localStorage.setItem(VIDEOS_KEY,JSON.stringify(vids));
+  return saveKey(VIDEOS_KEY,vids);
+}
+
+async function addVideo(){
+  const url=document.getElementById('v-url').value.trim();
+  const thumb=document.getElementById('v-thumb').value.trim();
+  if(!url){showVStatus('Add an Instagram URL first.','err');return;}
+  const vids=getVideos();
+  vids.unshift({url,thumb});
+  sortPinnedFirst(vids);
+  const ok=await persistVideos(vids);
+  document.getElementById('v-url').value='';
+  document.getElementById('v-thumb').value='';
+  renderVideos(vids);
+  showVStatus(ok?'Video added!':'Added locally — sync failed, try again.',ok?'ok':'err');
+}
+
+async function togglePin(i){
+  const vids=getVideos();
+  if(!vids[i])return;
+  const nowPinned=!vids[i].pinned;
+  // Only one pinned "Beginning" at a time
+  if(nowPinned)vids.forEach(v=>v.pinned=false);
+  vids[i].pinned=nowPinned;
+  sortPinnedFirst(vids);
+  const ok=await persistVideos(vids);
+  renderVideos(vids);
+  showVStatus(nowPinned?'Pinned to front of carousel.':'Unpinned.',ok?'ok':'err');
+}
+
+async function delVideo(i){
+  const vids=getVideos();
+  vids.splice(i,1);
+  const ok=await persistVideos(vids);
+  renderVideos(vids);
+  showVStatus(ok?'Removed.':'Removed locally — sync failed.',ok?'ok':'err');
+}
+
+function showVStatus(msg,type){
+  const el=document.getElementById("vstatus");
+  el.textContent=msg;el.className="status "+type;
+  setTimeout(()=>{el.className="status";},4000);
+}
+
+// ── export / import ───────────────────────────────────────────────
+function exportS2(){
+  const d={settings:getSettings(),videos:getVideos()};
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='tandem-season2-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importS2(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.settings){localStorage.setItem(SETTINGS_KEY,JSON.stringify(d.settings));await saveKey(SETTINGS_KEY,d.settings);}
+      if(d.videos){localStorage.setItem(VIDEOS_KEY,JSON.stringify(d.videos));await saveKey(VIDEOS_KEY,d.videos);}
+      alert('Imported & synced! Reloading…');
+      location.reload();
+    }catch(err){alert('Invalid JSON file');}
+  };
+  reader.readAsText(file);
+}
+</script>
+</body>
+</html>
